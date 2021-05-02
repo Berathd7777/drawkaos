@@ -1,11 +1,9 @@
 {
-  "colorize.languages": [
-    "typescript",
-    "typescriptreact"
-  ],
+  "colorize.languages": ["typescript", "typescriptreact"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
+  "editor.formatOnSave": true,
   "eslint.options": {
     "extensions": [".css", ".js", ".json", ".md", ".ts", ".tsx"]
   },
@@ -14,5 +12,8 @@
     "javascriptreact",
     "typescript",
     "typescriptreact"
-  ]
+  ],
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
 }
