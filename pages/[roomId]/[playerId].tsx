@@ -22,7 +22,7 @@ function PlayerId() {
         <PlayerProvider roomId={roomId} playerId={playerId}>
           <Stack spacing="4">
             <PreviewRoom />
-            <PreviewPlayers adminId={playerId} />
+            <PreviewPlayers playerId={playerId} />
           </Stack>
         </PlayerProvider>
       </PlayersProvider>
