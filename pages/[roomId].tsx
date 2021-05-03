@@ -15,6 +15,7 @@ function RoomId() {
     <RoomProvider roomId={roomId}>
       <Stack spacing="4">
         <PreviewRoom />
+        {/* TODO: verify the room status */}
         <AccessRoom />
       </Stack>
     </RoomProvider>
