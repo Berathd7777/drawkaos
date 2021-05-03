@@ -1,4 +1,4 @@
-import { Button, chakra, Input, Stack } from '@chakra-ui/react'
+import { Button, chakra, Input, Stack, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import React, { SyntheticEvent } from 'react'
 import { createRoom } from 'utils/createRoom'
@@ -12,19 +12,38 @@ interface CreateRoomFormElement extends HTMLFormElement {
 }
 
 export function CreateRoomForm() {
+  const toast = useToast()
   const router = useRouter()
 
   const onSubmit = async (event: SyntheticEvent<CreateRoomFormElement>) => {
-    event.preventDefault()
-
-    const roomName = event.currentTarget.elements.roomName.value
-    const userName = event.currentTarget.elements.userName.value
+    const toastId = toast({
+      title: 'Creating...',
+      status: 'info',
+    })
 
     try {
-      const { roomId, adminId } = await createRoom(roomName, userName)
+      event.preventDefault()
+
+      const roomName = event.currentTarget.elements.roomName.value
+      const userName = event.currentTarget.elements.userName.value
+
+      const { roomId, adminId } = await createRoom({
+        name: roomName,
+        adminName: userName,
+      })
+
+      toast.update(toastId, {
+        title: 'Room created!',
+        status: 'success',
+      })
 
       router.push(`${roomId}/${adminId}`)
     } catch (error) {
+      toast.update(toastId, {
+        title: 'Error',
+        status: 'error',
+      })
+
       console.error(error)
     }
   }
