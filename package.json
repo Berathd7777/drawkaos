@@ -1,5 +1,5 @@
 {
-  "name": "coronaprisma",
+  "name": "gartic-phone",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -12,7 +12,6 @@
     "*.{css,js,json,ts,tsx}": "eslint --cache --fix"
   },
   "dependencies": {
-    "@prisma/client": "2.21.2",
     "next": "10.1.3",
     "react": "17.0.2",
     "react-dom": "17.0.2"
@@ -36,7 +35,6 @@
     "lint-staged": "10.5.4",
     "next-seo": "4.24.0",
     "prettier": "2.2.1",
-    "prisma": "2.21.2",
     "react-icons": "4.2.0",
     "typescript": "4.2.4"
   },

@@ -1,8 +1,8 @@
 import { NextSeoProps } from 'next-seo'
 
-const TITLE = 'coronaprisma'
-const DESCRIPTION = 'coronaprisma'
-const BASE_URL = 'https://coronaprisma.com'
+const TITLE = 'gartic-phone'
+const DESCRIPTION = 'gartic-phone'
+const BASE_URL = 'https://gartic-phone.com'
 
 const SEO: NextSeoProps = {
   title: TITLE,
@@ -18,7 +18,7 @@ const SEO: NextSeoProps = {
     images: [{ url: `${BASE_URL}/social.jpg`, alt: TITLE }],
   },
   twitter: {
-    handle: '@coronaprisma',
+    handle: '@gartic-phone',
     cardType: 'summary_large_image',
   },
 }

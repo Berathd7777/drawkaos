@@ -28,7 +28,7 @@ export function Layout({ children }: Props) {
             height="40px"
           >
             <NextLink href="/" passHref>
-              <Link fontWeight="bold">coronaprisma</Link>
+              <Link fontWeight="bold">gartic-phone</Link>
             </NextLink>
           </Stack>
         </Container>

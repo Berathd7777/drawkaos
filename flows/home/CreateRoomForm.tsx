@@ -1,6 +1,5 @@
 import { Button, chakra, Input, Stack } from '@chakra-ui/react'
-import { useRouter } from 'next/dist/client/router'
-import { CreatedRoom } from 'pages/api/create-room'
+import { useRouter } from 'next/router'
 import React, { SyntheticEvent } from 'react'
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -20,31 +19,18 @@ export function CreateRoomForm() {
     const roomName = event.currentTarget.elements.roomName.value
     const userName = event.currentTarget.elements.userName.value
 
-    const response = await fetch('/api/create-room', {
-      method: 'POST',
-      body: JSON.stringify({
-        roomName,
-        userName,
-      }),
-    })
+    console.log(roomName, userName)
 
-    if (!response.ok) {
-      console.error(response.statusText)
-
-      return
-    }
-
-    const result: CreatedRoom = await response.json()
-
-    router.push(result.redirectTo)
+    /* TODO: redirect to the corresponding route */
+    router.reload()
   }
 
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
-        <Input name="roomName" />
-        <Input name="userName" />
-        <Button type="submit">Crear</Button>
+        <Input name="roomName" placeholder="Room name" />
+        <Input name="userName" placeholder="Your name" />
+        <Button type="submit">Create</Button>
       </Stack>
     </chakra.form>
   )
