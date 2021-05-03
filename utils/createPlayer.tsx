@@ -1,4 +1,4 @@
-import { firestore } from 'firebase/init'
+import { firestore, Timestamp } from 'firebase/init'
 
 export function createPlayer({
   roomId,
@@ -17,6 +17,7 @@ export function createPlayer({
 
       await playerRef.set({
         name,
+        createdAt: Timestamp.fromDate(new Date()),
       })
 
       resolve({ id: playerRef.id })

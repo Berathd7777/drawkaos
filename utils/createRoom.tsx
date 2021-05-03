@@ -1,4 +1,5 @@
-import { firestore } from 'firebase/init'
+import { firestore, Timestamp } from 'firebase/init'
+import { ROOM_STATUS } from 'types/Room'
 import { createPlayer } from './createPlayer'
 
 export function createRoom({
@@ -19,6 +20,8 @@ export function createRoom({
       await roomRef.set({
         name,
         adminId,
+        status: ROOM_STATUS.CREATED,
+        createdAt: Timestamp.fromDate(new Date()),
       })
 
       resolve({ roomId, adminId })
