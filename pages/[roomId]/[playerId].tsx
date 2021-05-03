@@ -1,23 +1,18 @@
+import { RoomProvider } from 'contexts/Room'
+import { PreviewRoom } from 'flows/room/PreviewRoom'
 import { useRouter } from 'next/router'
 import React from 'react'
 
 function PlayerId() {
   const router = useRouter()
-  const { roomId, playerId } = router.query
+  const roomId = Array.isArray(router.query.roomId)
+    ? router.query.roomId[0]
+    : router.query.roomId
 
   return (
-    <pre>
-      <code>
-        {JSON.stringify(
-          {
-            roomId,
-            playerId,
-          },
-          null,
-          2
-        )}
-      </code>
-    </pre>
+    <RoomProvider roomId={roomId}>
+      <PreviewRoom />
+    </RoomProvider>
   )
 }
 
