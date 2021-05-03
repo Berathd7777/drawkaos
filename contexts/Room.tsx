@@ -6,14 +6,16 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { RemoteData, REMOTE_DATA } from 'types/RemoteData'
+import { REMOTE_DATA } from 'types/RemoteData'
 import { Room } from 'types/Room'
 
-const RoomContext = createContext<{
-  state: RemoteData<Room>
-}>({
-  state: { type: REMOTE_DATA.IDLE },
-})
+type RoomContextState = {
+  status: REMOTE_DATA
+  error: string
+  data: Room
+}
+
+const RoomContext = createContext<RoomContextState>(undefined)
 
 interface Props {
   children: ReactNode
@@ -21,14 +23,20 @@ interface Props {
 }
 
 const RoomProvider = ({ children, roomId }: Props) => {
-  const [state, setState] = useState<RemoteData<Room>>({
-    type: REMOTE_DATA.IDLE,
+  const [state, setState] = useState<RoomContextState>({
+    status: REMOTE_DATA.IDLE,
+    error: null,
+    data: null,
   })
 
   useEffect(() => {
     if (!roomId) return
 
-    setState({ type: REMOTE_DATA.LOADING })
+    setState({
+      status: REMOTE_DATA.LOADING,
+      error: null,
+      data: null,
+    })
 
     const unsubscribe = firestore
       .collection('rooms')
@@ -37,8 +45,9 @@ const RoomProvider = ({ children, roomId }: Props) => {
         (snapshot) => {
           if (!snapshot.exists) {
             setState({
-              type: REMOTE_DATA.ERROR,
+              status: REMOTE_DATA.ERROR,
               error: 'ROOM_DELETED',
+              data: null,
             })
 
             return
@@ -50,21 +59,23 @@ const RoomProvider = ({ children, roomId }: Props) => {
             id: snapshot.id,
           }
 
-          setState({ type: REMOTE_DATA.SUCCESS, data: room })
+          setState({ status: REMOTE_DATA.SUCCESS, error: null, data: room })
         },
         (error) => {
           console.error(error)
 
-          setState({ type: REMOTE_DATA.ERROR, error: 'ROOM_LOADING_ERROR' })
+          setState({
+            status: REMOTE_DATA.ERROR,
+            error: 'ROOM_LOADING_ERROR',
+            data: null,
+          })
         }
       )
 
     return unsubscribe
   }, [roomId])
 
-  return (
-    <RoomContext.Provider value={{ state }}>{children}</RoomContext.Provider>
-  )
+  return <RoomContext.Provider value={state}>{children}</RoomContext.Provider>
 }
 
 function useRoom() {

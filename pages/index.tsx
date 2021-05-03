@@ -5,7 +5,7 @@ import React from 'react'
 function Home() {
   return (
     <Stack spacing="8">
-      <Heading>gartic-phone</Heading>
+      <Heading as="h1">gartic-phone</Heading>
       <CreateRoomForm />
     </Stack>
   )
