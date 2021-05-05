@@ -1,6 +1,7 @@
 import { Alert, AlertIcon, Box, Button, Spinner } from '@chakra-ui/react'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
+import { knuthShuffle } from 'knuth-shuffle'
 import React from 'react'
 import { REMOTE_DATA } from 'types/RemoteData'
 import { ROOM_STATUS } from 'types/Room'
@@ -37,22 +38,30 @@ export function RoomActions() {
 
     const ids = players.map(({ id }) => id)
 
-    /*
-      Personas que van a jugar
-      ['cris', 'cami', 'pato', 'juli']
+    const lines = ids.reduce((acc, currId, currIdx, arr) => {
+      const others = [...arr.slice(currIdx + 1), ...arr.slice(0, currIdx)]
+      const line = [currId, ...others]
 
-                Línea 1   Línea 2   Línea 3   Línea 4
-      Turno 1   cris      cami      pato      juli
-      Turno 2   cami      pato      juli      cris
-      Turno 3   pato      juli      cris      cami
-      Turno 4   juli      cris      cami      pato
-    */
+      return [...acc, line]
+    }, [])
 
-    const result = ids.reduce((acc, currId, currIdx, arr) => {
+    const linesAmount = lines.length
+    const shuffledRowIndexes = knuthShuffle([...Array(linesAmount).keys()])
+    const shuffledLines = lines.reduce((acc, curr, currIdx) => {
+      acc[shuffledRowIndexes[currIdx]] = curr
+
       return acc
     }, [])
 
-    console.log(result)
+    const columnsAmount = lines[0].length
+    const shuffledColumnIndexes = knuthShuffle([...Array(columnsAmount).keys()])
+    const shuffledColumns = shuffledLines.reduce((acc, curr, currIdx) => {
+      acc[currIdx] = shuffledColumnIndexes.map((n) => curr[n])
+
+      return acc
+    }, [])
+
+    console.log(shuffledColumns)
 
     updateRoom({
       id: data.id,
