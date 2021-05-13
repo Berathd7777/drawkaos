@@ -22,6 +22,7 @@ export function createRoom({
         adminId,
         status: ROOM_STATUS.CREATED,
         createdAt: Timestamp.fromDate(new Date()),
+        step: 0,
       })
 
       resolve({ roomId, adminId })

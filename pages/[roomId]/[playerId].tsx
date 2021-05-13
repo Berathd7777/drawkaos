@@ -54,7 +54,7 @@ function Content({ playerId }: ContentProps) {
     return (
       <Stack spacing="4">
         <PreviewRoom />
-        <RoomActions />
+        {data.adminId === playerId && <RoomActions />}
         <PreviewPlayers playerId={playerId} />
       </Stack>
     )

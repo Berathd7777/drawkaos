@@ -1,13 +1,20 @@
-import { Alert, AlertIcon, Box, Button, Spinner } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Spinner,
+  useToast,
+} from '@chakra-ui/react'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
 import { knuthShuffle } from 'knuth-shuffle'
 import React from 'react'
 import { REMOTE_DATA } from 'types/RemoteData'
-import { ROOM_STATUS } from 'types/Room'
-import { updateRoom } from 'utils/updateRoom'
+import { initGame } from 'utils/initGame'
 
 export function RoomActions() {
+  const toast = useToast()
   const { status, error, data } = useRoom()
   const {
     status: statusPlayers,
@@ -31,42 +38,62 @@ export function RoomActions() {
     )
   }
 
-  const play = () => {
+  const play = async () => {
     if (!data) {
       return
     }
 
-    const ids = players.map(({ id }) => id)
-
-    const lines = ids.reduce((acc, currId, currIdx, arr) => {
-      const others = [...arr.slice(currIdx + 1), ...arr.slice(0, currIdx)]
-      const line = [currId, ...others]
-
-      return [...acc, line]
-    }, [])
-
-    const linesAmount = lines.length
-    const shuffledRowIndexes = knuthShuffle([...Array(linesAmount).keys()])
-    const shuffledLines = lines.reduce((acc, curr, currIdx) => {
-      acc[shuffledRowIndexes[currIdx]] = curr
-
-      return acc
-    }, [])
-
-    const columnsAmount = lines[0].length
-    const shuffledColumnIndexes = knuthShuffle([...Array(columnsAmount).keys()])
-    const shuffledColumns = shuffledLines.reduce((acc, curr, currIdx) => {
-      acc[currIdx] = shuffledColumnIndexes.map((n) => curr[n])
-
-      return acc
-    }, [])
-
-    console.log(shuffledColumns)
-
-    updateRoom({
-      id: data.id,
-      status: ROOM_STATUS.PLAYING,
+    const toastId = toast({
+      title: 'Preparing the room...',
+      status: 'info',
     })
+
+    try {
+      const ids = players.map(({ id }) => id)
+
+      const lines = ids.reduce((acc, currId, currIdx, arr) => {
+        const others = [...arr.slice(currIdx + 1), ...arr.slice(0, currIdx)]
+        const line = [currId, ...others]
+
+        return [...acc, line]
+      }, [])
+
+      const linesAmount = lines.length
+      const shuffledRowIndexes = knuthShuffle([...Array(linesAmount).keys()])
+      const shuffledLines = lines.reduce((acc, curr, currIdx) => {
+        acc[shuffledRowIndexes[currIdx]] = curr
+
+        return acc
+      }, [])
+
+      const columnsAmount = lines[0].length
+      const shuffledColumnIndexes = knuthShuffle([
+        ...Array(columnsAmount).keys(),
+      ])
+      const shuffledColumns = shuffledLines.reduce((acc, curr, currIdx) => {
+        acc[currIdx] = shuffledColumnIndexes.map((n) => curr[n])
+
+        return acc
+      }, [])
+
+      await initGame({
+        roomId: data.id,
+        game: shuffledColumns,
+        players,
+      })
+
+      toast.update(toastId, {
+        title: 'Room successfully configured!',
+        status: 'success',
+      })
+    } catch (error) {
+      toast.update(toastId, {
+        title: 'Error',
+        status: 'error',
+      })
+
+      console.error(error)
+    }
   }
 
   return (
