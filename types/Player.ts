@@ -8,5 +8,9 @@ export type Player = {
   name: string
   order: number
   steps: string[]
-  results: RESULT_TYPE
+  results: {
+    type: RESULT_TYPE
+    author: string
+    value: string
+  }[]
 }

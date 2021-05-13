@@ -24,6 +24,6 @@ if (firebase.apps.length) {
 const firestore = firebaseApp.firestore()
 const storage = firebaseApp.storage().ref()
 
-const { Timestamp } = firebase.firestore
+const { FieldValue, Timestamp } = firebase.firestore
 
-export { firestore, storage, Timestamp }
+export { firestore, storage, Timestamp, FieldValue }

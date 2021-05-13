@@ -33,7 +33,7 @@ export function initGame({
 
         const firstStep = game[0]
         const order = firstStep.indexOf(player.id)
-        const steps = game.map((step, index) => (!index ? null : step[order]))
+        const steps = game.slice(1).map((step) => step[order])
 
         batch.update(playerRef, {
           order,

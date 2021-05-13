@@ -9,7 +9,7 @@ export function updateRoom({
     try {
       const roomRef = firestore.collection('rooms').doc(id)
 
-      await roomRef.set(roomData)
+      await roomRef.update(roomData)
 
       resolve(true)
     } catch (error) {
