@@ -13,8 +13,6 @@ export function initGame({
 }): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(roomId, game)
-
       const batch = firestore.batch()
       const roomRef = firestore.collection('rooms').doc(roomId)
 
@@ -33,7 +31,7 @@ export function initGame({
 
         const firstStep = game[0]
         const order = firstStep.indexOf(player.id)
-        const steps = game.slice(1).map((step) => step[order])
+        const steps = game.map((step) => step[order])
 
         batch.update(playerRef, {
           order,

@@ -1,11 +1,13 @@
 import { FieldValue, firestore } from 'firebase/init'
 import { Player, RESULT_TYPE } from 'types/Player'
-import { Room } from 'types/Room'
+import { Room, ROOM_STATUS } from 'types/Room'
+import { updateRoom } from './updateRoom'
 
-export function addPlayerDraw(
+export function addPlayerAnswer(
   room: Room,
   player: Player,
-  url: string
+  type: RESULT_TYPE,
+  value: string
 ): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -19,17 +21,30 @@ export function addPlayerDraw(
 
       await playerRef.update({
         results: FieldValue.arrayUnion({
-          type: RESULT_TYPE.DRAW,
+          type,
           author: player.id,
-          value: url,
+          value,
         }),
       })
+
+      if (player.id === room.adminId) {
+        const status =
+          room.step === player.steps.length
+            ? ROOM_STATUS.FINISHED
+            : ROOM_STATUS.PLAYING
+
+        await updateRoom({
+          id: room.id,
+          step: room.step + 1,
+          status,
+        })
+      }
 
       resolve()
     } catch (error) {
       console.error(error)
 
-      reject('Error updating player with the draw')
+      reject('Error updating player with the answer')
     }
   })
 }

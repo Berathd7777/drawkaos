@@ -3,14 +3,16 @@ export enum RESULT_TYPE {
   DRAW = 'DRAW',
 }
 
+export type Result = {
+  type: RESULT_TYPE
+  author: string
+  value: string
+}
+
 export type Player = {
   id: string
   name: string
   order: number
   steps: string[]
-  results: {
-    type: RESULT_TYPE
-    author: string
-    value: string
-  }[]
+  results: Result[]
 }

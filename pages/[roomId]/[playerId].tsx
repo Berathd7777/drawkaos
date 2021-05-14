@@ -5,6 +5,7 @@ import {
   Button,
   Heading,
   Img,
+  Input,
   Spinner,
   Stack,
   Text,
@@ -20,12 +21,11 @@ import { PreviewRoom } from 'flows/room/PreviewRoom'
 import { RoomActions } from 'flows/room/RoomActions'
 import useInterval from 'hooks/useInterval'
 import { useRouter } from 'next/router'
-import React, { useEffect, useRef, useState } from 'react'
-import { Player } from 'types/Player'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
+import { Player, Result, RESULT_TYPE } from 'types/Player'
 import { REMOTE_DATA } from 'types/RemoteData'
 import { Room, ROOM_STATUS } from 'types/Room'
-import { addPlayerDraw } from 'utils/addPlayerDraw'
-import { updateRoom } from 'utils/updateRoom'
+import { addPlayerAnswer } from 'utils/addPlayerAnswer'
 
 function PlayerId() {
   const router = useRouter()
@@ -91,7 +91,7 @@ function Content() {
   }
 
   if (room.status === ROOM_STATUS.PLAYING && player) {
-    return <Playing player={player} room={room} />
+    return <Playing key={room.step} player={player} room={room} />
   }
 
   /* THIS SHOULD NEVER HAPPEN */
@@ -105,15 +105,15 @@ type PlayingProps = {
 
 function Playing({ player, room }: PlayingProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [sentence, setSentence] = useState('')
   const [seconds, setSeconds] = useState(0)
   const [running, setRunning] = useState(true)
   const toast = useToast()
+  const SECONDS_DEADLINE = 60
 
   useInterval(
     () => {
-      if (seconds === 10) {
-        console.log('TIEMPO')
-
+      if (seconds === SECONDS_DEADLINE) {
         setRunning(false)
 
         return
@@ -133,28 +133,19 @@ function Playing({ player, room }: PlayingProps) {
 
       try {
         if (!running) {
-          const MIME_TYPE = 'image/jpeg'
-          const imgURL = canvasRef.current.toDataURL(MIME_TYPE)
+          if (shouldDraw) {
+            const MIME_TYPE = 'image/jpeg'
+            const imgURL = canvasRef.current.toDataURL(MIME_TYPE)
 
-          const file = await storage
-            .child(`${room.id}/${player.id}/${room.step}`)
-            .putString(imgURL, 'data_url')
+            const file = await storage
+              .child(`${room.id}/${player.id}/${room.step + 1}`)
+              .putString(imgURL, 'data_url')
 
-          const drawUrl = await file.ref.getDownloadURL()
+            const drawUrl = await file.ref.getDownloadURL()
 
-          await addPlayerDraw(room, player, drawUrl)
-
-          if (player.id === room.adminId) {
-            const status =
-              room.step === player.steps.length
-                ? ROOM_STATUS.FINISHED
-                : ROOM_STATUS.PLAYING
-
-            await updateRoom({
-              id: room.id,
-              step: room.step + 1,
-              status,
-            })
+            await addPlayerAnswer(room, player, RESULT_TYPE.DRAW, drawUrl)
+          } else {
+            await addPlayerAnswer(room, player, RESULT_TYPE.SENTENCE, sentence)
           }
 
           toast.update(toastId, {
@@ -176,12 +167,15 @@ function Playing({ player, room }: PlayingProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running])
 
+  const previousReply = player.results[room.step - 1]
+  const shouldDraw = room.step % 2 !== 0
+
   return (
     <Stack spacing="4">
       <Heading>Playing</Heading>
       <Heading>
         {/* TODO: use players.lenght */}
-        Step {room.step + 1} of {player.steps.length + 1}
+        Step {room.step + 1} of {player.steps.length}
       </Heading>
       <Stack
         spacing="4"
@@ -189,7 +183,9 @@ function Playing({ player, room }: PlayingProps) {
         alignItems="center"
         justifyContent="space-between"
       >
-        <Box>{running && <Text>{10 - seconds} seconds left</Text>}</Box>
+        <Box>
+          {running && <Text>{SECONDS_DEADLINE - seconds} seconds left</Text>}
+        </Box>
         <Box>
           <Button
             onClick={() => {
@@ -200,7 +196,19 @@ function Playing({ player, room }: PlayingProps) {
           </Button>
         </Box>
       </Stack>
-      <Draw canvasRef={canvasRef} canDraw={running} />
+      {previousReply && <Reply result={previousReply} />}
+      {shouldDraw ? (
+        <Draw canvasRef={canvasRef} canDraw={running} />
+      ) : (
+        <Input
+          value={sentence}
+          onChange={(event) => {
+            setSentence(event.target.value)
+          }}
+          name="sentence"
+          placeholder="Write something for others to draw..."
+        />
+      )}
     </Stack>
   )
 }
@@ -224,22 +232,55 @@ function Results() {
   return (
     <Stack spacing="4">
       {players.map((player) => (
-        <>
+        <Fragment key={player.id}>
           <Heading>{player.name}</Heading>
           {player.results.map((result) => (
-            <Stack key={result.author} spacing="4">
-              <Heading fontSize="larger">
-                {players.find((p) => p.id === result.author).name}
-              </Heading>
-              <Box>
-                <Img src={result.value} marginX="auto" />
-              </Box>
-            </Stack>
+            <PlayerAnswer
+              key={result.author}
+              result={result}
+              players={players}
+            />
           ))}
-        </>
+        </Fragment>
       ))}
     </Stack>
   )
+}
+
+type ResultProps = {
+  players: Player[]
+  result: Result
+}
+
+function PlayerAnswer({ result, players }: ResultProps) {
+  return (
+    <Stack key={result.author} spacing="4">
+      <Heading fontSize="larger">
+        {players.find((p) => p.id === result.author).name}
+      </Heading>
+      <Reply result={result} />
+    </Stack>
+  )
+}
+
+type ReplyProps = {
+  result: Result
+}
+
+function Reply({ result }: ReplyProps) {
+  if (result.type === RESULT_TYPE.SENTENCE) {
+    return <Text>{result.value}</Text>
+  }
+
+  if (result.type === RESULT_TYPE.DRAW) {
+    return (
+      <Box>
+        <Img src={result.value} marginX="auto" />
+      </Box>
+    )
+  }
+
+  throw new Error('Unknown result.type: ' + result.type)
 }
 
 export default PlayerId
