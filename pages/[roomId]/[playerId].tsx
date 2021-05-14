@@ -50,12 +50,19 @@ function PlayerId() {
 function Content() {
   const { status: roomStatus, error: roomError, data: room } = useRoom()
   const { status: playerStatus, error: playerError, data: player } = usePlayer()
+  const {
+    status: playersStatus,
+    error: playersError,
+    data: players,
+  } = usePlayers()
 
   if (
     roomStatus === REMOTE_DATA.IDLE ||
     roomStatus === REMOTE_DATA.LOADING ||
     playerStatus === REMOTE_DATA.IDLE ||
-    playerStatus === REMOTE_DATA.LOADING
+    playerStatus === REMOTE_DATA.LOADING ||
+    playersStatus === REMOTE_DATA.IDLE ||
+    playersStatus === REMOTE_DATA.LOADING
   ) {
     return <Spinner />
   }
@@ -64,9 +71,11 @@ function Content() {
     roomStatus === REMOTE_DATA.ERROR ||
     roomError ||
     playerStatus === REMOTE_DATA.ERROR ||
-    playerError
+    playerError ||
+    playersStatus === REMOTE_DATA.ERROR ||
+    playersError
   ) {
-    console.log(roomError, playerError)
+    console.log(roomError, playerError, playersError)
 
     return null
   }
@@ -81,7 +90,7 @@ function Content() {
     )
   }
 
-  if (room.status === ROOM_STATUS.FINISHED && player) {
+  if (room.status === ROOM_STATUS.FINISHED) {
     return (
       <Stack spacing="4">
         <Heading>The game has finished</Heading>
@@ -90,8 +99,10 @@ function Content() {
     )
   }
 
-  if (room.status === ROOM_STATUS.PLAYING && player) {
-    return <Playing key={room.step} player={player} room={room} />
+  if (room.status === ROOM_STATUS.PLAYING && player && players) {
+    return (
+      <Playing key={room.step} player={player} room={room} players={players} />
+    )
   }
 
   /* THIS SHOULD NEVER HAPPEN */
@@ -100,10 +111,11 @@ function Content() {
 
 type PlayingProps = {
   player: Player
+  players: Player[]
   room: Room
 }
 
-function Playing({ player, room }: PlayingProps) {
+function Playing({ player, room, players }: PlayingProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [sentence, setSentence] = useState('')
   const [seconds, setSeconds] = useState(0)
@@ -168,7 +180,9 @@ function Playing({ player, room }: PlayingProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running])
 
-  const previousReply = player.results[room.step - 1]
+  const previousReplyPlayerId = player.steps[room.step]
+  const previousPlayer = players.find((p) => p.id === previousReplyPlayerId)
+  const previousReply = previousPlayer.results[room.step - 1]
   const shouldDraw = room.step % 2 !== 0
 
   return (
