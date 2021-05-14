@@ -31,6 +31,7 @@ export function AccessRoom() {
       const toastId = toast({
         title: 'Creating...',
         status: 'info',
+        position: 'bottom-left',
       })
 
       try {

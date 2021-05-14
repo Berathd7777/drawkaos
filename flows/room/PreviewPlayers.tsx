@@ -49,6 +49,7 @@ export function PreviewPlayers({ playerId }: Props) {
       toast({
         title: 'Error',
         status: 'error',
+        position: 'bottom-left',
       })
 
       console.error(error)

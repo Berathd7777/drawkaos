@@ -129,6 +129,7 @@ function Playing({ player, room }: PlayingProps) {
       const toastId = toast({
         title: 'Saving...',
         status: 'info',
+        position: 'bottom-left',
       })
 
       try {

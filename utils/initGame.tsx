@@ -31,7 +31,10 @@ export function initGame({
 
         const firstStep = game[0]
         const order = firstStep.indexOf(player.id)
-        const steps = game.map((step) => step[order])
+        const steps = game
+          .map((step) => step[order])
+          .filter((playerId) => playerId !== player.id)
+          .concat([player.id])
 
         batch.update(playerRef, {
           order,

@@ -28,14 +28,15 @@ export function addPlayerAnswer(
       })
 
       if (player.id === room.adminId) {
+        const nextStep = room.step + 1
         const status =
-          room.step === player.steps.length
+          nextStep === player.steps.length
             ? ROOM_STATUS.FINISHED
             : ROOM_STATUS.PLAYING
 
         await updateRoom({
           id: room.id,
-          step: room.step + 1,
+          step: nextStep,
           status,
         })
       }

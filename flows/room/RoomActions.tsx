@@ -46,6 +46,7 @@ export function RoomActions() {
     const toastId = toast({
       title: 'Preparing the room...',
       status: 'info',
+      position: 'bottom-left',
     })
 
     try {
