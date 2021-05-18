@@ -18,6 +18,8 @@ export function createPlayer({
       await playerRef.set({
         name,
         createdAt: Timestamp.fromDate(new Date()),
+        steps: [],
+        results: [],
       })
 
       resolve({ id: playerRef.id })

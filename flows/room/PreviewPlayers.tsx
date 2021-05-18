@@ -1,106 +1,79 @@
-import {
-  Alert,
-  AlertIcon,
-  Heading,
-  IconButton,
-  Spinner,
-  Stack,
-  Tag,
-  Text,
-  useToast,
-} from '@chakra-ui/react'
+import { Heading, IconButton, Stack, Tag, Text } from '@chakra-ui/react'
+import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
+import { useToasts } from 'hooks/useToasts'
 import React from 'react'
 import { MdDelete } from 'react-icons/md'
 import { Player } from 'types/Player'
-import { REMOTE_DATA } from 'types/RemoteData'
 import { removePlayer } from 'utils/removePlayer'
 
-type Props = {
-  playerId: string
-}
+export function PreviewPlayers() {
+  const { showToast } = useToasts()
+  const room = useRoom()
+  const currentPlayer = usePlayer()
+  const players = usePlayers()
 
-export function PreviewPlayers({ playerId }: Props) {
-  const toast = useToast()
-  const { status, error, data } = usePlayers()
-  const { data: room, status: roomStatus, error: roomError } = useRoom()
-
-  if (
-    (status || roomStatus) === REMOTE_DATA.IDLE ||
-    (status || roomStatus) === REMOTE_DATA.LOADING
-  ) {
-    return <Spinner />
-  }
-
-  if ((status || roomError) === REMOTE_DATA.ERROR) {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        There was an error while getting the players ({error})
-      </Alert>
-    )
-  }
-
-  const onRemovePlayer = async (roomId: string, userId: string) => {
+  const onRemovePlayer = async (userId: string) => {
     try {
-      await removePlayer(roomId, userId)
+      await removePlayer(room.id, userId)
     } catch (error) {
-      toast({
-        title: 'Error',
+      showToast({
         status: 'error',
-        position: 'bottom-left',
+        title: 'Ups!',
+        description: 'There was an error',
       })
 
       console.error(error)
     }
   }
 
-  /* TODO: hack */
-  if (!room) {
-    return null
-  }
-
   return (
     <Stack spacing="4">
-      <Heading>Players ({data.length})</Heading>
-      {Boolean(data.length) &&
-        data.map((player) => (
-          <PlayerRow
-            key={player.id}
-            adminId={room.adminId}
-            isAdmin={playerId === room.adminId}
-            playerId={playerId}
-            onRemovePlayer={() => {
-              onRemovePlayer(room.id, player.id)
-            }}
-            {...player}
-          />
-        ))}
+      <Heading as="h2" fontSize="xl">
+        Players ({players.length})
+      </Heading>
+      {Boolean(players.length) &&
+        players.map((player) => {
+          const isAdmin = room.adminId === player.id
+          const isCurrentPlayer = currentPlayer.id === player.id
+
+          return (
+            <PlayerRow
+              key={player.id}
+              {...player}
+              isAdmin={isAdmin}
+              isCurrentPlayer={isCurrentPlayer}
+              onRemovePlayer={
+                room.adminId === currentPlayer.id && !isCurrentPlayer
+                  ? () => onRemovePlayer(player.id)
+                  : null
+              }
+            />
+          )
+        })}
     </Stack>
   )
 }
 
 type PlayerProps = Player & {
   isAdmin: boolean
-  adminId: string
-  playerId: string
-  onRemovePlayer: () => void
+  isCurrentPlayer: boolean
+  onRemovePlayer?: () => void
 }
 
 function PlayerRow({
   name,
-  id,
-  adminId,
   isAdmin,
-  playerId,
+  isCurrentPlayer,
   onRemovePlayer,
 }: PlayerProps) {
   return (
     <Stack spacing="4" direction="row" alignItems="center">
-      {isAdmin && id !== adminId && (
+      {onRemovePlayer && (
         <IconButton
           aria-label="Remove player"
+          colorScheme="red"
           icon={<MdDelete />}
           onClick={() => {
             onRemovePlayer()
@@ -108,8 +81,8 @@ function PlayerRow({
         />
       )}
       <Text>{name}</Text>
-      {id === playerId && <Text>(You)</Text>}
-      {id === adminId && <Tag colorScheme="green">Admin</Tag>}
+      {isCurrentPlayer && <Text>(You)</Text>}
+      {isAdmin && <Tag colorScheme="green">Admin</Tag>}
     </Stack>
   )
 }

@@ -1,3 +1,4 @@
+import { Async } from 'components/Async'
 import { firestore } from 'firebase/init'
 import React, {
   createContext,
@@ -12,7 +13,7 @@ import { REMOTE_DATA } from 'types/RemoteData'
 type PlayersContextState = {
   status: REMOTE_DATA
   error: string
-  data: Player[]
+  players: Player[]
 }
 
 const PlayersContext = createContext<PlayersContextState>(undefined)
@@ -26,13 +27,13 @@ const PlayersProvider = ({ children, roomId }: Props) => {
   const [state, setState] = useState<PlayersContextState>({
     status: REMOTE_DATA.IDLE,
     error: null,
-    data: null,
+    players: null,
   })
 
   useEffect(() => {
     if (!roomId) return
 
-    setState({ status: REMOTE_DATA.LOADING, error: null, data: null })
+    setState({ status: REMOTE_DATA.LOADING, error: null, players: null })
 
     const unsubscribe = firestore
       .collection('rooms')
@@ -52,7 +53,11 @@ const PlayersProvider = ({ children, roomId }: Props) => {
             })
             .sort((a, b) => a.name.localeCompare(b.name))
 
-          setState({ status: REMOTE_DATA.SUCCESS, error: null, data: players })
+          setState({
+            status: REMOTE_DATA.SUCCESS,
+            error: null,
+            players: players,
+          })
         },
         (error) => {
           console.error(error)
@@ -60,7 +65,7 @@ const PlayersProvider = ({ children, roomId }: Props) => {
           setState({
             status: REMOTE_DATA.ERROR,
             error: 'PLAYERS_LOADING_ERROR',
-            data: null,
+            players: null,
           })
         }
       )
@@ -69,7 +74,14 @@ const PlayersProvider = ({ children, roomId }: Props) => {
   }, [roomId])
 
   return (
-    <PlayersContext.Provider value={state}>{children}</PlayersContext.Provider>
+    <PlayersContext.Provider value={state}>
+      <Async
+        errorMessage="There was an error getting the players"
+        status={state.status}
+      >
+        {children}
+      </Async>
+    </PlayersContext.Provider>
   )
 }
 
@@ -80,7 +92,7 @@ function usePlayers() {
     throw new Error('usePlayers must be used within <PlayersProvider />')
   }
 
-  return context
+  return context.players
 }
 
 export { PlayersProvider, usePlayers }

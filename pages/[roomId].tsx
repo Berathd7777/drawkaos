@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/react'
+import { PlayersProvider } from 'contexts/Players'
 import { RoomProvider } from 'contexts/Room'
 import { AccessRoom } from 'flows/room/AccessRoom'
 import { PreviewRoom } from 'flows/room/PreviewRoom'
@@ -13,11 +13,10 @@ function RoomId() {
 
   return (
     <RoomProvider roomId={roomId}>
-      <Stack spacing="4">
+      <PlayersProvider roomId={roomId}>
         <PreviewRoom />
-        {/* TODO: verify the room status */}
         <AccessRoom />
-      </Stack>
+      </PlayersProvider>
     </RoomProvider>
   )
 }

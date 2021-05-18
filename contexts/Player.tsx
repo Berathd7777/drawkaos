@@ -1,3 +1,4 @@
+import { Async } from 'components/Async'
 import { firestore } from 'firebase/init'
 import React, {
   createContext,
@@ -12,7 +13,7 @@ import { REMOTE_DATA } from 'types/RemoteData'
 type PlayerContextState = {
   status: REMOTE_DATA
   error: string
-  data: Player
+  player: Player
 }
 
 const PlayerContext = createContext<PlayerContextState>(undefined)
@@ -27,13 +28,13 @@ const PlayerProvider = ({ children, roomId, playerId }: Props) => {
   const [state, setState] = useState<PlayerContextState>({
     status: REMOTE_DATA.IDLE,
     error: null,
-    data: null,
+    player: null,
   })
 
   useEffect(() => {
     if (!roomId || !playerId) return
 
-    setState({ status: REMOTE_DATA.LOADING, error: null, data: null })
+    setState({ status: REMOTE_DATA.LOADING, error: null, player: null })
 
     const unsubscribe = firestore
       .collection('rooms')
@@ -46,7 +47,7 @@ const PlayerProvider = ({ children, roomId, playerId }: Props) => {
             setState({
               status: REMOTE_DATA.ERROR,
               error: 'PLAYER_DELETED',
-              data: null,
+              player: null,
             })
 
             return
@@ -58,7 +59,7 @@ const PlayerProvider = ({ children, roomId, playerId }: Props) => {
             id: snapshot.id,
           }
 
-          setState({ status: REMOTE_DATA.SUCCESS, error: null, data: player })
+          setState({ status: REMOTE_DATA.SUCCESS, error: null, player })
         },
         (error) => {
           console.error(error)
@@ -66,7 +67,7 @@ const PlayerProvider = ({ children, roomId, playerId }: Props) => {
           setState({
             status: REMOTE_DATA.ERROR,
             error: 'PLAYER_LOADING_ERROR',
-            data: null,
+            player: null,
           })
         }
       )
@@ -75,7 +76,14 @@ const PlayerProvider = ({ children, roomId, playerId }: Props) => {
   }, [roomId, playerId])
 
   return (
-    <PlayerContext.Provider value={state}>{children}</PlayerContext.Provider>
+    <PlayerContext.Provider value={state}>
+      <Async
+        errorMessage="There was an error getting the player"
+        status={state.status}
+      >
+        {children}
+      </Async>
+    </PlayerContext.Provider>
   )
 }
 
@@ -86,7 +94,7 @@ function usePlayer() {
     throw new Error('usePlayer must be used within <PlayerProvider />')
   }
 
-  return context
+  return context.player
 }
 
 export { PlayerProvider, usePlayer }

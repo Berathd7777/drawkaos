@@ -1,17 +1,8 @@
-import {
-  Alert,
-  AlertIcon,
-  Button,
-  chakra,
-  Input,
-  Spinner,
-  Stack,
-  useToast,
-} from '@chakra-ui/react'
+import { Box, Button, chakra, Heading, Input, Stack } from '@chakra-ui/react'
 import { useRoom } from 'contexts/Room'
+import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
-import React, { SyntheticEvent, useCallback } from 'react'
-import { REMOTE_DATA } from 'types/RemoteData'
+import React, { SyntheticEvent } from 'react'
 import { createPlayer } from 'utils/createPlayer'
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -22,62 +13,51 @@ interface AccessRoomFormElement extends HTMLFormElement {
 }
 
 export function AccessRoom() {
-  const toast = useToast()
+  const room = useRoom()
+  const { showToast, updateToast } = useToasts()
   const router = useRouter()
-  const { status, error, data } = useRoom()
 
-  const onSubmit = useCallback(
-    async (event: SyntheticEvent<AccessRoomFormElement>) => {
-      const toastId = toast({
-        title: 'Creating...',
-        status: 'info',
-        position: 'bottom-left',
+  const onSubmit = async (event: SyntheticEvent<AccessRoomFormElement>) => {
+    const toastId = showToast({
+      description: 'Joining the room...',
+    })
+
+    try {
+      event.preventDefault()
+
+      const name = event.currentTarget.elements.name.value
+
+      const { id: playerId } = await createPlayer({ name, roomId: room.id })
+
+      updateToast(toastId, {
+        status: 'success',
+        title: 'Yeay!',
+        description: `You've joined the room`,
       })
 
-      try {
-        event.preventDefault()
+      router.push(`${room.id}/${playerId}`)
+    } catch (error) {
+      updateToast(toastId, {
+        status: 'error',
+        title: 'Ups!',
+        description: 'There was an error',
+      })
 
-        const name = event.currentTarget.elements.name.value
-
-        const { id } = await createPlayer({ name, roomId: data.id })
-
-        toast.update(toastId, {
-          title: 'Success!',
-          status: 'success',
-        })
-
-        router.push(`${data.id}/${id}`)
-      } catch (error) {
-        toast.update(toastId, {
-          title: 'Error',
-          status: 'error',
-        })
-
-        console.error(error)
-      }
-    },
-    [router, toast, data]
-  )
-
-  if (status === REMOTE_DATA.IDLE || status === REMOTE_DATA.LOADING) {
-    return <Spinner />
-  }
-
-  if (status === REMOTE_DATA.ERROR) {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        There was an error while getting the room ({error})
-      </Alert>
-    )
+      console.error(error)
+    }
   }
 
   return (
-    <chakra.form onSubmit={onSubmit}>
-      <Stack spacing="4">
-        <Input name="name" placeholder="Your name" />
-        <Button type="submit">Access room</Button>
-      </Stack>
-    </chakra.form>
+    <Stack spacing="4">
+      <Heading fontSize="xl">Join a room</Heading>
+      <chakra.form onSubmit={onSubmit}>
+        <Stack spacing="4">
+          <Input name="name" placeholder="Your name" />
+          <Box textAlign="center">
+            <Button type="submit">Get access</Button>
+          </Box>
+        </Stack>
+      </chakra.form>
+    </Stack>
   )
 }

@@ -1,3 +1,4 @@
+import { Async } from 'components/Async'
 import { firestore } from 'firebase/init'
 import React, {
   createContext,
@@ -12,7 +13,7 @@ import { Room } from 'types/Room'
 type RoomContextState = {
   status: REMOTE_DATA
   error: string
-  data: Room
+  room: Room
 }
 
 const RoomContext = createContext<RoomContextState>(undefined)
@@ -26,7 +27,7 @@ const RoomProvider = ({ children, roomId }: Props) => {
   const [state, setState] = useState<RoomContextState>({
     status: REMOTE_DATA.IDLE,
     error: null,
-    data: null,
+    room: null,
   })
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const RoomProvider = ({ children, roomId }: Props) => {
     setState({
       status: REMOTE_DATA.LOADING,
       error: null,
-      data: null,
+      room: null,
     })
 
     const unsubscribe = firestore
@@ -47,7 +48,7 @@ const RoomProvider = ({ children, roomId }: Props) => {
             setState({
               status: REMOTE_DATA.ERROR,
               error: 'ROOM_DELETED',
-              data: null,
+              room: null,
             })
 
             return
@@ -59,7 +60,7 @@ const RoomProvider = ({ children, roomId }: Props) => {
             id: snapshot.id,
           }
 
-          setState({ status: REMOTE_DATA.SUCCESS, error: null, data: room })
+          setState({ status: REMOTE_DATA.SUCCESS, error: null, room })
         },
         (error) => {
           console.error(error)
@@ -67,7 +68,7 @@ const RoomProvider = ({ children, roomId }: Props) => {
           setState({
             status: REMOTE_DATA.ERROR,
             error: 'ROOM_LOADING_ERROR',
-            data: null,
+            room: null,
           })
         }
       )
@@ -75,7 +76,16 @@ const RoomProvider = ({ children, roomId }: Props) => {
     return unsubscribe
   }, [roomId])
 
-  return <RoomContext.Provider value={state}>{children}</RoomContext.Provider>
+  return (
+    <RoomContext.Provider value={state}>
+      <Async
+        errorMessage="There was an error getting the room"
+        status={state.status}
+      >
+        {children}
+      </Async>
+    </RoomContext.Provider>
+  )
 }
 
 function useRoom() {
@@ -85,7 +95,7 @@ function useRoom() {
     throw new Error('useRoom must be used within <RoomProvider />')
   }
 
-  return context
+  return context.room
 }
 
 export { RoomProvider, useRoom }

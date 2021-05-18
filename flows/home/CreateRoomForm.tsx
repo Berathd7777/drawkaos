@@ -1,4 +1,5 @@
-import { Button, chakra, Input, Stack, useToast } from '@chakra-ui/react'
+import { Box, Button, chakra, Input, Stack } from '@chakra-ui/react'
+import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
 import React, { SyntheticEvent } from 'react'
 import { createRoom } from 'utils/createRoom'
@@ -12,37 +13,41 @@ interface CreateRoomFormElement extends HTMLFormElement {
 }
 
 export function CreateRoomForm() {
-  const toast = useToast()
+  const { showToast, updateToast } = useToasts()
   const router = useRouter()
 
   const onSubmit = async (event: SyntheticEvent<CreateRoomFormElement>) => {
-    const toastId = toast({
-      title: 'Creating...',
-      status: 'info',
-      position: 'bottom-left',
+    event.preventDefault()
+
+    const roomName = event.currentTarget.elements.roomName.value
+    const userName = event.currentTarget.elements.userName.value
+
+    if (!roomName || !userName) {
+      return
+    }
+
+    const toastId = showToast({
+      description: 'Creating...',
     })
 
     try {
-      event.preventDefault()
-
-      const roomName = event.currentTarget.elements.roomName.value
-      const userName = event.currentTarget.elements.userName.value
-
       const { roomId, adminId } = await createRoom({
         name: roomName,
         adminName: userName,
       })
 
-      toast.update(toastId, {
-        title: 'Room created!',
+      updateToast(toastId, {
         status: 'success',
+        title: 'Yeay!',
+        description: 'Room created!',
       })
 
       router.push(`${roomId}/${adminId}`)
     } catch (error) {
-      toast.update(toastId, {
-        title: 'Error',
+      updateToast(toastId, {
         status: 'error',
+        title: 'Ups!',
+        description: 'There was an error',
       })
 
       console.error(error)
@@ -52,9 +57,11 @@ export function CreateRoomForm() {
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
-        <Input name="roomName" placeholder="Room name" />
+        <Input name="roomName" placeholder="Name of the room" />
         <Input name="userName" placeholder="Your name" />
-        <Button type="submit">Create</Button>
+        <Box textAlign="center">
+          <Button type="submit">Create</Button>
+        </Box>
       </Stack>
     </chakra.form>
   )

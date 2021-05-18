@@ -99,9 +99,9 @@ export function Draw({ canvasRef, canDraw }: Props) {
                   onClick={() => {
                     setCurrentColor(color)
                   }}
-                  leftIcon={color === currentColor ? <MdCheck /> : null}
+                  rightIcon={color === currentColor ? <MdCheck /> : null}
                 >
-                  {color}
+                  <Box height="4" width="4" backgroundColor={color} />
                 </Button>
               )
             )}

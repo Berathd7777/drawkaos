@@ -5,7 +5,7 @@ function Error() {
   return (
     <Alert status="error" justifyContent="center">
       <AlertIcon />
-      <AlertTitle mr={4}>An error occurred</AlertTitle>
+      <AlertTitle>An error occurred</AlertTitle>
     </Alert>
   )
 }

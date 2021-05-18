@@ -1,31 +1,14 @@
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Button,
-  Heading,
-  Img,
-  Input,
-  Spinner,
-  Stack,
-  Text,
-  useToast,
-} from '@chakra-ui/react'
-import { Draw } from 'components/Draw'
+import { Heading } from '@chakra-ui/react'
 import { PlayerProvider, usePlayer } from 'contexts/Player'
 import { PlayersProvider, usePlayers } from 'contexts/Players'
 import { RoomProvider, useRoom } from 'contexts/Room'
-import { storage } from 'firebase/init'
+import { Playing } from 'flows/room/Playing'
 import { PreviewPlayers } from 'flows/room/PreviewPlayers'
 import { PreviewRoom } from 'flows/room/PreviewRoom'
-import { RoomActions } from 'flows/room/RoomActions'
-import useInterval from 'hooks/useInterval'
+import { Results } from 'flows/room/Results'
 import { useRouter } from 'next/router'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
-import { Player, Result, RESULT_TYPE } from 'types/Player'
-import { REMOTE_DATA } from 'types/RemoteData'
-import { Room, ROOM_STATUS } from 'types/Room'
-import { addPlayerAnswer } from 'utils/addPlayerAnswer'
+import React from 'react'
+import { ROOM_STATUS } from 'types/Room'
 
 function PlayerId() {
   const router = useRouter()
@@ -48,254 +31,35 @@ function PlayerId() {
 }
 
 function Content() {
-  const { status: roomStatus, error: roomError, data: room } = useRoom()
-  const { status: playerStatus, error: playerError, data: player } = usePlayer()
-  const {
-    status: playersStatus,
-    error: playersError,
-    data: players,
-  } = usePlayers()
+  const room = useRoom()
+  const player = usePlayer()
+  const players = usePlayers()
 
-  if (
-    roomStatus === REMOTE_DATA.IDLE ||
-    roomStatus === REMOTE_DATA.LOADING ||
-    playerStatus === REMOTE_DATA.IDLE ||
-    playerStatus === REMOTE_DATA.LOADING ||
-    playersStatus === REMOTE_DATA.IDLE ||
-    playersStatus === REMOTE_DATA.LOADING
-  ) {
-    return <Spinner />
-  }
-
-  if (
-    roomStatus === REMOTE_DATA.ERROR ||
-    roomError ||
-    playerStatus === REMOTE_DATA.ERROR ||
-    playerError ||
-    playersStatus === REMOTE_DATA.ERROR ||
-    playersError
-  ) {
-    console.log(roomError, playerError, playersError)
-
-    return null
-  }
-
-  if (room.status === ROOM_STATUS.CREATED && player) {
+  if (room.status === ROOM_STATUS.CREATED) {
     return (
-      <Stack spacing="4">
-        <PreviewRoom />
-        {room.adminId === player.id && <RoomActions />}
-        <PreviewPlayers playerId={player.id} />
-      </Stack>
+      <>
+        <PreviewRoom showPlayButton={room.adminId === player.id} />
+        <PreviewPlayers />
+      </>
     )
   }
 
   if (room.status === ROOM_STATUS.FINISHED) {
     return (
-      <Stack spacing="4">
-        <Heading>The game has finished</Heading>
+      <>
+        <Heading>{room.name}: The game has finished</Heading>
         <Results />
-      </Stack>
+      </>
     )
   }
 
-  if (room.status === ROOM_STATUS.PLAYING && player && players) {
+  if (room.status === ROOM_STATUS.PLAYING) {
     return (
-      <Playing key={room.step} player={player} room={room} players={players} />
+      <Playing key={room.step} room={room} player={player} players={players} />
     )
   }
 
-  /* THIS SHOULD NEVER HAPPEN */
-  return null
-}
-
-type PlayingProps = {
-  player: Player
-  players: Player[]
-  room: Room
-}
-
-function Playing({ player, room, players }: PlayingProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [sentence, setSentence] = useState('')
-  const [seconds, setSeconds] = useState(0)
-  const [running, setRunning] = useState(true)
-  const toast = useToast()
-  const SECONDS_DEADLINE = 60
-
-  useInterval(
-    () => {
-      if (seconds === SECONDS_DEADLINE) {
-        setRunning(false)
-
-        return
-      }
-
-      setSeconds(seconds + 1)
-    },
-    running ? 1000 : null
-  )
-
-  useEffect(() => {
-    const saveImage = async () => {
-      const toastId = toast({
-        title: 'Saving...',
-        status: 'info',
-        position: 'bottom-left',
-      })
-
-      try {
-        if (!running) {
-          if (shouldDraw) {
-            const MIME_TYPE = 'image/jpeg'
-            const imgURL = canvasRef.current.toDataURL(MIME_TYPE)
-
-            const file = await storage
-              .child(`${room.id}/${player.id}/${room.step + 1}`)
-              .putString(imgURL, 'data_url')
-
-            const drawUrl = await file.ref.getDownloadURL()
-
-            await addPlayerAnswer(room, player, RESULT_TYPE.DRAW, drawUrl)
-          } else {
-            await addPlayerAnswer(room, player, RESULT_TYPE.SENTENCE, sentence)
-          }
-
-          toast.update(toastId, {
-            title: 'Saved!',
-            status: 'success',
-          })
-        }
-      } catch (error) {
-        toast.update(toastId, {
-          title: 'Error',
-          status: 'error',
-        })
-
-        console.error(error)
-      }
-    }
-
-    saveImage()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running])
-
-  const previousReplyPlayerId = player.steps[room.step]
-  const previousPlayer = players.find((p) => p.id === previousReplyPlayerId)
-  const previousReply = previousPlayer.results[room.step - 1]
-  const shouldDraw = room.step % 2 !== 0
-
-  return (
-    <Stack spacing="4">
-      <Heading>Playing</Heading>
-      <Heading>
-        {/* TODO: use players.lenght */}
-        Step {room.step + 1} of {player.steps.length}
-      </Heading>
-      <Stack
-        spacing="4"
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-      >
-        <Box>
-          {running && <Text>{SECONDS_DEADLINE - seconds} seconds left</Text>}
-        </Box>
-        <Box>
-          <Button
-            onClick={() => {
-              setRunning(false)
-            }}
-          >
-            Done
-          </Button>
-        </Box>
-      </Stack>
-      {previousReply && <Reply result={previousReply} />}
-      {shouldDraw ? (
-        <Draw canvasRef={canvasRef} canDraw={running} />
-      ) : (
-        <Input
-          value={sentence}
-          onChange={(event) => {
-            setSentence(event.target.value)
-          }}
-          name="sentence"
-          placeholder="Write something for others to draw..."
-        />
-      )}
-    </Stack>
-  )
-}
-
-function Results() {
-  const { status, error, data: players } = usePlayers()
-
-  if (status === REMOTE_DATA.IDLE || status === REMOTE_DATA.LOADING) {
-    return <Spinner />
-  }
-
-  if (status === REMOTE_DATA.ERROR) {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        There was an error while getting the players ({error})
-      </Alert>
-    )
-  }
-
-  return (
-    <Stack spacing="4">
-      {players.map((player) => (
-        <Fragment key={player.id}>
-          <Heading>{player.name}</Heading>
-          {player.results.map((result) => (
-            <PlayerAnswer
-              key={result.author}
-              result={result}
-              players={players}
-            />
-          ))}
-        </Fragment>
-      ))}
-    </Stack>
-  )
-}
-
-type ResultProps = {
-  players: Player[]
-  result: Result
-}
-
-function PlayerAnswer({ result, players }: ResultProps) {
-  return (
-    <Stack key={result.author} spacing="4">
-      <Heading fontSize="larger">
-        {players.find((p) => p.id === result.author).name}
-      </Heading>
-      <Reply result={result} />
-    </Stack>
-  )
-}
-
-type ReplyProps = {
-  result: Result
-}
-
-function Reply({ result }: ReplyProps) {
-  if (result.type === RESULT_TYPE.SENTENCE) {
-    return <Text>{result.value}</Text>
-  }
-
-  if (result.type === RESULT_TYPE.DRAW) {
-    return (
-      <Box>
-        <Img src={result.value} marginX="auto" />
-      </Box>
-    )
-  }
-
-  throw new Error('Unknown result.type: ' + result.type)
+  throw new Error('Unknown room status: ' + room.status)
 }
 
 export default PlayerId
