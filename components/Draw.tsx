@@ -1,6 +1,6 @@
 import { Box, Button, Stack } from '@chakra-ui/react'
 import React, { MutableRefObject, useEffect, useState } from 'react'
-import { MdCheck } from 'react-icons/md'
+import { MdCheck, MdDelete } from 'react-icons/md'
 
 type Props = {
   canvasRef: MutableRefObject<HTMLCanvasElement>
@@ -99,15 +99,34 @@ export function Draw({ canvasRef, canDraw }: Props) {
                   onClick={() => {
                     setCurrentColor(color)
                   }}
-                  rightIcon={color === currentColor ? <MdCheck /> : null}
+                  backgroundColor={color}
+                  variant="solid"
+                  colorScheme={color}
+                  padding="1"
                 >
-                  <Box height="4" width="4" backgroundColor={color} />
+                  <Box height="4" width="4">
+                    {color === currentColor ? (
+                      <MdCheck
+                        color={
+                          ['orange', 'yellow'].includes(color)
+                            ? 'black'
+                            : 'white'
+                        }
+                      />
+                    ) : null}
+                  </Box>
                 </Button>
               )
             )}
           </Stack>
           <Box>
-            <Button onClick={clearCanvas}>Clear</Button>
+            <Button
+              colorScheme="red"
+              leftIcon={<MdDelete />}
+              onClick={clearCanvas}
+            >
+              Clear
+            </Button>
           </Box>
         </Stack>
       )}

@@ -9,6 +9,5 @@ export type Room = {
   name: string
   adminId: string
   status: ROOM_STATUS
-  game: string
   step: number
 }

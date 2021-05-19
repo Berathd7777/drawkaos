@@ -52,9 +52,11 @@ export function AccessRoom() {
       <Heading fontSize="xl">Join a room</Heading>
       <chakra.form onSubmit={onSubmit}>
         <Stack spacing="4">
-          <Input name="name" placeholder="Your name" />
+          <Input name="name" placeholder="John Doe" />
           <Box textAlign="center">
-            <Button type="submit">Get access</Button>
+            <Button type="submit" colorScheme="green">
+              Access room
+            </Button>
           </Box>
         </Stack>
       </chakra.form>

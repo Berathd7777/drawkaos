@@ -2,6 +2,7 @@ import { Box, Button, chakra, Input, Stack } from '@chakra-ui/react'
 import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
 import React, { SyntheticEvent } from 'react'
+import { MdAdd } from 'react-icons/md'
 import { createRoom } from 'utils/createRoom'
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -57,10 +58,12 @@ export function CreateRoomForm() {
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
-        <Input name="roomName" placeholder="Name of the room" />
-        <Input name="userName" placeholder="Your name" />
+        <Input name="roomName" placeholder="My room" />
+        <Input name="userName" placeholder="John Doe" />
         <Box textAlign="center">
-          <Button type="submit">Create</Button>
+          <Button type="submit" colorScheme="green" leftIcon={<MdAdd />}>
+            Create
+          </Button>
         </Box>
       </Stack>
     </chakra.form>

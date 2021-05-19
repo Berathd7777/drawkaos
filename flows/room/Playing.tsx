@@ -5,11 +5,12 @@ import { storage } from 'firebase/init'
 import useInterval from 'hooks/useInterval'
 import { useToasts } from 'hooks/useToasts'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { MdDone } from 'react-icons/md'
 import { Player, RESULT_TYPE } from 'types/Player'
 import { Room } from 'types/Room'
 import { addPlayerAnswer } from 'utils/addPlayerAnswer'
 
-const SECONDS_DEADLINE = 300
+const SECONDS_DEADLINE = 60
 
 type PlayingProps = {
   room: Room
@@ -22,6 +23,7 @@ export function Playing({ room, player, players }: PlayingProps) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [sentence, setSentence] = useState('')
+  /* TODO: consider use a timestamp so we can refresh the page and get the current time and not a resetted one */
   const [seconds, setSeconds] = useState(0)
   const [running, setRunning] = useState(true)
 
@@ -101,10 +103,16 @@ export function Playing({ room, player, players }: PlayingProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running])
 
+  const placeholder = step
+    ? 'Describe the drawing...'
+    : 'Write something for others to draw...'
+
   return (
     <Stack spacing="4">
-      <Heading as="h1">{room.name}</Heading>
-      <Heading fontSize="xl">
+      <Heading as="h1" textAlign="center">
+        {room.name}
+      </Heading>
+      <Heading fontSize="xl" textAlign="center">
         Step {step + 1} of {players.length}
       </Heading>
       <Stack
@@ -114,10 +122,17 @@ export function Playing({ room, player, players }: PlayingProps) {
         justifyContent="space-between"
       >
         <Box>
-          {running && <Text>{SECONDS_DEADLINE - seconds} seconds left</Text>}
+          {running && (
+            <Text>
+              {SECONDS_DEADLINE - seconds} sec
+              {SECONDS_DEADLINE - seconds > 1 ? 's' : ''} left
+            </Text>
+          )}
         </Box>
         <Box>
           <Button
+            colorScheme="green"
+            leftIcon={<MdDone />}
             onClick={() => {
               setRunning(false)
             }}
@@ -130,13 +145,14 @@ export function Playing({ room, player, players }: PlayingProps) {
       {shouldDraw ? (
         <Draw canvasRef={canvasRef} canDraw={running} />
       ) : (
+        /* TODO: avoid writing something with more than 280 characters */
         <Input
           value={sentence}
           onChange={(event) => {
             setSentence(event.target.value)
           }}
           name="sentence"
-          placeholder="Write something for others to draw..."
+          placeholder={placeholder}
         />
       )}
     </Stack>

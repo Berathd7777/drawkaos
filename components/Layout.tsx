@@ -15,7 +15,7 @@ export function Layout({ children }: Props) {
             spacing="2"
             direction="row"
             alignItems="center"
-            justifyContent="space-between"
+            justifyContent="center"
             height="40px"
           >
             <NextLink href="/" passHref>
@@ -27,6 +27,25 @@ export function Layout({ children }: Props) {
       <Box as="main" flex="1" py="8">
         <Container maxW="container.md">
           <Stack spacing="8">{children}</Stack>
+        </Container>
+      </Box>
+      <Box as="footer" py="2" backgroundColor="gray.900">
+        <Container maxW="container.md">
+          <Stack
+            spacing="2"
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+            height="40px"
+          >
+            <Link
+              href="https://twitter.com/DuranCristhian"
+              fontWeight="bold"
+              isExternal
+            >
+              @durancristhian
+            </Link>
+          </Stack>
         </Container>
       </Box>
     </Stack>

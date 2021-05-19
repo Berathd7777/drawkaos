@@ -1,14 +1,15 @@
 import { firestore } from 'firebase/init'
+import { knuthShuffle } from 'knuth-shuffle'
 import { Player } from 'types/Player'
 import { ROOM_STATUS } from 'types/Room'
 
 export function initGame({
   roomId,
-  game,
+  nextRoomStatus,
   players,
 }: {
   roomId: string
-  game: string[][]
+  nextRoomStatus: ROOM_STATUS
   players: Player[]
 }): Promise<void> {
   return new Promise(async (resolve, reject) => {
@@ -17,10 +18,11 @@ export function initGame({
       const roomRef = firestore.collection('rooms').doc(roomId)
 
       batch.update(roomRef, {
-        status: ROOM_STATUS.PLAYING,
-        /* we save this just for the record */
-        game: JSON.stringify(game),
+        status: nextRoomStatus,
+        step: 0,
       })
+
+      const game = getGameOrder(players)
 
       players.map((player) => {
         const playerRef = firestore
@@ -46,9 +48,36 @@ export function initGame({
 
       resolve()
     } catch (error) {
-      console.error(error)
-
       reject(error)
     }
   })
+}
+
+function getGameOrder(players: Player[]) {
+  const ids = players.map(({ id }) => id)
+
+  const lines = ids.reduce((acc, currId, currIdx, arr) => {
+    const others = [...arr.slice(currIdx + 1), ...arr.slice(0, currIdx)]
+    const line = [currId, ...others]
+
+    return [...acc, line]
+  }, [])
+
+  const linesAmount = lines.length
+  const shuffledRowIndexes = knuthShuffle([...Array(linesAmount).keys()])
+  const shuffledLines = lines.reduce((acc, curr, currIdx) => {
+    acc[shuffledRowIndexes[currIdx]] = curr
+
+    return acc
+  }, [])
+
+  const columnsAmount = lines[0].length
+  const shuffledColumnIndexes = knuthShuffle([...Array(columnsAmount).keys()])
+  const shuffledColumns = shuffledLines.reduce((acc, curr, currIdx) => {
+    acc[currIdx] = shuffledColumnIndexes.map((n) => curr[n])
+
+    return acc
+  }, [])
+
+  return shuffledColumns as string[][]
 }

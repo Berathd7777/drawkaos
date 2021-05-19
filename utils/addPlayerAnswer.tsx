@@ -22,11 +22,12 @@ export function addPlayerAnswer(
       await playerRef.update({
         results: FieldValue.arrayUnion({
           type,
-          author: player.id,
           value,
+          author: player.id,
         }),
       })
 
+      /* TODO: delete and replace this logic */
       if (player.id === room.adminId) {
         const nextStep = room.step + 1
         const status =
@@ -36,16 +37,14 @@ export function addPlayerAnswer(
 
         await updateRoom({
           id: room.id,
-          step: nextStep,
           status,
+          step: nextStep,
         })
       }
 
       resolve()
     } catch (error) {
-      console.error(error)
-
-      reject('Error updating player with the answer')
+      reject(error)
     }
   })
 }

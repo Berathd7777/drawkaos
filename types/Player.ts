@@ -5,8 +5,8 @@ export enum RESULT_TYPE {
 
 export type Result = {
   type: RESULT_TYPE
-  author: string
   value: string
+  author: string
 }
 
 export type Player = {

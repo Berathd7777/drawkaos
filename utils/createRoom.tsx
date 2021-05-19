@@ -1,4 +1,4 @@
-import { firestore, Timestamp } from 'firebase/init'
+import { firestore } from 'firebase/init'
 import { ROOM_STATUS } from 'types/Room'
 import { createPlayer } from './createPlayer'
 
@@ -21,14 +21,11 @@ export function createRoom({
         name,
         adminId,
         status: ROOM_STATUS.CREATED,
-        createdAt: Timestamp.fromDate(new Date()),
         step: 0,
       })
 
       resolve({ roomId, adminId })
     } catch (error) {
-      console.error(error)
-
       reject(error)
     }
   })

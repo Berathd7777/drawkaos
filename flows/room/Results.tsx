@@ -11,15 +11,20 @@ import {
   TypographyProps,
 } from '@chakra-ui/react'
 import { Reply } from 'components/Reply'
+import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
 import React, { useState } from 'react'
 import FadeIn from 'react-fade-in'
+import { MdFileDownload, MdPlayArrow } from 'react-icons/md'
 import StringSanitizer from 'string-sanitizer'
 import { Player, Result } from 'types/Player'
+import { ROOM_STATUS } from 'types/Room'
+import { initGame } from 'utils/initGame'
 
 export function Results() {
   const room = useRoom()
+  const player = usePlayer()
   const players = usePlayers()
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -76,10 +81,17 @@ export function Results() {
       })
   }
 
-  /* TODO: add a way to play again */
+  const playAgain = async () => {
+    await initGame({
+      roomId: room.id,
+      nextRoomStatus: ROOM_STATUS.CREATED,
+      players,
+    })
+  }
+
   return (
     <Stack spacing="4">
-      <Accordion allowToggle allowMultiple>
+      <Accordion allowToggle>
         {players.map((player) => (
           <AccordionItem key={player.id}>
             {({ isExpanded }) => (
@@ -109,6 +121,7 @@ export function Results() {
                           downloadGIF(player)
                         }}
                         isLoading={isProcessing}
+                        leftIcon={<MdFileDownload />}
                       >
                         Download .gif
                       </Button>
@@ -120,6 +133,17 @@ export function Results() {
           </AccordionItem>
         ))}
       </Accordion>
+      {room.adminId === player.id && (
+        <Box textAlign="center">
+          <Button
+            colorScheme="green"
+            onClick={playAgain}
+            leftIcon={<MdPlayArrow />}
+          >
+            Play again
+          </Button>
+        </Box>
+      )}
     </Stack>
   )
 }
