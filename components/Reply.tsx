@@ -15,7 +15,7 @@ export function Reply({ result, align }: Props) {
   if (result.type === RESULT_TYPE.DRAW) {
     return (
       <Box>
-        <Img src={result.value} marginLeft={align !== 'right' ? 0 : 'auto'} />
+        <Img src={result.value} marginLeft={align === 'left' ? 0 : 'auto'} />
       </Box>
     )
   }
