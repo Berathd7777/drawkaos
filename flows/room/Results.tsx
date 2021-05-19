@@ -4,18 +4,77 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Box,
+  Button,
   Heading,
   Stack,
   TypographyProps,
 } from '@chakra-ui/react'
 import { Reply } from 'components/Reply'
 import { usePlayers } from 'contexts/Players'
-import React from 'react'
+import { useRoom } from 'contexts/Room'
+import React, { useState } from 'react'
 import FadeIn from 'react-fade-in'
-import { Result } from 'types/Player'
+import StringSanitizer from 'string-sanitizer'
+import { Player, Result } from 'types/Player'
 
 export function Results() {
+  const room = useRoom()
   const players = usePlayers()
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const downloadGIF = (player: Player) => {
+    setIsProcessing(true)
+
+    const answers = player.results.map((result) => ({
+      ...result,
+      author: players.find((p) => p.id === result.author).name,
+    }))
+
+    fetch('/api/create-gif', {
+      method: 'POST',
+      body: JSON.stringify(answers),
+    })
+      .then(async (response) => {
+        const reader = response.body.getReader()
+
+        const chunks = []
+
+        while (true) {
+          const { done, value } = await reader.read()
+
+          if (done) {
+            break
+          }
+
+          chunks.push(value)
+        }
+
+        const blob = new Blob(chunks)
+
+        return URL.createObjectURL(blob)
+      })
+      .then((url: string) => {
+        const sanitizedRoomName = StringSanitizer.sanitize(room.name)
+        const sanitizedPlayerName = StringSanitizer.sanitize(player.name)
+
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${sanitizedRoomName} - ${sanitizedPlayerName}.gif`
+        a.style.visibility = 'hidden'
+
+        document.body.appendChild(a)
+
+        a.click()
+        a.remove()
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+      .finally(() => {
+        setIsProcessing(false)
+      })
+  }
 
   /* TODO: add a way to play again */
   return (
@@ -44,6 +103,16 @@ export function Results() {
                         result={result}
                       />
                     ))}
+                    <Box textAlign="center" mt="4">
+                      <Button
+                        onClick={() => {
+                          downloadGIF(player)
+                        }}
+                        isLoading={isProcessing}
+                      >
+                        Download .gif
+                      </Button>
+                    </Box>
                   </FadeIn>
                 </AccordionPanel>
               </>
@@ -65,13 +134,15 @@ function PlayerAnswer({ result, align, showAuthor }: ResultProps) {
   const players = usePlayers()
 
   return (
-    <Stack key={result.author} spacing="2">
-      {showAuthor && (
-        <Heading as="h3" fontSize="lg" textAlign={align}>
-          {players.find((p) => p.id === result.author).name}
-        </Heading>
-      )}
-      <Reply result={result} align={align} />
-    </Stack>
+    <Box mt="4">
+      <Stack key={result.author} spacing="4">
+        {showAuthor && (
+          <Heading as="h3" fontSize="lg" textAlign={align}>
+            {players.find((p) => p.id === result.author).name}
+          </Heading>
+        )}
+        <Reply result={result} align={align} />
+      </Stack>
+    </Box>
   )
 }
