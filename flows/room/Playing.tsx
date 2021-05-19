@@ -145,7 +145,6 @@ export function Playing({ room, player, players }: PlayingProps) {
       {shouldDraw ? (
         <Draw canvasRef={canvasRef} canDraw={running} />
       ) : (
-        /* TODO: avoid writing something with more than 280 characters */
         <Input
           value={sentence}
           onChange={(event) => {
@@ -153,6 +152,7 @@ export function Playing({ room, player, players }: PlayingProps) {
           }}
           name="sentence"
           placeholder={placeholder}
+          maxLength={280}
         />
       )}
     </Stack>

@@ -58,8 +58,8 @@ export function CreateRoomForm() {
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
-        <Input name="roomName" placeholder="My room" />
-        <Input name="userName" placeholder="John Doe" />
+        <Input name="roomName" placeholder="My room" maxLength={140} />
+        <Input name="userName" placeholder="John Doe" maxLength={140} />
         <Box textAlign="center">
           <Button type="submit" colorScheme="green" leftIcon={<MdAdd />}>
             Create
