@@ -135,7 +135,7 @@ export function Results() {
       {room.adminId === player.id && (
         <Box textAlign="center">
           <Button
-            colorScheme="green"
+            colorScheme="tertiary"
             onClick={playAgain}
             leftIcon={<MdPlayArrow />}
           >

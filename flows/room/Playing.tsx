@@ -146,7 +146,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
         <Box>
           {running && (
             <Button
-              colorScheme="green"
+              colorScheme="tertiary"
               leftIcon={<MdDone />}
               onClick={() => {
                 setRunning(false)

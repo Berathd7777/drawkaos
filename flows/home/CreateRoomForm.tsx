@@ -61,7 +61,7 @@ export function CreateRoomForm() {
         <Input name="roomName" placeholder="My room" maxLength={140} />
         <Input name="userName" placeholder="John Doe" maxLength={140} />
         <Box textAlign="center">
-          <Button type="submit" colorScheme="green" leftIcon={<MdAdd />}>
+          <Button type="submit" colorScheme="tertiary" leftIcon={<MdAdd />}>
             Create
           </Button>
         </Box>

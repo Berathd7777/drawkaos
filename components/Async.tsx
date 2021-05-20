@@ -19,7 +19,7 @@ export function Async({ children, errorMessage, status }: Props) {
   if (status === REMOTE_DATA.IDLE || status === REMOTE_DATA.LOADING) {
     return (
       <Box textAlign="center">
-        <Spinner color="green.500" size="xl" />
+        <Spinner color="tertiary.500" size="xl" />
       </Box>
     )
   }

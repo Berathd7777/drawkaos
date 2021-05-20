@@ -60,7 +60,7 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
       <Stack direction="row" spacing="4" alignItems="center">
         {showPlayButton && (
           <Button
-            colorScheme={canPlay ? 'green' : 'red'}
+            colorScheme={canPlay ? 'tertiary' : 'red'}
             onClick={play}
             leftIcon={<MdPlayArrow />}
             disabled={!canPlay}

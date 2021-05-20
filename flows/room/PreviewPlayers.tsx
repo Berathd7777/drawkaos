@@ -82,7 +82,7 @@ function PlayerRow({
       )}
       <Text>{name}</Text>
       {isCurrentPlayer && <Text>(You)</Text>}
-      {isAdmin && <Tag colorScheme="green">Admin</Tag>}
+      {isAdmin && <Tag colorScheme="tertiary">Admin</Tag>}
     </Stack>
   )
 }

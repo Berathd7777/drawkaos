@@ -54,7 +54,7 @@ export function AccessRoom() {
         <Stack spacing="4">
           <Input name="name" placeholder="John Doe" maxLength={140} />
           <Box textAlign="center">
-            <Button type="submit" colorScheme="green">
+            <Button type="submit" colorScheme="tertiary">
               Access room
             </Button>
           </Box>

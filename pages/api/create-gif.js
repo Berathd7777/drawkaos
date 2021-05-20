@@ -20,7 +20,7 @@ export default async (req, res) => {
   encoder.setDelay(3000)
   encoder.start()
 
-  registerFont(join('.', 'files', 'Inter-Regular.ttf'), {
+  registerFont(join('files', 'Inter-Regular.ttf'), {
     family: 'Inter',
   })
 
