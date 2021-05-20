@@ -4,7 +4,7 @@ export function useToasts() {
   const toast = useToast({
     duration: 5000,
     isClosable: true,
-    position: 'bottom',
+    position: 'top-right',
   })
 
   const showToast = (opts: UseToastOptions) =>
