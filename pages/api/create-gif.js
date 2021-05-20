@@ -1,10 +1,8 @@
 import { createCanvas, loadImage, registerFont } from 'canvas'
 import GIFEncoder from 'gif-encoder-2'
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { join } from 'path'
-import { Result, RESULT_TYPE } from 'types/Player'
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({
       message: 'Method not allowed',
@@ -29,7 +27,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const canvas = createCanvas(canvasWidth, canvasHeight)
   const ctx = canvas.getContext('2d')
 
-  const answers: Result[] = JSON.parse(req.body)
+  const answers = JSON.parse(req.body)
 
   await processArray(
     answers,
@@ -80,10 +78,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   res.send(encoder.out.getData())
 }
 
-async function processArray(
-  array: Result[],
-  fn: (answer: Result, index: number) => Promise<void>
-) {
+async function processArray(array, fn) {
   const results = []
 
   for (let i = 0; i < array.length; i++) {
