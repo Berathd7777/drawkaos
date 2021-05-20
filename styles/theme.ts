@@ -13,7 +13,10 @@ const theme = extendTheme({
     body: customFont,
     heading: customFont,
   },
-  /* https://www.happyhues.co/palettes/12 */
+  /*
+    Main colors taken from: https://www.happyhues.co/palettes/12
+    Shades generated with: https://maketintsandshades.com
+  */
   colors: {
     /* paragraph */
     primary: {
