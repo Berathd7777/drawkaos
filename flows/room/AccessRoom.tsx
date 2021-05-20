@@ -3,6 +3,7 @@ import { useRoom } from 'contexts/Room'
 import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
 import React, { SyntheticEvent } from 'react'
+import { MdChevronRight } from 'react-icons/md'
 import { createPlayer } from 'utils/createPlayer'
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -52,9 +53,18 @@ export function AccessRoom() {
       <Heading fontSize="xl">Join a room</Heading>
       <chakra.form onSubmit={onSubmit}>
         <Stack spacing="4">
-          <Input name="name" placeholder="John Doe" maxLength={140} />
+          <Input
+            name="name"
+            placeholder="John Doe"
+            maxLength={140}
+            variant="filled"
+          />
           <Box textAlign="center">
-            <Button type="submit" colorScheme="tertiary">
+            <Button
+              type="submit"
+              colorScheme="tertiary"
+              leftIcon={<MdChevronRight />}
+            >
               Access room
             </Button>
           </Box>

@@ -72,7 +72,13 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
           text={`${window.location.origin}/${room.id}`}
           onCopy={showToastOnCopy}
         >
-          <Button leftIcon={<MdContentCopy />}>Copy invite link</Button>
+          <Button
+            colorScheme="tertiary"
+            variant="outline"
+            leftIcon={<MdContentCopy />}
+          >
+            Copy invite link
+          </Button>
         </CopyToClipboard>
       </Stack>
     </Stack>

@@ -8,7 +8,7 @@ type Props = {
 
 export function Layout({ children }: Props) {
   return (
-    <Stack spacing="0" minHeight="100vh" backgroundColor="background.500">
+    <Stack spacing="0" minHeight="100vh">
       <Box as="header" py="2" backgroundColor="background.800">
         <Container maxW="container.md">
           <Stack

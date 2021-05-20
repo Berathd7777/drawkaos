@@ -2,6 +2,15 @@ import { Box, Button, Stack } from '@chakra-ui/react'
 import React, { MutableRefObject, useEffect, useState } from 'react'
 import { MdCheck, MdDelete } from 'react-icons/md'
 
+const COLORS = [
+  { label: 'Black', value: '#18181B', colorScheme: 'black' },
+  { label: 'Green', value: '#16A34A', colorScheme: 'green' },
+  { label: 'Red', value: '#DC2626', colorScheme: 'red' },
+  { label: 'Blue', value: '#2563EB', colorScheme: 'blue' },
+  { label: 'Orange', value: '#F97316', colorScheme: 'orange' },
+  { label: 'Yellow', value: '#FACC15', colorScheme: 'yellow' },
+]
+
 type Props = {
   canvasRef: MutableRefObject<HTMLCanvasElement>
   canDraw: boolean
@@ -92,38 +101,36 @@ export function Draw({ canvasRef, canDraw }: Props) {
       {canDraw && (
         <Stack spacing="4" direction="row" justifyContent="space-between">
           <Stack spacing="4" direction="row">
-            {['black', 'green', 'blue', 'red', 'orange', 'yellow'].map(
-              (color) => (
-                <Button
-                  key={color}
-                  onClick={() => {
-                    setCurrentColor(color)
-                  }}
-                  backgroundColor={color}
-                  variant="solid"
-                  colorScheme={color}
-                  padding="1"
-                >
-                  <Box height="4" width="4">
-                    {color === currentColor ? (
-                      <MdCheck
-                        color={
-                          ['orange', 'yellow'].includes(color)
-                            ? 'black'
-                            : 'white'
-                        }
-                      />
-                    ) : null}
-                  </Box>
-                </Button>
-              )
-            )}
+            {COLORS.map(({ label, value, colorScheme }) => (
+              <Button
+                key={value}
+                onClick={() => {
+                  setCurrentColor(value)
+                }}
+                backgroundColor={value}
+                padding="1"
+                colorScheme={colorScheme}
+              >
+                <Box height="4" width="4">
+                  {value === currentColor ? (
+                    <MdCheck
+                      color={
+                        ['Orange', 'Yellow'].includes(label)
+                          ? 'background.500'
+                          : 'white'
+                      }
+                    />
+                  ) : null}
+                </Box>
+              </Button>
+            ))}
           </Stack>
           <Box>
             <Button
-              colorScheme="red"
               leftIcon={<MdDelete />}
               onClick={clearCanvas}
+              variant="outline"
+              colorScheme="tertiary"
             >
               Clear
             </Button>

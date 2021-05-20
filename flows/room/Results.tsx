@@ -104,11 +104,14 @@ export function Results() {
                   </Stack>
                 </AccordionButton>
                 {/* the key is a hack to make the fade animation work in every accordion expansion */}
-                <AccordionPanel pb={4} key={`${isExpanded}`}>
+                <AccordionPanel
+                  pb={4}
+                  key={`${isExpanded}`}
+                  backgroundColor="background.800"
+                >
                   <FadeIn delay={2000}>
                     {player.results.map((result, index) => (
                       <PlayerAnswer
-                        showAuthor={!!index}
                         align={index % 2 === 0 ? 'left' : 'right'}
                         key={result.author}
                         result={result}
@@ -116,6 +119,8 @@ export function Results() {
                     ))}
                     <Box textAlign="center" mt="4">
                       <Button
+                        colorScheme="tertiary"
+                        variant="outline"
                         onClick={() => {
                           downloadGIF(player)
                         }}
@@ -150,20 +155,17 @@ export function Results() {
 type ResultProps = {
   align: TypographyProps['textAlign']
   result: Result
-  showAuthor: boolean
 }
 
-function PlayerAnswer({ result, align, showAuthor }: ResultProps) {
+function PlayerAnswer({ result, align }: ResultProps) {
   const players = usePlayers()
 
   return (
     <Box mt="4">
       <Stack key={result.author} spacing="4">
-        {showAuthor && (
-          <Heading as="h3" fontSize="lg" textAlign={align}>
-            {players.find((p) => p.id === result.author).name}
-          </Heading>
-        )}
+        <Heading as="h3" fontSize="lg" textAlign={align}>
+          {players.find((p) => p.id === result.author).name}
+        </Heading>
         <Reply result={result} align={align} />
       </Stack>
     </Box>

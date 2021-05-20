@@ -70,19 +70,20 @@ function PlayerRow({
 }: PlayerProps) {
   return (
     <Stack spacing="4" direction="row" alignItems="center">
+      <Text>{name}</Text>
+      {isCurrentPlayer && <Text>(You)</Text>}
+      {isAdmin && <Tag colorScheme="tertiary">Admin</Tag>}
       {onRemovePlayer && (
         <IconButton
           aria-label="Remove player"
           colorScheme="red"
+          variant="link"
           icon={<MdDelete />}
           onClick={() => {
             onRemovePlayer()
           }}
         />
       )}
-      <Text>{name}</Text>
-      {isCurrentPlayer && <Text>(You)</Text>}
-      {isAdmin && <Tag colorScheme="tertiary">Admin</Tag>}
     </Stack>
   )
 }

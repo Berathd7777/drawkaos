@@ -11,7 +11,8 @@ import { Player, RESULT_TYPE } from 'types/Player'
 import { Room } from 'types/Room'
 import { addPlayerAnswer } from 'utils/addPlayerAnswer'
 
-const SECONDS_DEADLINE = 60
+/* TODO: update */
+const SECONDS_DEADLINE = 6000
 
 type PlayingProps = {
   room: Room
@@ -144,17 +145,16 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
           )}
         </Box>
         <Box>
-          {running && (
-            <Button
-              colorScheme="tertiary"
-              leftIcon={<MdDone />}
-              onClick={() => {
-                setRunning(false)
-              }}
-            >
-              Done
-            </Button>
-          )}
+          <Button
+            colorScheme="tertiary"
+            leftIcon={<MdDone />}
+            onClick={() => {
+              setRunning(false)
+            }}
+            disabled={!running}
+          >
+            Done
+          </Button>
         </Box>
       </Stack>
       {previousReply && <Reply align="center" result={previousReply} />}
@@ -169,6 +169,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
           name="sentence"
           placeholder={placeholder}
           maxLength={280}
+          variant="filled"
         />
       )}
     </Stack>

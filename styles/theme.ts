@@ -70,6 +70,37 @@ const theme = extendTheme({
       900: '#15192a',
     },
   },
+  components: {
+    Heading: {
+      baseStyle: {
+        color: 'secondary.500',
+      },
+    },
+    Button: {
+      variants: {
+        solid: {
+          color: 'background.500',
+        },
+      },
+    },
+    Input: {
+      variants: {
+        filled: {
+          field: {
+            borderColor: 'background.800',
+          },
+        },
+      },
+    },
+  },
+  styles: {
+    global: {
+      body: {
+        bg: 'background.500',
+        color: 'primary.500',
+      },
+    },
+  },
 })
 
 export default theme
