@@ -56,7 +56,9 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
 
   return (
     <Stack spacing="4">
-      <Heading as="h1">{room.name}</Heading>
+      <Heading as="h1" textAlign="center">
+        {room.name}
+      </Heading>
       <Stack direction="row" spacing="4" alignItems="center">
         {showPlayButton && (
           <Button

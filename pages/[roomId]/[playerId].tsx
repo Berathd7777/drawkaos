@@ -49,7 +49,7 @@ function Content() {
   if (gameState.status === ROOM_STATUS.FINISHED) {
     return (
       <>
-        <Heading>{room.name}: The game has finished</Heading>
+        <Heading textAlign="center">{room.name}: The game has finished</Heading>
         <Results />
       </>
     )

@@ -50,7 +50,9 @@ export function AccessRoom() {
 
   return (
     <Stack spacing="4">
-      <Heading fontSize="xl">Join a room</Heading>
+      <Heading fontSize="xl" textAlign="center">
+        Join a room
+      </Heading>
       <chakra.form onSubmit={onSubmit}>
         <Stack spacing="4">
           <Input
