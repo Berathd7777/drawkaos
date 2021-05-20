@@ -1,6 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react'
-import '@fontsource/open-sans/400.css'
-import '@fontsource/open-sans/700.css'
+import '@fontsource/poppins/400.css'
+import '@fontsource/poppins/700.css'
 import { Layout } from 'components/Layout'
 import { DefaultSeo } from 'next-seo'
 import SEO from 'next-seo.config'
