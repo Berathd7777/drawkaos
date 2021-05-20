@@ -1,8 +1,9 @@
-import { createCanvas, loadImage, registerFont } from 'canvas'
+import { createCanvas, loadImage } from 'canvas'
 import GIFEncoder from 'gif-encoder-2'
-import { join } from 'path'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { Result, RESULT_TYPE } from 'types/Player'
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
     res.status(405).json({
       message: 'Method not allowed',
@@ -20,14 +21,10 @@ export default async (req, res) => {
   encoder.setDelay(3000)
   encoder.start()
 
-  registerFont(join(__dirname, 'files', 'Inter-Regular.ttf'), {
-    family: 'Inter',
-  })
-
   const canvas = createCanvas(canvasWidth, canvasHeight)
   const ctx = canvas.getContext('2d')
 
-  const answers = JSON.parse(req.body)
+  const answers: Result[] = JSON.parse(req.body)
 
   await processArray(
     answers,
@@ -38,7 +35,7 @@ export default async (req, res) => {
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvasWidth, canvasHeight)
 
-        ctx.font = `24px 'Inter'`
+        ctx.font = `24px 'Arial'`
         ctx.fillStyle = 'white'
         ctx.textAlign = 'center'
 
@@ -62,7 +59,7 @@ export default async (req, res) => {
         }
 
         if (answer.type === RESULT_TYPE.SENTENCE) {
-          ctx.font = `48px 'Inter'`
+          ctx.font = `48px 'Arial'`
 
           ctx.fillText(answer.value, canvasWidth / 2, canvasHeight / 2)
         }
@@ -78,7 +75,10 @@ export default async (req, res) => {
   res.send(encoder.out.getData())
 }
 
-async function processArray(array, fn) {
+async function processArray(
+  array: Result[],
+  fn: (answer: Result, index: number) => Promise<void>
+) {
   const results = []
 
   for (let i = 0; i < array.length; i++) {
