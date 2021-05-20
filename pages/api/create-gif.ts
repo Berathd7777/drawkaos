@@ -35,7 +35,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvasWidth, canvasHeight)
 
-        ctx.font = '24px Tahoma'
+        ctx.font = '24px'
         ctx.fillStyle = 'white'
         ctx.textAlign = 'center'
 
@@ -59,7 +59,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
 
         if (answer.type === RESULT_TYPE.SENTENCE) {
-          ctx.font = '48px Tahoma'
+          ctx.font = '48px'
 
           ctx.fillText(answer.value, canvasWidth / 2, canvasHeight / 2)
         }
