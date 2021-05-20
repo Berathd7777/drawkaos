@@ -1,8 +1,5 @@
 {
   "functions": {
-    "api/create-gif.js": {
-      "includeFiles": "_files/**"
-    },
     "api/create-gif.ts": {
       "includeFiles": "_files/**"
     }
