@@ -2,6 +2,7 @@ import { Box, Button, Heading, Input, Stack, Text } from '@chakra-ui/react'
 import { Draw } from 'components/Draw'
 import { Reply } from 'components/Reply'
 import { storage } from 'firebase/init'
+import { GameState } from 'hooks/useGameState'
 import useInterval from 'hooks/useInterval'
 import { useToasts } from 'hooks/useToasts'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
@@ -16,9 +17,10 @@ type PlayingProps = {
   room: Room
   player: Player
   players: Player[]
+  gameState: GameState
 }
 
-export function Playing({ room, player, players }: PlayingProps) {
+export function Playing({ room, player, players, gameState }: PlayingProps) {
   const { showToast, updateToast } = useToasts()
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -27,8 +29,8 @@ export function Playing({ room, player, players }: PlayingProps) {
   const [seconds, setSeconds] = useState(0)
   const [running, setRunning] = useState(true)
 
-  const shouldDraw = room.step % 2 !== 0
-  const step = room.step
+  const shouldDraw = gameState.step % 2 !== 0
+  const step = gameState.step
 
   const previousReply = useMemo(() => {
     const previousReplyPlayerId = player.steps[step]
@@ -74,14 +76,26 @@ export function Playing({ room, player, players }: PlayingProps) {
             const imgURL = canvasRef.current.toDataURL(MIME_TYPE)
 
             const file = await storage
-              .child(`${room.id}/${player.id}/${room.step + 1}`)
+              .child(`${room.id}/${player.id}/${gameState.step + 1}`)
               .putString(imgURL, 'data_url')
 
             const drawUrl = await file.ref.getDownloadURL()
 
-            await addPlayerAnswer(room, player, RESULT_TYPE.DRAW, drawUrl)
+            await addPlayerAnswer(
+              room,
+              player,
+              RESULT_TYPE.DRAW,
+              drawUrl,
+              gameState.step
+            )
           } else {
-            await addPlayerAnswer(room, player, RESULT_TYPE.SENTENCE, sentence)
+            await addPlayerAnswer(
+              room,
+              player,
+              RESULT_TYPE.SENTENCE,
+              sentence,
+              gameState.step
+            )
           }
 
           updateToast(toastId, {

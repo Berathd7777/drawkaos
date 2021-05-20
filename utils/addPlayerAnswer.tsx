@@ -1,17 +1,17 @@
 import { FieldValue, firestore } from 'firebase/init'
 import { Player, RESULT_TYPE } from 'types/Player'
-import { Room, ROOM_STATUS } from 'types/Room'
-import { updateRoom } from './updateRoom'
+import { Room } from 'types/Room'
 
 export function addPlayerAnswer(
   room: Room,
   player: Player,
   type: RESULT_TYPE,
-  value: string
+  value: string,
+  step: number
 ): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
-      const playerIdToUpdate = player.steps[room.step]
+      const playerIdToUpdate = player.steps[step]
 
       const playerRef = firestore
         .collection('rooms')
@@ -27,20 +27,14 @@ export function addPlayerAnswer(
         }),
       })
 
-      /* TODO: delete and replace this logic */
-      if (player.id === room.adminId) {
-        const nextStep = room.step + 1
-        const status =
-          nextStep === player.steps.length
-            ? ROOM_STATUS.FINISHED
-            : ROOM_STATUS.PLAYING
+      const roomRef = firestore.collection('rooms').doc(room.id)
 
-        await updateRoom({
-          id: room.id,
-          status,
-          step: nextStep,
-        })
-      }
+      await roomRef.update({
+        activity: FieldValue.arrayUnion({
+          playerId: player.id,
+          step,
+        }),
+      })
 
       resolve()
     } catch (error) {

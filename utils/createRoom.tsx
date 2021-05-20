@@ -20,8 +20,7 @@ export function createRoom({
       await roomRef.set({
         name,
         adminId,
-        status: ROOM_STATUS.CREATED,
-        step: 0,
+        activity: [],
       })
 
       resolve({ roomId, adminId })

@@ -6,6 +6,7 @@ import { Playing } from 'flows/room/Playing'
 import { PreviewPlayers } from 'flows/room/PreviewPlayers'
 import { PreviewRoom } from 'flows/room/PreviewRoom'
 import { Results } from 'flows/room/Results'
+import { useGameState } from 'hooks/useGameState'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { ROOM_STATUS } from 'types/Room'
@@ -34,8 +35,9 @@ function Content() {
   const room = useRoom()
   const player = usePlayer()
   const players = usePlayers()
+  const gameState = useGameState()
 
-  if (room.status === ROOM_STATUS.CREATED) {
+  if (gameState.status === ROOM_STATUS.CREATED) {
     return (
       <>
         <PreviewRoom showPlayButton={room.adminId === player.id} />
@@ -44,7 +46,7 @@ function Content() {
     )
   }
 
-  if (room.status === ROOM_STATUS.FINISHED) {
+  if (gameState.status === ROOM_STATUS.FINISHED) {
     return (
       <>
         <Heading>{room.name}: The game has finished</Heading>
@@ -53,13 +55,19 @@ function Content() {
     )
   }
 
-  if (room.status === ROOM_STATUS.PLAYING) {
+  if (gameState.status === ROOM_STATUS.PLAYING) {
     return (
-      <Playing key={room.step} room={room} player={player} players={players} />
+      <Playing
+        key={gameState.step}
+        room={room}
+        player={player}
+        players={players}
+        gameState={gameState}
+      />
     )
   }
 
-  throw new Error('Unknown room status: ' + room.status)
+  throw new Error('Unknown room status: ' + gameState.status)
 }
 
 export default PlayerId

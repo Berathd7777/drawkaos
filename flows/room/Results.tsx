@@ -19,7 +19,6 @@ import FadeIn from 'react-fade-in'
 import { MdFileDownload, MdPlayArrow } from 'react-icons/md'
 import StringSanitizer from 'string-sanitizer'
 import { Player, Result } from 'types/Player'
-import { ROOM_STATUS } from 'types/Room'
 import { initGame } from 'utils/initGame'
 
 export function Results() {
@@ -84,8 +83,8 @@ export function Results() {
   const playAgain = async () => {
     await initGame({
       roomId: room.id,
-      nextRoomStatus: ROOM_STATUS.CREATED,
       players,
+      action: 'RESET',
     })
   }
 
