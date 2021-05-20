@@ -1,6 +1,7 @@
 import { createCanvas, loadImage, registerFont } from 'canvas'
 import GIFEncoder from 'gif-encoder-2'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { join } from 'path'
 import { Result, RESULT_TYPE } from 'types/Player'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -21,7 +22,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   encoder.setDelay(3000)
   encoder.start()
 
-  registerFont('Inter-Regular.ttf', { family: 'Inter' })
+  registerFont(join(__dirname, '_files', 'Inter-Regular.ttf'), {
+    family: 'Inter',
+  })
 
   const canvas = createCanvas(canvasWidth, canvasHeight)
   const ctx = canvas.getContext('2d')
