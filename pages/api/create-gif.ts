@@ -1,6 +1,7 @@
-import { createCanvas, loadImage } from 'canvas'
+import { createCanvas, loadImage, registerFont } from 'canvas'
 import GIFEncoder from 'gif-encoder-2'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import path from 'path'
 import { Result, RESULT_TYPE } from 'types/Player'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -21,6 +22,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   encoder.setDelay(3000)
   encoder.start()
 
+  registerFont(path.resolve('./public/Inter-Regular.ttf'), {
+    family: 'Inter',
+  })
+
   const canvas = createCanvas(canvasWidth, canvasHeight)
   const ctx = canvas.getContext('2d')
 
@@ -35,7 +40,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvasWidth, canvasHeight)
 
-        ctx.font = `24px 'Arial'`
+        ctx.font = `24px 'Inter'`
         ctx.fillStyle = 'white'
         ctx.textAlign = 'center'
 
@@ -59,7 +64,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
 
         if (answer.type === RESULT_TYPE.SENTENCE) {
-          ctx.font = `48px 'Arial'`
+          ctx.font = `48px 'Inter'`
 
           ctx.fillText(answer.value, canvasWidth / 2, canvasHeight / 2)
         }
