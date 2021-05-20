@@ -11,8 +11,7 @@ import { Player, RESULT_TYPE } from 'types/Player'
 import { Room } from 'types/Room'
 import { addPlayerAnswer } from 'utils/addPlayerAnswer'
 
-/* TODO: update */
-const SECONDS_DEADLINE = 6000
+const SECONDS_DEADLINE = 60
 
 type PlayingProps = {
   room: Room

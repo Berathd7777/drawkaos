@@ -11,6 +11,9 @@ const COLORS = [
   { label: 'Yellow', value: '#FACC15', colorScheme: 'yellow' },
 ]
 
+const canvasWidth = 736
+const canvasHeight = 414
+
 type Props = {
   canvasRef: MutableRefObject<HTMLCanvasElement>
   canDraw: boolean
@@ -22,15 +25,15 @@ export function Draw({ canvasRef, canDraw }: Props) {
 
   const prepareCanvas = () => {
     const canvas = canvasRef.current
-    canvas.width = 640
-    canvas.height = 480
-    canvas.style.width = `${640}px`
-    canvas.style.height = `${480}px`
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
+    canvas.style.width = `${canvasWidth}px`
+    canvas.style.height = `${canvasHeight}px`
 
     const context = canvas.getContext('2d')
     context.scale(1, 1)
     context.fillStyle = 'white'
-    context.fillRect(0, 0, 640, 480)
+    context.fillRect(0, 0, canvasWidth, canvasHeight)
     context.strokeStyle = currentColor
     context.lineWidth = 5
   }
@@ -95,7 +98,6 @@ export function Draw({ canvasRef, canDraw }: Props) {
           onMouseMove={draw}
           // @ts-ignore
           ref={canvasRef}
-          marginX="auto"
         />
       </Box>
       {canDraw && (

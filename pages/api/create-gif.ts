@@ -13,10 +13,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return
   }
 
-  const canvasWidth = 1024
-  const canvasHeight = 768
-  const imageWidth = 640
-  const imageHeight = 480
+  const imageWidth = 736
+  const imageHeight = 414
+  const canvasWidth = imageWidth * 1.25
+  const canvasHeight = imageHeight * 1.25
 
   const encoder = new GIFEncoder(canvasWidth, canvasHeight)
   encoder.setDelay(3000)
@@ -44,11 +44,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         ctx.fillStyle = 'white'
         ctx.textAlign = 'center'
 
-        ctx.fillText(answer.author, canvasWidth / 2, 48)
+        ctx.fillText(answer.author, canvasWidth / 2, 36)
         ctx.fillText(
           `${index + 1}/${answers.length}`,
           canvasWidth / 2,
-          canvasHeight - 48
+          canvasHeight - 24
         )
 
         if (answer.type === RESULT_TYPE.DRAW) {
