@@ -9,12 +9,14 @@ class MyDocument extends Document {
         <body>
           <Main />
           <NextScript />
-          <script
-            async
-            defer
-            src="https://beampipe.io/js/tracker.js"
-            data-beampipe-domain="garticphone.vercel.app"
-          />
+          {process.env.NODE_ENV === 'production' && (
+            <script
+              async
+              defer
+              src="https://beampipe.io/js/tracker.js"
+              data-beampipe-domain="garticphone.vercel.app"
+            />
+          )}
         </body>
       </Html>
     )
