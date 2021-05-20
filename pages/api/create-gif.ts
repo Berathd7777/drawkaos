@@ -21,9 +21,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   encoder.setDelay(3000)
   encoder.start()
 
-  registerFont('./pages/fonts/Inter-Regular.ttf', {
-    family: 'Inter',
-  })
+  registerFont('Inter-Regular.ttf', { family: 'Inter' })
 
   const canvas = createCanvas(canvasWidth, canvasHeight)
   const ctx = canvas.getContext('2d')
