@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/create-gif.js": {
+    "pages/api/create-gif.js": {
       "includeFiles": "_files/**"
     }
   }
