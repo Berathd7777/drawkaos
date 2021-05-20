@@ -144,15 +144,17 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
           )}
         </Box>
         <Box>
-          <Button
-            colorScheme="green"
-            leftIcon={<MdDone />}
-            onClick={() => {
-              setRunning(false)
-            }}
-          >
-            Done
-          </Button>
+          {running && (
+            <Button
+              colorScheme="green"
+              leftIcon={<MdDone />}
+              onClick={() => {
+                setRunning(false)
+              }}
+            >
+              Done
+            </Button>
+          )}
         </Box>
       </Stack>
       {previousReply && <Reply align="center" result={previousReply} />}
