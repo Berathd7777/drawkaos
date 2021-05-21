@@ -5,13 +5,17 @@ export function useToasts() {
     duration: 5000,
     isClosable: true,
     position: 'top-right',
+    variant: 'solid',
   })
 
-  const showToast = (opts: UseToastOptions) =>
-    toast({
+  const showToast = (opts: UseToastOptions) => {
+    toast.closeAll()
+
+    return toast({
       status: 'info',
       ...opts,
     })
+  }
 
   const updateToast = (
     toastId: UseToastOptions['id'],
