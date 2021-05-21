@@ -10,6 +10,7 @@ import {
   Stack,
   TypographyProps,
 } from '@chakra-ui/react'
+import { Avatar } from 'components/Avatar'
 import { Reply } from 'components/Reply'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
@@ -98,7 +99,8 @@ export function Results() {
                 <AccordionButton>
                   <Stack direction="row" spacing="2" alignItems="center">
                     <AccordionIcon />
-                    <Heading as="h2" fontSize="xl" textAlign="left">
+                    <Avatar seed={player.name} />
+                    <Heading as="h2" fontSize="xl">
                       {player.name}
                     </Heading>
                   </Stack>
@@ -109,7 +111,7 @@ export function Results() {
                   key={`${isExpanded}`}
                   backgroundColor="background.800"
                 >
-                  <FadeIn delay={2000}>
+                  <FadeIn delay={1000}>
                     {player.results.map((result, index) => (
                       <PlayerAnswer
                         align={index % 2 === 0 ? 'left' : 'right'}
@@ -160,12 +162,24 @@ type ResultProps = {
 function PlayerAnswer({ result, align }: ResultProps) {
   const players = usePlayers()
 
+  const justifyContent =
+    align === 'center' ? 'center' : align === 'left' ? 'flex-start' : 'flex-end'
+  const name = players.find((p) => p.id === result.author).name
+
   return (
     <Box mt="4">
       <Stack key={result.author} spacing="4">
-        <Heading as="h3" fontSize="lg" textAlign={align}>
-          {players.find((p) => p.id === result.author).name}
-        </Heading>
+        <Stack
+          spacing="2"
+          direction="row"
+          alignItems="center"
+          justifyContent={justifyContent}
+        >
+          <Avatar seed={name} />
+          <Heading as="h3" fontSize="lg">
+            {name}
+          </Heading>
+        </Stack>
         <Reply result={result} align={align} />
       </Stack>
     </Box>

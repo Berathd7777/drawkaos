@@ -3,9 +3,9 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
-} from '@chakra-ui/alert'
-import { Box } from '@chakra-ui/layout'
-import { Spinner } from '@chakra-ui/spinner'
+  Box,
+  Spinner,
+} from '@chakra-ui/react'
 import React, { ReactNode } from 'react'
 import { REMOTE_DATA } from 'types/RemoteData'
 

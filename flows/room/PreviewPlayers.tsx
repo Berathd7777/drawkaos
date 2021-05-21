@@ -1,4 +1,5 @@
 import { Heading, IconButton, Stack, Tag, Text } from '@chakra-ui/react'
+import { Avatar } from 'components/Avatar'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
@@ -69,9 +70,9 @@ function PlayerRow({
   onRemovePlayer,
 }: PlayerProps) {
   return (
-    <Stack spacing="4" direction="row" alignItems="center">
-      <Text>{name}</Text>
-      {isCurrentPlayer && <Text>(You)</Text>}
+    <Stack spacing="2" direction="row" alignItems="center">
+      <Avatar seed={name} />
+      <Text>{isCurrentPlayer ? 'You' : name}</Text>
       {isAdmin && <Tag colorScheme="tertiary">Admin</Tag>}
       {onRemovePlayer && (
         <IconButton

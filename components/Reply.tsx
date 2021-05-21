@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react'
 import React from 'react'
 import { Result, RESULT_TYPE } from 'types/Player'
+import { CANVAS_HEIGHT } from 'utils/constants'
 
 type Props = {
   align: TypographyProps['textAlign']
@@ -30,7 +31,11 @@ export function Reply({ result, align }: Props) {
           margin={margin}
           boxShadow="md"
           fallback={
-            <Stack height="480px" alignItems="center" justifyContent="center">
+            <Stack
+              height={CANVAS_HEIGHT}
+              alignItems="center"
+              justifyContent="center"
+            >
               <Spinner size="xl" color="tertiary.500" thickness="5px" />
             </Stack>
           }
