@@ -14,7 +14,7 @@ export function Avatar({ seed, size = '48px' }: Props) {
 
   return (
     <Image
-      src={`https://avatars.dicebear.com/api/human/${text}.svg`}
+      src={`https://avatars.dicebear.com/api/bottts/${text}.svg`}
       height={size}
       width={size}
       fallback={
