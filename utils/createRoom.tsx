@@ -1,5 +1,4 @@
 import { firestore } from 'firebase/init'
-import { ROOM_STATUS } from 'types/Room'
 import { createPlayer } from './createPlayer'
 
 export function createRoom({
@@ -21,6 +20,7 @@ export function createRoom({
         name,
         adminId,
         activity: [],
+        stepTime: 60,
       })
 
       resolve({ roomId, adminId })

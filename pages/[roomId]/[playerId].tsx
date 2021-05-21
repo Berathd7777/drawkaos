@@ -2,6 +2,7 @@ import { Heading } from '@chakra-ui/react'
 import { PlayerProvider, usePlayer } from 'contexts/Player'
 import { PlayersProvider, usePlayers } from 'contexts/Players'
 import { RoomProvider, useRoom } from 'contexts/Room'
+import { ConfigureRoom } from 'flows/room/ConfigureRoom'
 import { Playing } from 'flows/room/Playing'
 import { PreviewPlayers } from 'flows/room/PreviewPlayers'
 import { PreviewRoom } from 'flows/room/PreviewRoom'
@@ -41,6 +42,7 @@ function Content() {
     return (
       <>
         <PreviewRoom showPlayButton={room.adminId === player.id} />
+        <ConfigureRoom />
         <PreviewPlayers />
       </>
     )

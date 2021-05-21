@@ -27,4 +27,5 @@ export type Room = {
   name: string
   adminId: string
   activity: RoomActivity[]
+  stepTime: number
 }

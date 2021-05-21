@@ -76,7 +76,7 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
         >
           <Button
             colorScheme="tertiary"
-            variant="outline"
+            variant="link"
             leftIcon={<MdContentCopy />}
           >
             Copy invite link
