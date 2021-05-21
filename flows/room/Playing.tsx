@@ -26,7 +26,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
   const [sentence, setSentence] = useState('')
   /* TODO: consider use a timestamp so we can refresh the page and get the current time and not a resetted one */
   const [seconds, setSeconds] = useState(0)
-  const [running, setRunning] = useState(true)
+  const [isRunning, setIsRunning] = useState(true)
 
   const shouldDraw = gameState.step % 2 !== 0
   const step = gameState.step
@@ -50,14 +50,14 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
   useInterval(
     () => {
       if (seconds === room.stepTime) {
-        setRunning(false)
+        setIsRunning(false)
 
         return
       }
 
       setSeconds(seconds + 1)
     },
-    running ? 1000 : null
+    isRunning ? 1000 : null
   )
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
       let toastId = null
 
       try {
-        if (!running) {
+        if (!isRunning) {
           toastId = showToast({
             description: 'Saving...',
           })
@@ -114,7 +114,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
 
     saveImage()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running])
+  }, [isRunning])
 
   const placeholder = step
     ? 'Describe the drawing...'
@@ -135,28 +135,30 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
         justifyContent="space-between"
       >
         <Box>
-          <CountdownCircleTimer
-            isPlaying={running}
-            duration={room.stepTime}
-            size={48}
-            strokeWidth={5}
-            colors={[
-              ['#16A34A', 0.33],
-              ['#FACC15', 0.33],
-              ['#DC2626', 0.33],
-            ]}
-          >
-            {({ remainingTime }) => remainingTime}
-          </CountdownCircleTimer>
+          {isRunning && (
+            <CountdownCircleTimer
+              isPlaying
+              duration={room.stepTime}
+              size={48}
+              strokeWidth={5}
+              colors={[
+                ['#16A34A', 0.33],
+                ['#FACC15', 0.33],
+                ['#DC2626', 0.33],
+              ]}
+            >
+              {({ remainingTime }) => remainingTime}
+            </CountdownCircleTimer>
+          )}
         </Box>
         <Box>
           <Button
             colorScheme="tertiary"
             leftIcon={<MdDone />}
             onClick={() => {
-              setRunning(false)
+              setIsRunning(false)
             }}
-            disabled={!running}
+            disabled={!isRunning}
           >
             Done
           </Button>
@@ -164,7 +166,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
       </Stack>
       {previousReply && <Reply align="center" result={previousReply} />}
       {shouldDraw ? (
-        <Draw canvasRef={canvasRef} canDraw={running} />
+        <Draw canvasRef={canvasRef} canDraw={isRunning} />
       ) : (
         <Input
           value={sentence}
