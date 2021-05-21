@@ -1,6 +1,7 @@
 import { Box, Button, Stack } from '@chakra-ui/react'
 import React, { MutableRefObject, useEffect, useState } from 'react'
 import { MdCheck, MdDelete } from 'react-icons/md'
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
 const COLORS = [
   { label: 'Black', value: '#18181B', colorScheme: 'black' },
@@ -10,9 +11,6 @@ const COLORS = [
   { label: 'Orange', value: '#F97316', colorScheme: 'orange' },
   { label: 'Yellow', value: '#FACC15', colorScheme: 'yellow' },
 ]
-
-const canvasWidth = 736
-const canvasHeight = 414
 
 type Props = {
   canvasRef: MutableRefObject<HTMLCanvasElement>
@@ -25,15 +23,15 @@ export function Draw({ canvasRef, canDraw }: Props) {
 
   const prepareCanvas = () => {
     const canvas = canvasRef.current
-    canvas.width = canvasWidth
-    canvas.height = canvasHeight
-    canvas.style.width = `${canvasWidth}px`
-    canvas.style.height = `${canvasHeight}px`
+    canvas.width = CANVAS_WIDTH
+    canvas.height = CANVAS_HEIGHT
+    canvas.style.width = `${CANVAS_WIDTH}px`
+    canvas.style.height = `${CANVAS_HEIGHT}px`
 
     const context = canvas.getContext('2d')
     context.scale(1, 1)
     context.fillStyle = 'white'
-    context.fillRect(0, 0, canvasWidth, canvasHeight)
+    context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
     context.strokeStyle = currentColor
     context.lineWidth = 5
   }
