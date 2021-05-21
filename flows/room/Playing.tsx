@@ -1,4 +1,4 @@
-import { Box, Button, Heading, Input, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, Heading, Input, Stack } from '@chakra-ui/react'
 import { Draw } from 'components/Draw'
 import { Reply } from 'components/Reply'
 import { storage } from 'firebase/init'
@@ -6,6 +6,7 @@ import { GameState } from 'hooks/useGameState'
 import useInterval from 'hooks/useInterval'
 import { useToasts } from 'hooks/useToasts'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { MdDone } from 'react-icons/md'
 import { Player, RESULT_TYPE } from 'types/Player'
 import { Room } from 'types/Room'
@@ -136,12 +137,19 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
         justifyContent="space-between"
       >
         <Box>
-          {running && (
-            <Text>
-              {SECONDS_DEADLINE - seconds} sec
-              {SECONDS_DEADLINE - seconds > 1 ? 's' : ''} left
-            </Text>
-          )}
+          <CountdownCircleTimer
+            isPlaying={running}
+            duration={SECONDS_DEADLINE}
+            size={48}
+            strokeWidth={5}
+            colors={[
+              ['#16A34A', 0.33],
+              ['#FACC15', 0.33],
+              ['#DC2626', 0.33],
+            ]}
+          >
+            {({ remainingTime }) => remainingTime}
+          </CountdownCircleTimer>
         </Box>
         <Box>
           <Button
