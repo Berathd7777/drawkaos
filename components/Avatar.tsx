@@ -7,7 +7,7 @@ type Props = {
   size?: string
 }
 
-export function Avatar({ seed, size = '48px' }: Props) {
+export function Avatar({ seed, size = '64px' }: Props) {
   const text = useMemo(() => {
     return StringSanitizer.sanitize(seed.toLocaleLowerCase())
   }, [seed])
