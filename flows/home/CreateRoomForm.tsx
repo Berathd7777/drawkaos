@@ -1,7 +1,8 @@
 import { Box, Button, chakra, Input, Stack } from '@chakra-ui/react'
+import { Avatar } from 'components/Avatar'
 import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
-import React, { SyntheticEvent } from 'react'
+import React, { ChangeEvent, SyntheticEvent, useState } from 'react'
 import { MdAdd } from 'react-icons/md'
 import { createRoom } from 'utils/createRoom'
 
@@ -16,6 +17,7 @@ interface CreateRoomFormElement extends HTMLFormElement {
 export function CreateRoomForm() {
   const { showToast, updateToast } = useToasts()
   const router = useRouter()
+  const [seed, setSeed] = useState('')
 
   const onSubmit = async (event: SyntheticEvent<CreateRoomFormElement>) => {
     event.preventDefault()
@@ -55,6 +57,10 @@ export function CreateRoomForm() {
     }
   }
 
+  const onUserNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSeed(event.target.value)
+  }
+
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
@@ -64,12 +70,17 @@ export function CreateRoomForm() {
           maxLength={140}
           variant="filled"
         />
-        <Input
-          name="userName"
-          placeholder="John Doe"
-          maxLength={140}
-          variant="filled"
-        />
+        <Stack spacing="4" direction="row" alignItems="center">
+          <Avatar seed={seed} />
+          <Input
+            name="userName"
+            placeholder="John Doe"
+            maxLength={140}
+            variant="filled"
+            onChange={onUserNameChange}
+            flex="1"
+          />
+        </Stack>
         <Box textAlign="center">
           <Button type="submit" colorScheme="tertiary" leftIcon={<MdAdd />}>
             Create
