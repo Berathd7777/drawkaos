@@ -3,7 +3,7 @@ import React from 'react'
 
 function NotFound() {
   return (
-    <Alert status="error" justifyContent="center">
+    <Alert status="error" variant="solid">
       <AlertIcon />
       <AlertTitle>Page Not Found</AlertTitle>
     </Alert>

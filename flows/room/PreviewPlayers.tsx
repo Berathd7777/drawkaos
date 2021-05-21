@@ -36,14 +36,13 @@ export function PreviewPlayers() {
       </Heading>
       {Boolean(players.length) &&
         players.map((player) => {
-          const isAdmin = room.adminId === player.id
           const isCurrentPlayer = currentPlayer.id === player.id
 
           return (
             <PlayerRow
               key={player.id}
               {...player}
-              isAdmin={isAdmin}
+              isAdmin={room.adminId === player.id}
               isCurrentPlayer={isCurrentPlayer}
               onRemovePlayer={
                 room.adminId === currentPlayer.id && !isCurrentPlayer
@@ -70,7 +69,7 @@ function PlayerRow({
   onRemovePlayer,
 }: PlayerProps) {
   return (
-    <Stack spacing="2" direction="row" alignItems="center">
+    <Stack spacing="4" direction="row" alignItems="center">
       <Avatar seed={name} />
       <Text>{isCurrentPlayer ? 'You' : name}</Text>
       {isAdmin && <Tag colorScheme="tertiary">Admin</Tag>}

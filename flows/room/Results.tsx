@@ -97,7 +97,7 @@ export function Results() {
             {({ isExpanded }) => (
               <>
                 <AccordionButton>
-                  <Stack direction="row" spacing="2" alignItems="center">
+                  <Stack direction="row" spacing="4" alignItems="center">
                     <AccordionIcon />
                     <Avatar seed={player.name} />
                     <Heading as="h2" fontSize="xl">
@@ -106,11 +106,7 @@ export function Results() {
                   </Stack>
                 </AccordionButton>
                 {/* the key is a hack to make the fade animation work in every accordion expansion */}
-                <AccordionPanel
-                  pb={4}
-                  key={`${isExpanded}`}
-                  backgroundColor="background.800"
-                >
+                <AccordionPanel key={`${isExpanded}`}>
                   <FadeIn delay={1000}>
                     {player.results.map((result, index) => (
                       <PlayerAnswer
@@ -170,7 +166,7 @@ function PlayerAnswer({ result, align }: ResultProps) {
     <Box mt="4">
       <Stack key={result.author} spacing="4">
         <Stack
-          spacing="2"
+          spacing="4"
           direction="row"
           alignItems="center"
           justifyContent={justifyContent}

@@ -128,7 +128,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
         {room.name}
       </Heading>
       <Heading fontSize="xl" textAlign="center">
-        Step {step + 1} of {players.length}
+        Step {step + 1}/{players.length}
       </Heading>
       <Stack
         spacing="4"

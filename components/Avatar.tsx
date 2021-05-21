@@ -24,7 +24,7 @@ export function Avatar({ seed, size = '48px' }: Props) {
           alignItems="center"
           justifyContent="center"
         >
-          <Spinner color="tertiary.500" />
+          <Spinner />
         </Stack>
       }
     />

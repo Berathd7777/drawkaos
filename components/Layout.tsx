@@ -12,14 +12,14 @@ export function Layout({ children }: Props) {
       <Box as="header" py="2" backgroundColor="background.800">
         <Container maxWidth="768px">
           <Stack
-            spacing="2"
+            spacing="4"
             direction="row"
             alignItems="center"
             justifyContent="center"
             height="40px"
           >
             <NextLink href="/" passHref>
-              <Link fontWeight="bold">gartic-phone</Link>
+              <Link>gartic-phone</Link>
             </NextLink>
           </Stack>
         </Container>
@@ -32,17 +32,13 @@ export function Layout({ children }: Props) {
       <Box as="footer" py="2" backgroundColor="background.800">
         <Container maxWidth="768px">
           <Stack
-            spacing="2"
+            spacing="4"
             direction="row"
             alignItems="center"
             justifyContent="center"
             height="40px"
           >
-            <Link
-              href="https://twitter.com/DuranCristhian"
-              fontWeight="bold"
-              isExternal
-            >
+            <Link href="https://twitter.com/DuranCristhian" isExternal>
               @durancristhian
             </Link>
           </Stack>

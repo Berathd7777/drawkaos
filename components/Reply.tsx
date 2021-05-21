@@ -36,7 +36,7 @@ export function Reply({ result, align }: Props) {
               alignItems="center"
               justifyContent="center"
             >
-              <Spinner size="xl" color="tertiary.500" thickness="5px" />
+              <Spinner size="xl" thickness="5px" />
             </Stack>
           }
         />

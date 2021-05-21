@@ -3,7 +3,7 @@ import React from 'react'
 
 function Error() {
   return (
-    <Alert status="error" justifyContent="center">
+    <Alert status="error" variant="solid">
       <AlertIcon />
       <AlertTitle>An error occurred</AlertTitle>
     </Alert>

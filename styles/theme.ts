@@ -71,9 +71,19 @@ const theme = extendTheme({
     },
   },
   components: {
-    Heading: {
+    Accordion: {
       baseStyle: {
-        color: 'secondary.500',
+        container: {
+          borderColor: 'background.800',
+          borderTopWidth: '2px',
+          _last: {
+            borderBottomWidth: '2px',
+          },
+        },
+        panel: {
+          backgroundColor: 'background.800',
+          pb: '4',
+        },
       },
     },
     Button: {
@@ -83,6 +93,11 @@ const theme = extendTheme({
         },
       },
     },
+    Heading: {
+      baseStyle: {
+        color: 'secondary.500',
+      },
+    },
     Input: {
       variants: {
         filled: {
@@ -90,6 +105,19 @@ const theme = extendTheme({
             borderColor: 'background.800',
           },
         },
+      },
+    },
+    Link: {
+      baseStyle: {
+        fontWeight: 'bold',
+        _hover: {
+          color: 'tertiary.500',
+        },
+      },
+    },
+    Spinner: {
+      baseStyle: {
+        color: 'tertiary.500',
       },
     },
   },

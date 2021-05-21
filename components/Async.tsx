@@ -19,14 +19,14 @@ export function Async({ children, errorMessage, status }: Props) {
   if (status === REMOTE_DATA.IDLE || status === REMOTE_DATA.LOADING) {
     return (
       <Box textAlign="center">
-        <Spinner size="xl" color="tertiary.500" thickness="5px" />
+        <Spinner size="xl" thickness="5px" />
       </Box>
     )
   }
 
   if (status === REMOTE_DATA.ERROR) {
     return (
-      <Alert status="error">
+      <Alert status="error" variant="solid">
         <AlertIcon />
         <AlertTitle>Ups!</AlertTitle>
         <AlertDescription>{errorMessage}</AlertDescription>
