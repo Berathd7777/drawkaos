@@ -15,14 +15,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const GIF_WIDTH = CANVAS_WIDTH * 1.25
-  const GIT_HEIGHT = CANVAS_HEIGHT * 1.25
+  const GIT_HEIGHT = CANVAS_HEIGHT * 1.4
 
   const encoder = new GIFEncoder(GIF_WIDTH, GIT_HEIGHT)
   encoder.setDelay(3000)
   encoder.start()
 
-  registerFont(path.resolve('./public/Inter-Regular.ttf'), {
+  registerFont(path.resolve('./public/fonts/Inter-Regular.ttf'), {
     family: 'Inter',
+  })
+  registerFont(path.resolve('./public/fonts/Inter-Bold.ttf'), {
+    family: 'Inter Bold',
   })
 
   const canvas = createCanvas(GIF_WIDTH, GIT_HEIGHT)
@@ -34,20 +37,29 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     answers,
     (answer, index) =>
       new Promise(async (resolve) => {
+        /* clear frame */
         ctx.clearRect(0, 0, GIF_WIDTH, GIT_HEIGHT)
 
-        ctx.fillStyle = 'black'
+        /* border */
+        ctx.fillStyle = '#eebbc3'
         ctx.fillRect(0, 0, GIF_WIDTH, GIT_HEIGHT)
 
-        ctx.font = `24px 'Inter'`
-        ctx.fillStyle = 'white'
-        ctx.textAlign = 'center'
+        /* background */
+        ctx.fillStyle = '#191d31'
+        ctx.fillRect(8, 8, GIF_WIDTH - 16, GIT_HEIGHT - 16)
 
-        ctx.fillText(answer.author, GIF_WIDTH / 2, 36)
+        /* player name */
+        ctx.font = `24px 'Inter Bold'`
+        ctx.fillStyle = '#b8c1ec'
+        ctx.textAlign = 'center'
+        ctx.fillText(answer.author, GIF_WIDTH / 2, 52)
+
+        /* step */
+        ctx.font = `16px 'Inter'`
         ctx.fillText(
           `${index + 1}/${answers.length}`,
           GIF_WIDTH / 2,
-          GIT_HEIGHT - 24
+          GIT_HEIGHT - 40
         )
 
         if (answer.type === RESULT_TYPE.DRAW) {
@@ -63,7 +75,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
 
         if (answer.type === RESULT_TYPE.SENTENCE) {
-          ctx.font = `48px 'Inter'`
+          ctx.font = `48px 'Inter Bold'`
+          ctx.fillStyle = '#eebbc3'
 
           ctx.fillText(answer.value, GIF_WIDTH / 2, GIT_HEIGHT / 2)
         }
