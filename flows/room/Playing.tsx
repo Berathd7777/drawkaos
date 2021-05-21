@@ -12,8 +12,6 @@ import { Player, RESULT_TYPE } from 'types/Player'
 import { Room } from 'types/Room'
 import { addPlayerAnswer } from 'utils/addPlayerAnswer'
 
-const SECONDS_DEADLINE = 60
-
 type PlayingProps = {
   room: Room
   player: Player
@@ -51,7 +49,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
 
   useInterval(
     () => {
-      if (seconds === SECONDS_DEADLINE) {
+      if (seconds === room.stepTime) {
         setRunning(false)
 
         return
@@ -139,7 +137,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
         <Box>
           <CountdownCircleTimer
             isPlaying={running}
-            duration={SECONDS_DEADLINE}
+            duration={room.stepTime}
             size={48}
             strokeWidth={5}
             colors={[
