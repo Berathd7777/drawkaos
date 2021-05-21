@@ -1,6 +1,6 @@
-import { FieldValue, firestore } from 'firebase/init'
+import { FieldValue, firestore, Timestamp } from 'firebase/init'
 import { Player, RESULT_TYPE } from 'types/Player'
-import { Room } from 'types/Room'
+import { ACTIVITY_TYPE, Room } from 'types/Room'
 
 export function addPlayerAnswer(
   room: Room,
@@ -33,6 +33,8 @@ export function addPlayerAnswer(
         activity: FieldValue.arrayUnion({
           playerId: player.id,
           step,
+          submittedAt: Timestamp.now(),
+          type: ACTIVITY_TYPE.REPLY,
         }),
       })
 

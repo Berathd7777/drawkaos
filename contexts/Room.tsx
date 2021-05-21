@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react'
 import { REMOTE_DATA } from 'types/RemoteData'
-import { Room } from 'types/Room'
+import { ACTIVITY_TYPE, Room } from 'types/Room'
 
 type RoomContextState = {
   status: REMOTE_DATA
@@ -55,8 +55,20 @@ const RoomProvider = ({ children, roomId }: Props) => {
           }
 
           const roomData = snapshot.data() as Room
+          const activity = roomData.activity.map((activity) => {
+            if (activity.type === ACTIVITY_TYPE.INIT) {
+              return activity
+            }
+
+            return {
+              ...activity,
+              // @ts-ignore
+              submittedAt: activity.submittedAt.toDate(),
+            }
+          })
           const room = {
             ...roomData,
+            activity,
             id: snapshot.id,
           }
 

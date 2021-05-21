@@ -1,6 +1,7 @@
-import { firestore } from 'firebase/init'
+import { firestore, Timestamp } from 'firebase/init'
 import { knuthShuffle } from 'knuth-shuffle'
 import { Player } from 'types/Player'
+import { ACTIVITY_TYPE } from 'types/Room'
 
 export function initGame({
   roomId,
@@ -9,14 +10,17 @@ export function initGame({
 }: {
   roomId: string
   players: Player[]
-  action: 'INIT' | 'RESET'
+  action: ACTIVITY_TYPE.INIT | 'RESET'
 }): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
       const batch = firestore.batch()
       const roomRef = firestore.collection('rooms').doc(roomId)
 
-      const activity = action === 'RESET' ? [] : [{ type: 'INIT' }]
+      const activity =
+        action === 'RESET'
+          ? []
+          : [{ type: ACTIVITY_TYPE.INIT, submittedAt: Timestamp.now() }]
 
       batch.update(roomRef, {
         activity,

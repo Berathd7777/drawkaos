@@ -7,17 +7,18 @@ export enum ROOM_STATUS {
 export enum ACTIVITY_TYPE {
   INIT = 'INIT',
   REPLY = 'REPLY',
-  FINISHED = 'FINISHED',
 }
 
 type RoomActivityInit = {
   type: ACTIVITY_TYPE.INIT
+  submittedAt: Date
 }
 
-type RoomActivityReply = {
+export type RoomActivityReply = {
   type: ACTIVITY_TYPE.REPLY
   playerId: string
   step: number
+  submittedAt: Date
 }
 
 export type RoomActivity = RoomActivityInit | RoomActivityReply

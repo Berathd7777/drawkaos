@@ -3,7 +3,6 @@ import { Draw } from 'components/Draw'
 import { Reply } from 'components/Reply'
 import { storage } from 'firebase/init'
 import { GameState } from 'hooks/useGameState'
-import useInterval from 'hooks/useInterval'
 import { useToasts } from 'hooks/useToasts'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
@@ -24,41 +23,10 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [sentence, setSentence] = useState('')
-  /* TODO: consider use a timestamp so we can refresh the page and get the current time and not a resetted one */
-  const [seconds, setSeconds] = useState(0)
   const [isRunning, setIsRunning] = useState(true)
 
   const shouldDraw = gameState.step % 2 !== 0
   const step = gameState.step
-
-  const previousReply = useMemo(() => {
-    const previousReplyPlayerId = player.steps[step]
-
-    if (!previousReplyPlayerId) {
-      return null
-    }
-
-    const previousPlayer = players.find((p) => p.id === previousReplyPlayerId)
-
-    if (!previousPlayer) {
-      return null
-    }
-
-    return previousPlayer.results[step - 1]
-  }, [player, players, step])
-
-  useInterval(
-    () => {
-      if (seconds === room.stepTime) {
-        setIsRunning(false)
-
-        return
-      }
-
-      setSeconds(seconds + 1)
-    },
-    isRunning ? 1000 : null
-  )
 
   useEffect(() => {
     const saveImage = async () => {
@@ -116,9 +84,21 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning])
 
-  const placeholder = step
-    ? 'Describe the drawing...'
-    : 'Write something for others to draw...'
+  const previousReply = useMemo(() => {
+    const previousReplyPlayerId = player.steps[step]
+
+    if (!previousReplyPlayerId) {
+      return null
+    }
+
+    const previousPlayer = players.find((p) => p.id === previousReplyPlayerId)
+
+    if (!previousPlayer) {
+      return null
+    }
+
+    return previousPlayer.results[step - 1]
+  }, [player, players, step])
 
   return (
     <Stack spacing="4">
@@ -139,6 +119,9 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
             <CountdownCircleTimer
               isPlaying
               duration={room.stepTime}
+              onComplete={() => {
+                setIsRunning(false)
+              }}
               size={48}
               strokeWidth={5}
               colors={[
@@ -174,7 +157,11 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
             setSentence(event.target.value)
           }}
           name="sentence"
-          placeholder={placeholder}
+          placeholder={
+            step
+              ? 'Describe the drawing...'
+              : 'Write something for others to draw...'
+          }
           maxLength={280}
           variant="filled"
         />

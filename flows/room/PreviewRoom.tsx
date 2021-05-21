@@ -5,6 +5,7 @@ import { useToasts } from 'hooks/useToasts'
 import React from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { MdContentCopy, MdPlayArrow } from 'react-icons/md'
+import { ACTIVITY_TYPE } from 'types/Room'
 import { initGame } from 'utils/initGame'
 
 type Props = {
@@ -25,7 +26,7 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
       await initGame({
         roomId: room.id,
         players,
-        action: 'INIT',
+        action: ACTIVITY_TYPE.INIT,
       })
 
       updateToast(toastId, {
