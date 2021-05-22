@@ -53,7 +53,7 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
     })
   }
 
-  const canPlay = players.length > 2
+  const canPlay = players.length >= 2
 
   return (
     <Stack spacing="4">
@@ -68,7 +68,7 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
             leftIcon={<MdPlayArrow />}
             disabled={!canPlay}
           >
-            {canPlay ? 'Play' : 'At least 3 players needed'}
+            {canPlay ? 'Play' : 'At least 2 players needed'}
           </Button>
         )}
         <CopyToClipboard
