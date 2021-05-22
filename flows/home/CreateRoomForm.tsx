@@ -10,6 +10,7 @@ interface FormElements extends HTMLFormControlsCollection {
   roomName: HTMLInputElement
   userName: HTMLInputElement
 }
+
 interface CreateRoomFormElement extends HTMLFormElement {
   readonly elements: FormElements
 }

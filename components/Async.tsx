@@ -1,11 +1,5 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Box,
-  Spinner,
-} from '@chakra-ui/react'
+import { Box, Spinner } from '@chakra-ui/react'
+import { AlertMessage } from 'components/AlertMessage'
 import React, { ReactNode } from 'react'
 import { REMOTE_DATA } from 'types/RemoteData'
 
@@ -26,11 +20,7 @@ export function Async({ children, errorMessage, status }: Props) {
 
   if (status === REMOTE_DATA.ERROR) {
     return (
-      <Alert status="error" variant="solid">
-        <AlertIcon />
-        <AlertTitle>Ups!</AlertTitle>
-        <AlertDescription>{errorMessage}</AlertDescription>
-      </Alert>
+      <AlertMessage status="error" title="Ups!" description={errorMessage} />
     )
   }
 

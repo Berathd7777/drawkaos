@@ -1,5 +1,5 @@
 import { firestore } from 'firebase/init'
-import { createPlayer } from './createPlayer'
+import { createPlayer } from 'utils/createPlayer'
 
 export function createRoom({
   name,

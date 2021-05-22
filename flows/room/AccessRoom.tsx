@@ -1,15 +1,17 @@
 import { Box, Button, chakra, Heading, Input, Stack } from '@chakra-ui/react'
+import { AlertMessage } from 'components/AlertMessage'
 import { Avatar } from 'components/Avatar'
 import { useRoom } from 'contexts/Room'
 import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
-import React, { ChangeEvent, SyntheticEvent, useState } from 'react'
+import React, { ChangeEvent, SyntheticEvent, useMemo, useState } from 'react'
 import { MdChevronRight } from 'react-icons/md'
 import { createPlayer } from 'utils/createPlayer'
 
 interface FormElements extends HTMLFormControlsCollection {
   name: HTMLInputElement
 }
+
 interface AccessRoomFormElement extends HTMLFormElement {
   readonly elements: FormElements
 }
@@ -19,6 +21,8 @@ export function AccessRoom() {
   const { showToast, updateToast } = useToasts()
   const router = useRouter()
   const [seed, setSeed] = useState('')
+
+  const roomHasActivity = useMemo(() => room.activity.length, [room])
 
   const onSubmit = async (event: SyntheticEvent<AccessRoomFormElement>) => {
     const toastId = showToast({
@@ -56,33 +60,43 @@ export function AccessRoom() {
 
   return (
     <Stack spacing="4">
-      <Heading fontSize="xl" textAlign="center">
-        Join a room
-      </Heading>
-      <chakra.form onSubmit={onSubmit}>
-        <Stack spacing="4">
-          <Stack spacing="4" direction="row" alignItems="center">
-            <Avatar seed={seed} />
-            <Input
-              name="name"
-              placeholder="John Doe"
-              maxLength={140}
-              variant="filled"
-              onChange={onUserNameChange}
-              flex="1"
-            />
-          </Stack>
-          <Box textAlign="center">
-            <Button
-              type="submit"
-              colorScheme="tertiary"
-              leftIcon={<MdChevronRight />}
-            >
-              Access room
-            </Button>
-          </Box>
-        </Stack>
-      </chakra.form>
+      {roomHasActivity ? (
+        <AlertMessage
+          status="info"
+          title="Game in progress"
+          description="You'll be able to join this room once the current game finishes."
+        />
+      ) : (
+        <>
+          <Heading fontSize="xl" textAlign="center">
+            Join a room
+          </Heading>
+          <chakra.form onSubmit={onSubmit}>
+            <Stack spacing="4">
+              <Stack spacing="4" direction="row" alignItems="center">
+                <Avatar seed={seed} />
+                <Input
+                  name="name"
+                  placeholder="John Doe"
+                  maxLength={140}
+                  variant="filled"
+                  onChange={onUserNameChange}
+                  flex="1"
+                />
+              </Stack>
+              <Box textAlign="center">
+                <Button
+                  type="submit"
+                  colorScheme="tertiary"
+                  leftIcon={<MdChevronRight />}
+                >
+                  Access room
+                </Button>
+              </Box>
+            </Stack>
+          </chakra.form>
+        </>
+      )}
     </Stack>
   )
 }

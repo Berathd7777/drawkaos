@@ -1,13 +1,8 @@
-import { Alert, AlertIcon, AlertTitle } from '@chakra-ui/react'
+import { AlertMessage } from 'components/AlertMessage'
 import React from 'react'
 
 function Error() {
-  return (
-    <Alert status="error" variant="solid">
-      <AlertIcon />
-      <AlertTitle>An error occurred</AlertTitle>
-    </Alert>
-  )
+  return <AlertMessage status="error" title="An error occurred" />
 }
 
 export default Error
