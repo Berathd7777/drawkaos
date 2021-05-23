@@ -1,15 +1,22 @@
-import { Box, Button, Stack } from '@chakra-ui/react'
+import { Box, chakra, Icon, IconButton, Stack } from '@chakra-ui/react'
 import React, { MutableRefObject, useEffect, useState } from 'react'
+import { BiEraser } from 'react-icons/bi'
 import { MdCheck, MdDelete } from 'react-icons/md'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
 const COLORS = [
-  { label: 'Black', value: '#18181B', colorScheme: 'black' },
-  { label: 'Green', value: '#16A34A', colorScheme: 'green' },
-  { label: 'Red', value: '#DC2626', colorScheme: 'red' },
-  { label: 'Blue', value: '#2563EB', colorScheme: 'blue' },
-  { label: 'Orange', value: '#F97316', colorScheme: 'orange' },
-  { label: 'Yellow', value: '#FACC15', colorScheme: 'yellow' },
+  { value: '#18181B', iconColor: 'white' },
+  { value: '#ffffff', iconColor: 'background.500' },
+  { value: '#666666', iconColor: 'white' },
+  { value: '#aaaaaa', iconColor: 'background.500' },
+  { value: '#2563EB', iconColor: 'white' },
+  { value: '#16A34A', iconColor: 'white' },
+  { value: '#DC2626', iconColor: 'white' },
+  { value: '#F97316', iconColor: 'background.500' },
+  { value: '#FBBF24', iconColor: 'background.500' },
+  { value: '#964112', iconColor: 'white' },
+  { value: '#99004e', iconColor: 'white' },
+  { value: '#ff008f', iconColor: 'background.500' },
 ]
 
 type Props = {
@@ -19,7 +26,7 @@ type Props = {
 
 export function Draw({ canvasRef, canDraw }: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
-  const [currentColor, setCurrentColor] = useState('black')
+  const [currentColor, setCurrentColor] = useState('#18181B')
 
   const prepareCanvas = () => {
     const canvas = canvasRef.current
@@ -99,42 +106,55 @@ export function Draw({ canvasRef, canDraw }: Props) {
         />
       </Box>
       {canDraw && (
-        <Stack spacing="4" direction="row" justifyContent="space-between">
-          <Stack spacing="4" direction="row">
-            {COLORS.map(({ label, value, colorScheme }) => (
-              <Button
-                key={value}
+        <Stack spacing="4">
+          <Stack
+            spacing="4"
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Stack spacing="2" direction="row">
+              {COLORS.map(({ value, iconColor }) => (
+                <chakra.button
+                  key={value}
+                  onClick={() => {
+                    setCurrentColor(value)
+                  }}
+                  backgroundColor={value}
+                  height={10}
+                  width={10}
+                  borderRadius="md"
+                >
+                  <Icon
+                    as={MdCheck}
+                    color={value === currentColor ? iconColor : value}
+                    height={8}
+                    width={8}
+                  />
+                </chakra.button>
+              ))}
+            </Stack>
+            <Stack spacing="4" direction="row">
+              <IconButton
+                aria-label="Eraser"
+                icon={<BiEraser />}
                 onClick={() => {
-                  setCurrentColor(value)
+                  setCurrentColor('white')
                 }}
-                backgroundColor={value}
-                padding="1"
-                colorScheme={colorScheme}
+                variant={currentColor === 'white' ? 'solid' : 'outline'}
+                colorScheme="tertiary"
+              />
+              <IconButton
+                aria-label="Clear"
+                icon={<MdDelete />}
+                onClick={clearCanvas}
+                variant="outline"
+                colorScheme="tertiary"
               >
-                <Box height="4" width="4">
-                  {value === currentColor ? (
-                    <MdCheck
-                      color={
-                        ['Orange', 'Yellow'].includes(label)
-                          ? 'background.500'
-                          : 'white'
-                      }
-                    />
-                  ) : null}
-                </Box>
-              </Button>
-            ))}
+                Clear
+              </IconButton>
+            </Stack>
           </Stack>
-          <Box>
-            <Button
-              leftIcon={<MdDelete />}
-              onClick={clearCanvas}
-              variant="outline"
-              colorScheme="tertiary"
-            >
-              Clear
-            </Button>
-          </Box>
         </Stack>
       )}
     </Stack>
