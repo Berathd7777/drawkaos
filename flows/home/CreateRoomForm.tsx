@@ -1,43 +1,55 @@
-import { Box, Button, chakra, Input, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  chakra,
+  FormControl,
+  FormLabel,
+  Input,
+  Stack,
+} from '@chakra-ui/react'
 import { Avatar } from 'components/Avatar'
 import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
-import React, { ChangeEvent, SyntheticEvent, useState } from 'react'
+import React, { ChangeEvent, useMemo, useState } from 'react'
 import { MdAdd } from 'react-icons/md'
 import { createRoom } from 'utils/createRoom'
 
-interface FormElements extends HTMLFormControlsCollection {
-  roomName: HTMLInputElement
-  userName: HTMLInputElement
-}
-
-interface CreateRoomFormElement extends HTMLFormElement {
-  readonly elements: FormElements
-}
-
 export function CreateRoomForm() {
-  const { showToast, updateToast } = useToasts()
   const router = useRouter()
-  const [seed, setSeed] = useState('')
+  const { showToast, updateToast } = useToasts()
+  const [formData, setFormData] = useState({
+    roomName: '',
+    userName: '',
+  })
+  const [isWorking, setIsWorking] = useState(false)
 
-  const onSubmit = async (event: SyntheticEvent<CreateRoomFormElement>) => {
+  const canSubmit = useMemo(() => {
+    return formData.roomName && formData.userName
+  }, [formData])
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [event.target.id]: event.target.value,
+    })
+  }
+
+  const onSubmit = async (event: ChangeEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const roomName = event.currentTarget.elements.roomName.value
-    const userName = event.currentTarget.elements.userName.value
-
-    if (!roomName || !userName) {
+    if (!canSubmit) {
       return
     }
 
+    setIsWorking(true)
+
     const toastId = showToast({
-      description: 'Creating...',
+      description: 'Creating room...',
     })
 
     try {
       const { roomId, adminId } = await createRoom({
-        name: roomName,
-        adminName: userName,
+        name: formData.roomName,
+        adminName: formData.userName,
       })
 
       updateToast(toastId, {
@@ -55,38 +67,49 @@ export function CreateRoomForm() {
       })
 
       console.error(error)
+    } finally {
+      setIsWorking(false)
     }
-  }
-
-  const onUserNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSeed(event.target.value)
   }
 
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
-        <Input
-          name="roomName"
-          placeholder="My room"
-          maxLength={140}
-          variant="filled"
-        />
-        <Stack spacing="4" direction="row" alignItems="center">
-          <Avatar seed={seed} />
+        <FormControl id="roomName">
+          <FormLabel>Room name</FormLabel>
           <Input
-            name="userName"
-            placeholder="John Doe"
-            maxLength={140}
+            value={formData.roomName}
+            onChange={onChange}
+            disabled={isWorking}
             variant="filled"
-            onChange={onUserNameChange}
-            flex="1"
+            maxLength={140}
           />
+        </FormControl>
+        <Stack spacing="4" direction="row" alignItems="center">
+          <Avatar seed={formData.userName} />
+          <FormControl id="userName" flex="1">
+            <FormLabel>Your name</FormLabel>
+            <Input
+              value={formData.userName}
+              onChange={onChange}
+              disabled={isWorking}
+              variant="filled"
+              maxLength={140}
+            />
+          </FormControl>
         </Stack>
-        <Box textAlign="center">
-          <Button type="submit" colorScheme="tertiary" leftIcon={<MdAdd />}>
+        <Stack alignItems="center" justifyContent="center">
+          <Button
+            type="submit"
+            colorScheme="tertiary"
+            leftIcon={<MdAdd />}
+            disabled={!canSubmit}
+            isLoading={isWorking}
+            loadingText="Creating..."
+          >
             Create
           </Button>
-        </Box>
+        </Stack>
       </Stack>
     </chakra.form>
   )

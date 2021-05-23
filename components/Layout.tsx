@@ -25,9 +25,7 @@ export function Layout({ children }: Props) {
         </Container>
       </Box>
       <Box as="main" flex="1" py="8">
-        <Container maxWidth="768px">
-          <Stack spacing="8">{children}</Stack>
-        </Container>
+        <Container maxWidth="768px">{children}</Container>
       </Box>
       <Box as="footer" py="2" backgroundColor="background.800">
         <Container maxWidth="768px">
