@@ -1,12 +1,11 @@
 import { Button, FormControl, FormLabel, Select, Stack } from '@chakra-ui/react'
 import { AlertMessage } from 'components/AlertMessage'
+import { CopyInviteLink } from 'components/CopyInviteLink'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
 import { useToasts } from 'hooks/useToasts'
 import React, { ChangeEvent, useState } from 'react'
-import CopyToClipboard from 'react-copy-to-clipboard'
-import { MdContentCopy } from 'react-icons/md'
 import { ACTIVITY_TYPE } from 'types/Room'
 import { initGame } from 'utils/initGame'
 import { updateRoom } from 'utils/updateRoom'
@@ -42,23 +41,16 @@ export function ConfigureRoom() {
         description: 'Room successfully configured',
       })
     } catch (error) {
+      console.error(error)
+
       updateToast(toastId, {
         status: 'error',
         title: 'Ups!',
         description: 'There was an error',
       })
-
-      console.error(error)
     } finally {
       setIsWorking(false)
     }
-  }
-
-  const showToastOnCopy = () => {
-    showToast({
-      description: 'Copied!',
-      status: 'success',
-    })
   }
 
   const updateRoomSettings = async (event: ChangeEvent<HTMLSelectElement>) => {
@@ -70,13 +62,13 @@ export function ConfigureRoom() {
         stepTime: Number(event.target.value),
       })
     } catch (error) {
+      console.error(error)
+
       showToast({
         status: 'error',
         title: 'Ups!',
         description: 'There was an error updating the room',
       })
-
-      console.error(error)
     } finally {
       setIsWorking(false)
     }
@@ -111,18 +103,7 @@ export function ConfigureRoom() {
         alignItems="center"
         justifyContent="center"
       >
-        <CopyToClipboard
-          text={`${window.location.origin}/${room.id}`}
-          onCopy={showToastOnCopy}
-        >
-          <Button
-            colorScheme="tertiary"
-            variant="outline"
-            leftIcon={<MdContentCopy />}
-          >
-            Copy invite link
-          </Button>
-        </CopyToClipboard>
+        <CopyInviteLink text={`${window.location.origin}/${room.id}`} />
         <Button
           colorScheme="tertiary"
           onClick={play}

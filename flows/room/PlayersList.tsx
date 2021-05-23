@@ -21,13 +21,13 @@ export function PlayersList() {
     try {
       await removePlayer(room.id, userId)
     } catch (error) {
+      console.error(error)
+
       showToast({
         status: 'error',
         title: 'Ups!',
         description: 'There was an error',
       })
-
-      console.error(error)
     }
   }
 

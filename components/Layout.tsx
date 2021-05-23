@@ -8,7 +8,12 @@ type Props = {
 
 export function Layout({ children }: Props) {
   return (
-    <Stack spacing="0" minHeight="100vh" minWidth="768px">
+    <Stack
+      spacing="0"
+      minHeight="100vh"
+      minWidth="768px"
+      style={{ fontVariantNumeric: 'tabular-nums' }}
+    >
       <Box as="header" py="2" backgroundColor="background.800">
         <Container maxWidth="768px">
           <Stack

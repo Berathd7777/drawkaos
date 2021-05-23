@@ -17,6 +17,7 @@ import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
 import { useReactions } from 'hooks/useReactions'
+import { useToasts } from 'hooks/useToasts'
 import React, { useState } from 'react'
 import FadeIn from 'react-fade-in'
 import {
@@ -35,10 +36,12 @@ export function Results() {
   const room = useRoom()
   const player = usePlayer()
   const players = usePlayers()
-  const [isProcessing, setIsProcessing] = useState(false)
+  const { showToast } = useToasts()
+  const [isGeneratingGIF, setIsGeneratingGIF] = useState(false)
+  const [isPreparingNewRound, setIsPreparingNewRound] = useState(false)
 
   const downloadGIF = (player: Player) => {
-    setIsProcessing(true)
+    setIsGeneratingGIF(true)
 
     const answers = player.results.map((result) => ({
       ...result,
@@ -50,6 +53,16 @@ export function Results() {
       body: JSON.stringify(answers),
     })
       .then(async (response) => {
+        if (!response.ok) {
+          showToast({
+            status: 'error',
+            title: 'Ups!',
+            description: 'There was an error while generating the gif.',
+          })
+
+          return
+        }
+
         const reader = response.body.getReader()
 
         const chunks = []
@@ -66,9 +79,8 @@ export function Results() {
 
         const blob = new Blob(chunks)
 
-        return URL.createObjectURL(blob)
-      })
-      .then((url: string) => {
+        const url = URL.createObjectURL(blob)
+
         const sanitizedRoomName = StringSanitizer.sanitize(room.name)
         const sanitizedPlayerName = StringSanitizer.sanitize(player.name)
 
@@ -84,22 +96,58 @@ export function Results() {
       })
       .catch((error) => {
         console.error(error)
+
+        showToast({
+          status: 'error',
+          title: 'Ups!',
+          description: 'There was an error while generating the gif.',
+        })
       })
       .finally(() => {
-        setIsProcessing(false)
+        setIsGeneratingGIF(false)
       })
   }
 
   const playAgain = async () => {
-    await initGame({
-      roomId: room.id,
-      players,
-      action: 'RESET',
-    })
+    try {
+      setIsPreparingNewRound(true)
+
+      await initGame({
+        roomId: room.id,
+        players,
+        action: 'RESET',
+      })
+    } catch (error) {
+      console.error(error)
+
+      showToast({
+        status: 'error',
+        title: 'Ups!',
+        description: 'There was an error while resetting the game.',
+      })
+    } finally {
+      setIsPreparingNewRound(false)
+    }
   }
 
   return (
     <Stack spacing="4">
+      <Stack
+        spacing="4"
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Button
+          colorScheme="tertiary"
+          onClick={playAgain}
+          disabled={room.adminId !== player.id}
+          isLoading={isPreparingNewRound}
+          loadingText="Wait..."
+        >
+          Play again
+        </Button>
+      </Stack>
       <Accordion allowToggle>
         {players.map((player) => (
           <AccordionItem key={player.id}>
@@ -108,48 +156,38 @@ export function Results() {
                 <AccordionButton>
                   <Stack direction="row" spacing="4" alignItems="center">
                     <AccordionIcon />
-                    <Avatar seed={player.name} />
-                    <Heading as="h2" fontSize="xl">
-                      {player.name}
-                    </Heading>
+                    <Text>{player.name}</Text>
                   </Stack>
                 </AccordionButton>
                 {/* the key is a hack to make the fade animation work in every accordion expansion */}
                 <AccordionPanel key={`${isExpanded}`}>
-                  <FadeIn delay={1000}>
-                    {player.results.map((result, index) => (
-                      <PlayerAnswer
-                        align={index % 2 === 0 ? 'left' : 'right'}
-                        key={result.author}
-                        result={result}
-                      />
-                    ))}
-                    <Box textAlign="center" mt="4">
-                      <Button
-                        colorScheme="tertiary"
-                        variant="outline"
-                        onClick={() => {
-                          downloadGIF(player)
-                        }}
-                        isLoading={isProcessing}
-                      >
-                        Download .gif
-                      </Button>
-                    </Box>
-                  </FadeIn>
+                  <Stack spacing="4" alignItems="center">
+                    <FadeIn delay={2000}>
+                      {player.results.map((result, index) => (
+                        <PlayerAnswer
+                          key={result.author}
+                          align={index % 2 === 0 ? 'left' : 'right'}
+                          result={result}
+                        />
+                      ))}
+                    </FadeIn>
+                    <Button
+                      colorScheme="tertiary"
+                      onClick={() => {
+                        downloadGIF(player)
+                      }}
+                      isLoading={isGeneratingGIF}
+                      loadingText="Generating .gif"
+                    >
+                      Download .gif
+                    </Button>
+                  </Stack>
                 </AccordionPanel>
               </>
             )}
           </AccordionItem>
         ))}
       </Accordion>
-      {room.adminId === player.id && (
-        <Box textAlign="center">
-          <Button colorScheme="tertiary" onClick={playAgain}>
-            Play again
-          </Button>
-        </Box>
-      )}
     </Stack>
   )
 }
@@ -160,11 +198,11 @@ type ResultProps = {
 }
 
 function PlayerAnswer({ result, align }: ResultProps) {
-  const currentPlayer = usePlayer()
+  const player = usePlayer()
   const players = usePlayers()
 
   const justifyContent = align === 'left' ? 'flex-start' : 'flex-end'
-  const player = players.find((p) => p.id === result.author)
+  const author = players.find((p) => p.id === result.author)
 
   return (
     <Box mt="4">
@@ -175,14 +213,14 @@ function PlayerAnswer({ result, align }: ResultProps) {
           alignItems="center"
           justifyContent={justifyContent}
         >
-          <Avatar seed={player.name} />
+          <Avatar seed={author.name} />
           <Heading as="h3" fontSize="lg">
-            {player.name}
+            {author.name}
           </Heading>
         </Stack>
         <Reply result={result} align={align} />
         <Reactions
-          playerId={currentPlayer.id}
+          playerId={player.id}
           resultId={result.id}
           justifyContent={justifyContent}
         />
@@ -202,8 +240,8 @@ function Reactions({
   playerId,
   resultId,
 }: ReactionsProps) {
-  const [isUpdating, setIsUpdating] = useState(false)
   const reactions = useReactions(resultId)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const updateReaction = async (reactionType: REACTION_TYPE) => {
     try {
@@ -225,47 +263,47 @@ function Reactions({
     <Stack spacing="4" direction="row" justifyContent={justifyContent}>
       <Button
         colorScheme="tertiary"
-        variant="ghost"
+        variant="outline"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.LOVE)
         }}
         leftIcon={<MdFavorite />}
       >
-        <Text>{reactions.love}</Text>
+        <Text minWidth="1ch">{reactions.love}</Text>
       </Button>
       <Button
         colorScheme="tertiary"
-        variant="ghost"
+        variant="outline"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.SMILE)
         }}
         leftIcon={<MdSentimentVerySatisfied />}
       >
-        {reactions.smile && <Text>{reactions.smile}</Text>}
+        <Text minWidth="1ch">{reactions.smile}</Text>
       </Button>
       <Button
         colorScheme="tertiary"
-        variant="ghost"
+        variant="outline"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.PLUS_ONE)
         }}
         leftIcon={<MdPlusOne />}
       >
-        {reactions.plusOne && <Text>{reactions.plusOne}</Text>}
+        <Text minWidth="1ch">{reactions.plusOne}</Text>
       </Button>
       <Button
         colorScheme="tertiary"
-        variant="ghost"
+        variant="outline"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.THUMB_DOWN)
         }}
         leftIcon={<MdThumbDown />}
       >
-        {reactions.thumbDown && <Text>{reactions.thumbDown}</Text>}
+        <Text minWidth="1ch">{reactions.thumbDown}</Text>
       </Button>
     </Stack>
   )

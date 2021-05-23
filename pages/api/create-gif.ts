@@ -14,82 +14,90 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return
   }
 
-  const GIF_WIDTH = CANVAS_WIDTH * 1.25
-  const GIT_HEIGHT = CANVAS_HEIGHT * 1.4
+  try {
+    const GIF_WIDTH = CANVAS_WIDTH * 1.25
+    const GIT_HEIGHT = CANVAS_HEIGHT * 1.4
 
-  const encoder = new GIFEncoder(GIF_WIDTH, GIT_HEIGHT)
-  encoder.setDelay(3000)
-  encoder.start()
+    const encoder = new GIFEncoder(GIF_WIDTH, GIT_HEIGHT)
+    encoder.setDelay(3000)
+    encoder.start()
 
-  registerFont(path.resolve('./public/fonts/Inter-Regular.ttf'), {
-    family: 'Inter',
-  })
-  registerFont(path.resolve('./public/fonts/Inter-Bold.ttf'), {
-    family: 'Inter Bold',
-  })
+    registerFont(path.resolve('./public/fonts/Inter-Regular.ttf'), {
+      family: 'Inter',
+    })
+    registerFont(path.resolve('./public/fonts/Inter-Bold.ttf'), {
+      family: 'Inter Bold',
+    })
 
-  const canvas = createCanvas(GIF_WIDTH, GIT_HEIGHT)
-  const ctx = canvas.getContext('2d')
+    const canvas = createCanvas(GIF_WIDTH, GIT_HEIGHT)
+    const ctx = canvas.getContext('2d')
 
-  const answers: Result[] = JSON.parse(req.body)
+    const answers: Result[] = JSON.parse(req.body)
 
-  await processArray(
-    answers,
-    (answer, index) =>
-      new Promise(async (resolve) => {
-        /* clear frame */
-        ctx.clearRect(0, 0, GIF_WIDTH, GIT_HEIGHT)
+    await processArray(
+      answers,
+      (answer, index) =>
+        new Promise(async (resolve) => {
+          /* clear frame */
+          ctx.clearRect(0, 0, GIF_WIDTH, GIT_HEIGHT)
 
-        /* border */
-        ctx.fillStyle = '#eebbc3'
-        ctx.fillRect(0, 0, GIF_WIDTH, GIT_HEIGHT)
-
-        /* background */
-        ctx.fillStyle = '#191d31'
-        ctx.fillRect(8, 8, GIF_WIDTH - 16, GIT_HEIGHT - 16)
-
-        /* player name */
-        ctx.font = `24px 'Inter Bold'`
-        ctx.fillStyle = '#b8c1ec'
-        ctx.textAlign = 'center'
-        ctx.fillText(answer.author, GIF_WIDTH / 2, 52)
-
-        /* step */
-        ctx.font = `16px 'Inter'`
-        ctx.fillText(
-          `${index + 1}/${answers.length}`,
-          GIF_WIDTH / 2,
-          GIT_HEIGHT - 40
-        )
-
-        if (answer.type === RESULT_TYPE.DRAW) {
-          const image = await loadImage(answer.value)
-
-          ctx.drawImage(
-            image,
-            (GIF_WIDTH - CANVAS_WIDTH) / 2,
-            (GIT_HEIGHT - CANVAS_HEIGHT) / 2,
-            CANVAS_WIDTH,
-            CANVAS_HEIGHT
-          )
-        }
-
-        if (answer.type === RESULT_TYPE.SENTENCE) {
-          ctx.font = `48px 'Inter Bold'`
+          /* border */
           ctx.fillStyle = '#eebbc3'
+          ctx.fillRect(0, 0, GIF_WIDTH, GIT_HEIGHT)
 
-          ctx.fillText(answer.value, GIF_WIDTH / 2, GIT_HEIGHT / 2)
-        }
+          /* background */
+          ctx.fillStyle = '#191d31'
+          ctx.fillRect(8, 8, GIF_WIDTH - 16, GIT_HEIGHT - 16)
 
-        encoder.addFrame(ctx)
+          /* player name */
+          ctx.font = `24px 'Inter Bold'`
+          ctx.fillStyle = '#b8c1ec'
+          ctx.textAlign = 'center'
+          ctx.fillText(answer.author, GIF_WIDTH / 2, 52)
 
-        resolve()
-      })
-  )
+          /* step */
+          ctx.font = `16px 'Inter'`
+          ctx.fillText(
+            `${index + 1}/${answers.length}`,
+            GIF_WIDTH / 2,
+            GIT_HEIGHT - 40
+          )
 
-  encoder.finish()
+          if (answer.type === RESULT_TYPE.DRAW) {
+            const image = await loadImage(answer.value)
 
-  res.send(encoder.out.getData())
+            ctx.drawImage(
+              image,
+              (GIF_WIDTH - CANVAS_WIDTH) / 2,
+              (GIT_HEIGHT - CANVAS_HEIGHT) / 2,
+              CANVAS_WIDTH,
+              CANVAS_HEIGHT
+            )
+          }
+
+          if (answer.type === RESULT_TYPE.SENTENCE) {
+            ctx.font = `48px 'Inter Bold'`
+            ctx.fillStyle = '#eebbc3'
+
+            ctx.fillText(answer.value, GIF_WIDTH / 2, GIT_HEIGHT / 2)
+          }
+
+          encoder.addFrame(ctx)
+
+          resolve()
+        })
+    )
+
+    encoder.finish()
+
+    res.send(encoder.out.getData())
+  } catch (error) {
+    console.error(error)
+
+    res.status(500).json({
+      message: 'Error generating the gif',
+    })
+  }
 }
 
 async function processArray(

@@ -70,12 +70,12 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
           })
         }
       } catch (error) {
+        console.error(error)
+
         updateToast(toastId, {
           status: 'error',
           description: 'There was an error',
         })
-
-        console.error(error)
       }
     }
 

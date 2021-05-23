@@ -59,13 +59,13 @@ export function CreateRoomForm() {
 
       router.push(`${roomId}/${adminId}`)
     } catch (error) {
+      console.error(error)
+
       updateToast(toastId, {
         status: 'error',
         title: 'Ups!',
         description: 'There was an error',
       })
-
-      console.error(error)
     } finally {
       setIsWorking(false)
     }

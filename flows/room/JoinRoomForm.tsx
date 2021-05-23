@@ -60,13 +60,13 @@ export function JoinFormRoom({ roomId }: Props) {
 
       router.push(`${roomId}/${playerId}`)
     } catch (error) {
+      console.error(error)
+
       updateToast(toastId, {
         status: 'error',
         title: 'Ups!',
         description: 'There was an error',
       })
-
-      console.error(error)
     } finally {
       setIsWorking(false)
     }

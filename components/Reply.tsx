@@ -17,7 +17,17 @@ type Props = {
 
 export function Reply({ result, align }: Props) {
   if (result.type === RESULT_TYPE.SENTENCE) {
-    return <Text textAlign={align}>{result.value}</Text>
+    return (
+      <Text
+        textAlign={align}
+        backgroundColor="background.500"
+        borderRadius="md"
+        boxShadow="md"
+        padding="4"
+      >
+        {result.value}
+      </Text>
+    )
   }
 
   const margin =
@@ -29,6 +39,7 @@ export function Reply({ result, align }: Props) {
         <Image
           src={result.value}
           margin={margin}
+          borderRadius="md"
           boxShadow="md"
           fallback={
             <Stack
