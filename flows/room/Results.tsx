@@ -8,19 +8,30 @@ import {
   Button,
   Heading,
   Stack,
-  TypographyProps,
+  StackProps,
+  Text,
 } from '@chakra-ui/react'
 import { Avatar } from 'components/Avatar'
 import { Reply } from 'components/Reply'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
+import { useReactions } from 'hooks/useReactions'
 import React, { useState } from 'react'
 import FadeIn from 'react-fade-in'
-import { MdFileDownload, MdPlayArrow } from 'react-icons/md'
+import {
+  MdFavorite,
+  MdFileDownload,
+  MdPlayArrow,
+  MdPlusOne,
+  MdSentimentVerySatisfied,
+  MdThumbDown,
+} from 'react-icons/md'
 import StringSanitizer from 'string-sanitizer'
 import { Player, Result } from 'types/Player'
+import { REACTION_TYPE } from 'types/Reaction'
 import { initGame } from 'utils/initGame'
+import { toggleReaction } from 'utils/toggleReaction'
 
 export function Results() {
   const room = useRoom()
@@ -151,16 +162,16 @@ export function Results() {
 }
 
 type ResultProps = {
-  align: TypographyProps['textAlign']
+  align: 'left' | 'right'
   result: Result
 }
 
 function PlayerAnswer({ result, align }: ResultProps) {
+  const currentPlayer = usePlayer()
   const players = usePlayers()
 
-  const justifyContent =
-    align === 'center' ? 'center' : align === 'left' ? 'flex-start' : 'flex-end'
-  const name = players.find((p) => p.id === result.author).name
+  const justifyContent = align === 'left' ? 'flex-start' : 'flex-end'
+  const player = players.find((p) => p.id === result.author)
 
   return (
     <Box mt="4">
@@ -171,13 +182,98 @@ function PlayerAnswer({ result, align }: ResultProps) {
           alignItems="center"
           justifyContent={justifyContent}
         >
-          <Avatar seed={name} />
+          <Avatar seed={player.name} />
           <Heading as="h3" fontSize="lg">
-            {name}
+            {player.name}
           </Heading>
         </Stack>
         <Reply result={result} align={align} />
+        <Reactions
+          playerId={currentPlayer.id}
+          resultId={result.id}
+          justifyContent={justifyContent}
+        />
       </Stack>
     </Box>
+  )
+}
+
+type ReactionsProps = {
+  justifyContent?: StackProps['justifyContent']
+  playerId: string
+  resultId: string
+}
+
+function Reactions({
+  justifyContent = 'flex-start',
+  playerId,
+  resultId,
+}: ReactionsProps) {
+  const [isUpdating, setIsUpdating] = useState(false)
+  const reactions = useReactions(resultId)
+
+  const updateReaction = async (reactionType: REACTION_TYPE) => {
+    try {
+      setIsUpdating(true)
+
+      await toggleReaction({
+        resultId,
+        reactionType,
+        playerId,
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  return (
+    <Stack spacing="4" direction="row" justifyContent={justifyContent}>
+      <Button
+        colorScheme="tertiary"
+        variant="ghost"
+        disabled={isUpdating}
+        onClick={() => {
+          updateReaction(REACTION_TYPE.LOVE)
+        }}
+        leftIcon={<MdFavorite />}
+      >
+        <Text>{reactions.love}</Text>
+      </Button>
+      <Button
+        colorScheme="tertiary"
+        variant="ghost"
+        disabled={isUpdating}
+        onClick={() => {
+          updateReaction(REACTION_TYPE.SMILE)
+        }}
+        leftIcon={<MdSentimentVerySatisfied />}
+      >
+        {reactions.smile && <Text>{reactions.smile}</Text>}
+      </Button>
+      <Button
+        colorScheme="tertiary"
+        variant="ghost"
+        disabled={isUpdating}
+        onClick={() => {
+          updateReaction(REACTION_TYPE.PLUS_ONE)
+        }}
+        leftIcon={<MdPlusOne />}
+      >
+        {reactions.plusOne && <Text>{reactions.plusOne}</Text>}
+      </Button>
+      <Button
+        colorScheme="tertiary"
+        variant="ghost"
+        disabled={isUpdating}
+        onClick={() => {
+          updateReaction(REACTION_TYPE.THUMB_DOWN)
+        }}
+        leftIcon={<MdThumbDown />}
+      >
+        {reactions.thumbDown && <Text>{reactions.thumbDown}</Text>}
+      </Button>
+    </Stack>
   )
 }

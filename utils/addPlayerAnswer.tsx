@@ -1,6 +1,8 @@
 import { FieldValue, firestore, Timestamp } from 'firebase/init'
 import { Player, RESULT_TYPE } from 'types/Player'
+import { REACTION_TYPE } from 'types/Reaction'
 import { ACTIVITY_TYPE, Room } from 'types/Room'
+import { v4 as uuid } from 'uuid'
 
 export function addPlayerAnswer(
   room: Room,
@@ -10,6 +12,7 @@ export function addPlayerAnswer(
   step: number
 ): Promise<void> {
   return new Promise(async (resolve, reject) => {
+    /* TODO: use a batch */
     try {
       const playerIdToUpdate = player.steps[step]
 
@@ -19,8 +22,21 @@ export function addPlayerAnswer(
         .collection('players')
         .doc(playerIdToUpdate)
 
+      const resultId = uuid()
+
+      firestore
+        .collection('reactions')
+        .doc(resultId)
+        .set({
+          [REACTION_TYPE.LOVE]: [],
+          [REACTION_TYPE.SMILE]: [],
+          [REACTION_TYPE.PLUS_ONE]: [],
+          [REACTION_TYPE.THUMB_DOWN]: [],
+        })
+
       await playerRef.update({
         results: FieldValue.arrayUnion({
+          id: resultId,
           type,
           value,
           author: player.id,

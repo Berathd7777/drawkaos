@@ -4,6 +4,7 @@ export enum RESULT_TYPE {
 }
 
 export type Result = {
+  id: string
   type: RESULT_TYPE
   value: string
   author: string
