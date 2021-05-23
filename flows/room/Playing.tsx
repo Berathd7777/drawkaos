@@ -122,8 +122,8 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
               onComplete={() => {
                 setIsRunning(false)
               }}
-              size={48}
-              strokeWidth={5}
+              size={40}
+              strokeWidth={4}
               colors={[
                 ['#16A34A', 0.33],
                 ['#FACC15', 0.33],
