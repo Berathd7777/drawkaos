@@ -16,8 +16,10 @@ const COLORS = [
   { value: '#F97316', iconColor: 'background.500' },
   { value: '#FBBF24', iconColor: 'background.500' },
   { value: '#964112', iconColor: 'white' },
+  { value: '#7C3AED', iconColor: 'white' },
   { value: '#99004e', iconColor: 'white' },
   { value: '#ff008f', iconColor: 'background.500' },
+  { value: '#FBCFE8', iconColor: 'background.500' },
 ]
 
 const SHAPE_SIZES = [{ value: 2 }, { value: 5 }, { value: 10 }]
@@ -55,6 +57,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
     context.strokeStyle = currentColor
     context.lineWidth = currentLineWidth
+    context.lineCap = 'round'
   }
 
   const startDrawing = ({ nativeEvent }) => {
@@ -67,6 +70,16 @@ export function Draw({ canvasRef, canDraw }: Props) {
     if (currentTool !== TOOL.BUCKET) {
       const canvas = canvasRef.current
       const context = canvas.getContext('2d')
+
+      if (currentTool === TOOL.PENCIL) {
+        context.beginPath()
+        context.lineWidth = currentLineWidth
+        context.strokeStyle = currentColor
+        context.lineTo(offsetX, offsetY)
+        context.lineTo(offsetX + 1, offsetY + 1)
+        context.stroke()
+        context.closePath()
+      }
 
       context.beginPath()
       context.moveTo(offsetX, offsetY)
