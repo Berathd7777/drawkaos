@@ -9,11 +9,13 @@ import { MdDelete } from 'react-icons/md'
 import { Player } from 'types/Player'
 import { removePlayer } from 'utils/removePlayer'
 
-export function PreviewPlayers() {
+export function PlayersList() {
   const { showToast } = useToasts()
   const room = useRoom()
   const currentPlayer = usePlayer()
   const players = usePlayers()
+
+  const isCurrentPlayerRoomAdmin = room.adminId === currentPlayer.id
 
   const onRemovePlayer = async (userId: string) => {
     try {
@@ -31,53 +33,42 @@ export function PreviewPlayers() {
 
   return (
     <Stack spacing="4">
-      <Heading as="h2" fontSize="xl">
+      <Heading as="h2" fontSize="xl" textAlign="center">
         Players ({players.length})
       </Heading>
       {Boolean(players.length) &&
-        players.map((player) => {
-          const isCurrentPlayer = currentPlayer.id === player.id
-
-          return (
-            <PlayerRow
-              key={player.id}
-              {...player}
-              isAdmin={room.adminId === player.id}
-              isCurrentPlayer={isCurrentPlayer}
-              onRemovePlayer={
-                room.adminId === currentPlayer.id && !isCurrentPlayer
-                  ? () => onRemovePlayer(player.id)
-                  : null
-              }
-            />
-          )
-        })}
+        players.map((player) => (
+          <PlayerRow
+            key={player.id}
+            {...player}
+            isRoomAdmin={room.adminId === player.id}
+            onRemovePlayer={
+              isCurrentPlayerRoomAdmin && currentPlayer.id !== player.id
+                ? () => onRemovePlayer(player.id)
+                : null
+            }
+          />
+        ))}
     </Stack>
   )
 }
 
 type PlayerProps = Player & {
-  isAdmin: boolean
-  isCurrentPlayer: boolean
+  isRoomAdmin: boolean
   onRemovePlayer?: () => void
 }
 
-function PlayerRow({
-  name,
-  isAdmin,
-  isCurrentPlayer,
-  onRemovePlayer,
-}: PlayerProps) {
+function PlayerRow({ name, isRoomAdmin, onRemovePlayer }: PlayerProps) {
   return (
     <Stack spacing="4" direction="row" alignItems="center">
       <Avatar seed={name} />
-      <Text>{isCurrentPlayer ? 'You' : name}</Text>
-      {isAdmin && <Tag colorScheme="tertiary">Admin</Tag>}
+      <Text flex="1">{name}</Text>
+      {isRoomAdmin && <Tag colorScheme="tertiary">Admin</Tag>}
       {onRemovePlayer && (
         <IconButton
           aria-label="Remove player"
           colorScheme="red"
-          variant="link"
+          variant="ghost"
           icon={<MdDelete />}
           onClick={() => {
             onRemovePlayer()

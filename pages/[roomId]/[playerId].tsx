@@ -1,11 +1,10 @@
-import { Heading } from '@chakra-ui/react'
+import { Box, Heading, Stack } from '@chakra-ui/react'
 import { PlayerProvider, usePlayer } from 'contexts/Player'
 import { PlayersProvider, usePlayers } from 'contexts/Players'
 import { RoomProvider, useRoom } from 'contexts/Room'
 import { ConfigureRoom } from 'flows/room/ConfigureRoom'
+import { PlayersList } from 'flows/room/PlayersList'
 import { Playing } from 'flows/room/Playing'
-import { PreviewPlayers } from 'flows/room/PreviewPlayers'
-import { PreviewRoom } from 'flows/room/PreviewRoom'
 import { Results } from 'flows/room/Results'
 import { useGameState } from 'hooks/useGameState'
 import { useRouter } from 'next/router'
@@ -40,20 +39,32 @@ function Content() {
 
   if (gameState.status === ROOM_STATUS.CREATED) {
     return (
-      <>
-        <PreviewRoom showPlayButton={room.adminId === player.id} />
-        <ConfigureRoom />
-        <PreviewPlayers />
-      </>
+      <Stack spacing="4">
+        <Heading as="h1" textAlign="center">
+          {room.name}
+        </Heading>
+        <Stack spacing="4" direction="row">
+          <Box flex="1">
+            <ConfigureRoom />
+          </Box>
+          <Box width="72">
+            <Box backgroundColor="background.800" borderRadius="md" padding="4">
+              <PlayersList />
+            </Box>
+          </Box>
+        </Stack>
+      </Stack>
     )
   }
 
   if (gameState.status === ROOM_STATUS.FINISHED) {
     return (
-      <>
-        <Heading textAlign="center">{room.name}: The game has finished</Heading>
+      <Stack spacing="4">
+        <Heading as="h1" textAlign="center">
+          {room.name}: game finished
+        </Heading>
         <Results />
-      </>
+      </Stack>
     )
   }
 

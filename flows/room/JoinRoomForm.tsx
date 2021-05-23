@@ -10,7 +10,7 @@ import { Avatar } from 'components/Avatar'
 import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
 import React, { ChangeEvent, useMemo, useState } from 'react'
-import { createPlayer } from 'utils/createPlayer'
+import { addPlayerToRoom } from 'utils/addPlayerToRoom'
 
 type Props = { roomId: string }
 
@@ -47,7 +47,7 @@ export function JoinFormRoom({ roomId }: Props) {
     try {
       setIsWorking(true)
 
-      const { id: playerId } = await createPlayer({
+      const { id: playerId } = await addPlayerToRoom({
         roomId: roomId,
         name: formData.userName,
       })

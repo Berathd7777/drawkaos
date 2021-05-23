@@ -1,5 +1,5 @@
 import { firestore } from 'firebase/init'
-import { createPlayer } from 'utils/createPlayer'
+import { addPlayerToRoom } from 'utils/addPlayerToRoom'
 
 export function createRoom({
   name,
@@ -13,7 +13,7 @@ export function createRoom({
       const roomRef = firestore.collection('rooms').doc()
       const roomId = roomRef.id
 
-      const adminRef = await createPlayer({ roomId, name: adminName })
+      const adminRef = await addPlayerToRoom({ roomId, name: adminName })
       const adminId = adminRef.id
 
       await roomRef.set({

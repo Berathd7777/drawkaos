@@ -1,6 +1,6 @@
 import { firestore } from 'firebase/init'
 
-export function createPlayer({
+export function addPlayerToRoom({
   roomId,
   name,
 }: {

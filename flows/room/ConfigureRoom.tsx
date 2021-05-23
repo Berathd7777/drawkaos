@@ -1,17 +1,70 @@
-import { Select, Stack, Text } from '@chakra-ui/react'
+import { Button, FormControl, FormLabel, Select, Stack } from '@chakra-ui/react'
+import { AlertMessage } from 'components/AlertMessage'
 import { usePlayer } from 'contexts/Player'
+import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
 import { useToasts } from 'hooks/useToasts'
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useState } from 'react'
+import CopyToClipboard from 'react-copy-to-clipboard'
+import { MdContentCopy } from 'react-icons/md'
+import { ACTIVITY_TYPE } from 'types/Room'
+import { initGame } from 'utils/initGame'
 import { updateRoom } from 'utils/updateRoom'
 
 export function ConfigureRoom() {
   const room = useRoom()
   const player = usePlayer()
-  const { showToast } = useToasts()
+  const players = usePlayers()
+  const { showToast, updateToast } = useToasts()
+  const [isWorking, setIsWorking] = useState(false)
+
+  const canPlay = players.length >= 2
+  const isCurrentPlayerRoomAdmin = room.adminId === player.id
+  const admin = players.find((p) => p.id === room.adminId)
+
+  const play = async () => {
+    const toastId = showToast({
+      description: 'Preparing the room...',
+    })
+
+    try {
+      setIsWorking(true)
+
+      await initGame({
+        roomId: room.id,
+        players,
+        action: ACTIVITY_TYPE.INIT,
+      })
+
+      updateToast(toastId, {
+        status: 'success',
+        title: 'Yeay!',
+        description: 'Room successfully configured',
+      })
+    } catch (error) {
+      updateToast(toastId, {
+        status: 'error',
+        title: 'Ups!',
+        description: 'There was an error',
+      })
+
+      console.error(error)
+    } finally {
+      setIsWorking(false)
+    }
+  }
+
+  const showToastOnCopy = () => {
+    showToast({
+      description: 'Copied!',
+      status: 'success',
+    })
+  }
 
   const updateRoomSettings = async (event: ChangeEvent<HTMLSelectElement>) => {
     try {
+      setIsWorking(true)
+
       await updateRoom({
         id: room.id,
         stepTime: Number(event.target.value),
@@ -24,13 +77,22 @@ export function ConfigureRoom() {
       })
 
       console.error(error)
+    } finally {
+      setIsWorking(false)
     }
   }
 
   return (
     <Stack spacing="4">
-      <Stack spacing="4" direction="row" alignItems="center">
-        <Text>Round time:</Text>
+      {!isCurrentPlayerRoomAdmin && (
+        <AlertMessage
+          status="info"
+          title="Be prepared"
+          description={`Waiting for ${admin.name} to start the game.`}
+        />
+      )}
+      <FormControl id="roundTime" flex="1">
+        <FormLabel>Round time</FormLabel>
         <Select
           flex="1"
           variant="filled"
@@ -42,6 +104,34 @@ export function ConfigureRoom() {
           <option value="60">1 minute</option>
           <option value="120">2 minutes</option>
         </Select>
+      </FormControl>
+      <Stack
+        spacing="4"
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <CopyToClipboard
+          text={`${window.location.origin}/${room.id}`}
+          onCopy={showToastOnCopy}
+        >
+          <Button
+            colorScheme="tertiary"
+            variant="outline"
+            leftIcon={<MdContentCopy />}
+          >
+            Copy invite link
+          </Button>
+        </CopyToClipboard>
+        <Button
+          colorScheme="tertiary"
+          onClick={play}
+          disabled={!isCurrentPlayerRoomAdmin || !canPlay || isWorking}
+          isLoading={isWorking}
+          loadingText="Wait..."
+        >
+          Play
+        </Button>
       </Stack>
     </Stack>
   )
