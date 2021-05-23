@@ -6,7 +6,6 @@ import { GameState } from 'hooks/useGameState'
 import { useToasts } from 'hooks/useToasts'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
-import { MdDone } from 'react-icons/md'
 import { Player, RESULT_TYPE } from 'types/Player'
 import { Room } from 'types/Room'
 import { addPlayerAnswer } from 'utils/addPlayerAnswer'
@@ -137,7 +136,6 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
         <Box>
           <Button
             colorScheme="tertiary"
-            leftIcon={<MdDone />}
             onClick={() => {
               setIsRunning(false)
             }}

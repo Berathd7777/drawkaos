@@ -1,9 +1,12 @@
+import { Heading, Stack } from '@chakra-ui/layout'
+import { AlertMessage } from 'components/AlertMessage'
 import { PlayersProvider } from 'contexts/Players'
-import { RoomProvider } from 'contexts/Room'
-import { AccessRoom } from 'flows/room/AccessRoom'
-import { PreviewRoom } from 'flows/room/PreviewRoom'
+import { RoomProvider, useRoom } from 'contexts/Room'
+import { JoinFormRoom } from 'flows/room/JoinRoomForm'
+import { useGameState } from 'hooks/useGameState'
 import { useRouter } from 'next/router'
 import React from 'react'
+import { ROOM_STATUS } from 'types/Room'
 
 function RoomId() {
   const router = useRouter()
@@ -14,10 +17,36 @@ function RoomId() {
   return (
     <RoomProvider roomId={roomId}>
       <PlayersProvider roomId={roomId}>
-        <PreviewRoom />
-        <AccessRoom />
+        <Content />
       </PlayersProvider>
     </RoomProvider>
+  )
+}
+
+function Content() {
+  const room = useRoom()
+  const gameState = useGameState()
+
+  const isGameInProgress = gameState.status !== ROOM_STATUS.CREATED
+
+  return (
+    <Stack spacing="4">
+      <Heading as="h1" textAlign="center">
+        {room.name}
+      </Heading>
+      {isGameInProgress ? (
+        <AlertMessage
+          status="info"
+          title="Game in progress"
+          description="You'll be able to join this room once the current game finishes."
+        />
+      ) : (
+        <>
+          <Heading fontSize="xl">Join a room</Heading>
+          <JoinFormRoom roomId={room.id} />
+        </>
+      )}
+    </Stack>
   )
 }
 

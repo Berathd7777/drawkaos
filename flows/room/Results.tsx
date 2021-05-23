@@ -21,8 +21,6 @@ import React, { useState } from 'react'
 import FadeIn from 'react-fade-in'
 import {
   MdFavorite,
-  MdFileDownload,
-  MdPlayArrow,
   MdPlusOne,
   MdSentimentVerySatisfied,
   MdThumbDown,
@@ -134,7 +132,6 @@ export function Results() {
                           downloadGIF(player)
                         }}
                         isLoading={isProcessing}
-                        leftIcon={<MdFileDownload />}
                       >
                         Download .gif
                       </Button>
@@ -148,11 +145,7 @@ export function Results() {
       </Accordion>
       {room.adminId === player.id && (
         <Box textAlign="center">
-          <Button
-            colorScheme="tertiary"
-            onClick={playAgain}
-            leftIcon={<MdPlayArrow />}
-          >
+          <Button colorScheme="tertiary" onClick={playAgain}>
             Play again
           </Button>
         </Box>

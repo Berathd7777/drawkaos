@@ -4,7 +4,6 @@ import { useRoom } from 'contexts/Room'
 import { useToasts } from 'hooks/useToasts'
 import React from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { MdContentCopy, MdPlayArrow } from 'react-icons/md'
 import { ACTIVITY_TYPE } from 'types/Room'
 import { initGame } from 'utils/initGame'
 
@@ -65,7 +64,6 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
           <Button
             colorScheme={canPlay ? 'tertiary' : 'red'}
             onClick={play}
-            leftIcon={<MdPlayArrow />}
             disabled={!canPlay}
           >
             {canPlay ? 'Play' : 'At least 2 players needed'}
@@ -75,11 +73,7 @@ export function PreviewRoom({ showPlayButton = false }: Props) {
           text={`${window.location.origin}/${room.id}`}
           onCopy={showToastOnCopy}
         >
-          <Button
-            colorScheme="tertiary"
-            variant="link"
-            leftIcon={<MdContentCopy />}
-          >
+          <Button colorScheme="tertiary" variant="link">
             Copy invite link
           </Button>
         </CopyToClipboard>

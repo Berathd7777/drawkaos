@@ -10,19 +10,20 @@ import { Avatar } from 'components/Avatar'
 import { useToasts } from 'hooks/useToasts'
 import { useRouter } from 'next/router'
 import React, { ChangeEvent, useMemo, useState } from 'react'
-import { createRoom } from 'utils/createRoom'
+import { createPlayer } from 'utils/createPlayer'
 
-export function CreateRoomForm() {
+type Props = { roomId: string }
+
+export function JoinFormRoom({ roomId }: Props) {
   const router = useRouter()
   const { showToast, updateToast } = useToasts()
   const [formData, setFormData] = useState({
-    roomName: '',
     userName: '',
   })
   const [isWorking, setIsWorking] = useState(false)
 
   const canSubmit = useMemo(() => {
-    return formData.roomName && formData.userName
+    return formData.userName
   }, [formData])
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -40,24 +41,24 @@ export function CreateRoomForm() {
     }
 
     const toastId = showToast({
-      description: 'Creating room...',
+      description: 'Joining the room...',
     })
 
     try {
       setIsWorking(true)
 
-      const { roomId, adminId } = await createRoom({
-        name: formData.roomName,
-        adminName: formData.userName,
+      const { id: playerId } = await createPlayer({
+        roomId: roomId,
+        name: formData.userName,
       })
 
       updateToast(toastId, {
         status: 'success',
         title: 'Yeay!',
-        description: 'Room created!',
+        description: `You've joined the room`,
       })
 
-      router.push(`${roomId}/${adminId}`)
+      router.push(`${roomId}/${playerId}`)
     } catch (error) {
       updateToast(toastId, {
         status: 'error',
@@ -74,16 +75,6 @@ export function CreateRoomForm() {
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
-        <FormControl id="roomName">
-          <FormLabel>Room name</FormLabel>
-          <Input
-            value={formData.roomName}
-            onChange={onChange}
-            disabled={isWorking}
-            variant="filled"
-            maxLength={140}
-          />
-        </FormControl>
         <Stack spacing="4" direction="row" alignItems="center">
           <Avatar seed={formData.userName} />
           <FormControl id="userName" flex="1">
@@ -103,9 +94,9 @@ export function CreateRoomForm() {
             colorScheme="tertiary"
             disabled={!canSubmit}
             isLoading={isWorking}
-            loadingText="Creating..."
+            loadingText="Joining..."
           >
-            Create
+            Join
           </Button>
         </Stack>
       </Stack>
