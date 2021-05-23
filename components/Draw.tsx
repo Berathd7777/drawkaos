@@ -5,22 +5,29 @@ import { BiEraser } from 'react-icons/bi'
 import { MdCheck, MdDelete, MdEdit, MdFormatColorFill } from 'react-icons/md'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
-const COLORS = [
-  { value: '#18181B', iconColor: 'white' },
-  { value: '#ffffff', iconColor: 'background.500' },
-  { value: '#666666', iconColor: 'white' },
-  { value: '#aaaaaa', iconColor: 'background.500' },
-  { value: '#2563EB', iconColor: 'white' },
-  { value: '#16A34A', iconColor: 'white' },
-  { value: '#DC2626', iconColor: 'white' },
-  { value: '#F97316', iconColor: 'background.500' },
-  { value: '#FBBF24', iconColor: 'background.500' },
-  { value: '#964112', iconColor: 'white' },
-  { value: '#7C3AED', iconColor: 'white' },
-  { value: '#99004e', iconColor: 'white' },
-  { value: '#ff008f', iconColor: 'background.500' },
-  { value: '#FBCFE8', iconColor: 'background.500' },
+const PALLETE = [
+  '#18181B',
+  '#ffffff',
+  '#666666',
+  '#aaaaaa',
+  '#2563EB',
+  '#16A34A',
+  '#DC2626',
+  '#F97316',
+  '#FBBF24',
+  '#964112',
+  '#7C3AED',
+  '#99004e',
+  '#ff008f',
+  '#FBCFE8',
 ]
+
+const COLORS = PALLETE.map((color) => {
+  return {
+    value: color,
+    iconColor: Color(color).luminosity() > 0.5 ? 'background.500' : 'white',
+  }
+})
 
 const SHAPE_SIZES = [{ value: 2 }, { value: 5 }, { value: 10 }]
 
@@ -39,10 +46,14 @@ type Props = {
 
 export function Draw({ canvasRef, canDraw }: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
-  const [currentColor, setCurrentColor] = useState('#18181B')
+  const [currentColor, setCurrentColor] = useState(COLORS[0].value)
   const [colorBeforeEraser, setColorBeforeEraser] = useState('')
   const [currentTool, setCurrentTool] = useState<TOOL>(TOOL.PENCIL)
   const [currentLineWidth, setCurrentLineWidth] = useState(5)
+
+  const getCurrentColor = () => {
+    return Color.rgb(currentColor).string()
+  }
 
   const prepareCanvas = () => {
     const canvas = canvasRef.current
@@ -55,7 +66,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
     context.scale(1, 1)
     context.fillStyle = '#ffffff'
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-    context.strokeStyle = currentColor
+    context.strokeStyle = getCurrentColor()
     context.lineWidth = currentLineWidth
     context.lineCap = 'round'
   }
@@ -74,7 +85,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
       if (currentTool === TOOL.PENCIL) {
         context.beginPath()
         context.lineWidth = currentLineWidth
-        context.strokeStyle = currentColor
+        context.strokeStyle = getCurrentColor()
         context.lineTo(offsetX, offsetY)
         context.lineTo(offsetX + 1, offsetY + 1)
         context.stroke()
@@ -111,7 +122,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
     data[pos] = color.r || 0
     data[pos + 1] = color.g || 0
     data[pos + 2] = color.b || 0
-    data[pos + 3] = color.hasOwnProperty('a') ? color.a : 255
+    data[pos + 3] = color.a || 255
   }
 
   const floodFill = (offsetX: number, offsetY: number) => {
@@ -128,6 +139,13 @@ export function Draw({ canvasRef, canDraw }: Props) {
       a: dstData[startPos + 3],
     }
     const todo = [[offsetX, offsetY]]
+    const fillColor = Color.rgb(currentColor).object()
+    const rgba = {
+      r: fillColor['r'],
+      g: fillColor['g'],
+      b: fillColor['b'],
+      a: fillColor.alpha,
+    }
 
     while (todo.length) {
       const pos = todo.pop()
@@ -148,9 +166,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
         y++ < canvas.height - 1 &&
         matchStartColor(dstData, currentPos, startColor)
       ) {
-        const fillColor = Color.rgb(currentColor).object()
-
-        colorPixel(dstData, currentPos, fillColor as RGBA_Color)
+        colorPixel(dstData, currentPos, rgba)
 
         if (x > 0) {
           if (matchStartColor(dstData, currentPos - 4, startColor)) {
@@ -203,7 +219,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
     context.lineWidth = currentLineWidth
-    context.strokeStyle = currentColor
+    context.strokeStyle = getCurrentColor()
     context.lineTo(offsetX, offsetY)
     context.stroke()
   }
@@ -294,7 +310,6 @@ export function Draw({ canvasRef, canDraw }: Props) {
           ))}
         </Stack>
       </Stack>
-
       <Stack spacing="2">
         <Button
           leftIcon={<MdEdit />}
