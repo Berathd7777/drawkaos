@@ -1,7 +1,8 @@
 import { Box, Button, Icon, SimpleGrid, Stack } from '@chakra-ui/react'
+import Color from 'color'
 import React, { MutableRefObject, useEffect, useState } from 'react'
 import { BiEraser } from 'react-icons/bi'
-import { MdCheck, MdDelete, MdEdit } from 'react-icons/md'
+import { MdCheck, MdDelete, MdEdit, MdFormatColorFill } from 'react-icons/md'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
 const COLORS = [
@@ -21,6 +22,14 @@ const COLORS = [
 
 const SHAPE_SIZES = [{ value: 2 }, { value: 5 }, { value: 10 }]
 
+enum TOOL {
+  PENCIL = 'PENCIL',
+  ERASER = 'ERASER',
+  BUCKET = 'BUCKET',
+}
+
+type RGBA_Color = { r: number; g: number; b: number; a: number }
+
 type Props = {
   canvasRef: MutableRefObject<HTMLCanvasElement>
   canDraw: boolean
@@ -30,7 +39,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentColor, setCurrentColor] = useState('#18181B')
   const [colorBeforeEraser, setColorBeforeEraser] = useState('')
-  const [currentTool, setCurrentTool] = useState('PENCIL')
+  const [currentTool, setCurrentTool] = useState<TOOL>(TOOL.PENCIL)
   const [currentLineWidth, setCurrentLineWidth] = useState(5)
 
   const prepareCanvas = () => {
@@ -55,15 +64,115 @@ export function Draw({ canvasRef, canDraw }: Props) {
 
     const { offsetX, offsetY } = nativeEvent
 
+    if (currentTool !== TOOL.BUCKET) {
+      const canvas = canvasRef.current
+      const context = canvas.getContext('2d')
+
+      context.beginPath()
+      context.moveTo(offsetX, offsetY)
+
+      setIsDrawing(true)
+    } else {
+      floodFill(offsetX, offsetY)
+    }
+  }
+
+  const getPixelPos = function (x: number, y: number, canvasWidth: number) {
+    return (y * canvasWidth + x) * 4
+  }
+
+  const matchStartColor = function (
+    data: unknown,
+    pos: number,
+    startColor: RGBA_Color
+  ) {
+    return (
+      data[pos] === startColor.r &&
+      data[pos + 1] === startColor.g &&
+      data[pos + 2] === startColor.b &&
+      data[pos + 3] === startColor.a
+    )
+  }
+
+  const colorPixel = function (data: unknown, pos: number, color: RGBA_Color) {
+    data[pos] = color.r || 0
+    data[pos + 1] = color.g || 0
+    data[pos + 2] = color.b || 0
+    data[pos + 3] = color.hasOwnProperty('a') ? color.a : 255
+  }
+
+  const floodFill = (offsetX: number, offsetY: number) => {
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
-    context.beginPath()
-    context.moveTo(offsetX, offsetY)
+    const dstImg = context.getImageData(0, 0, canvas.width, canvas.height)
+    const dstData = dstImg.data
 
-    setIsDrawing(true)
+    const startPos = getPixelPos(offsetX, offsetY, canvas.width)
+    const startColor = {
+      r: dstData[startPos],
+      g: dstData[startPos + 1],
+      b: dstData[startPos + 2],
+      a: dstData[startPos + 3],
+    }
+    const todo = [[offsetX, offsetY]]
+
+    while (todo.length) {
+      const pos = todo.pop()
+      const x = pos[0]
+      let y = pos[1]
+      let currentPos = getPixelPos(x, y, canvas.width)
+
+      while (y-- >= 0 && matchStartColor(dstData, currentPos, startColor)) {
+        currentPos -= canvas.width * 4
+      }
+
+      currentPos += canvas.width * 4
+      ++y
+      let reachLeft = false
+      let reachRight = false
+
+      while (
+        y++ < canvas.height - 1 &&
+        matchStartColor(dstData, currentPos, startColor)
+      ) {
+        const fillColor = Color.rgb(currentColor).object()
+
+        colorPixel(dstData, currentPos, fillColor as RGBA_Color)
+
+        if (x > 0) {
+          if (matchStartColor(dstData, currentPos - 4, startColor)) {
+            if (!reachLeft) {
+              todo.push([x - 1, y])
+              reachLeft = true
+            }
+          } else if (reachLeft) {
+            reachLeft = false
+          }
+        }
+
+        if (x < canvas.width - 1) {
+          if (matchStartColor(dstData, currentPos + 4, startColor)) {
+            if (!reachRight) {
+              todo.push([x + 1, y])
+              reachRight = true
+            }
+          } else if (reachRight) {
+            reachRight = false
+          }
+        }
+
+        currentPos += canvas.width * 4
+      }
+    }
+
+    context.putImageData(dstImg, 0, 0)
   }
 
   const finishDrawing = () => {
+    if (!isDrawing) {
+      return
+    }
+
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
     context.closePath()
@@ -118,7 +227,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
               height={10}
               width={10}
               borderRadius="md"
-              disabled={!canDraw || currentTool !== 'PENCIL'}
+              disabled={!canDraw || currentTool === TOOL.ERASER}
               colorScheme="transparent"
             >
               <Icon
@@ -141,6 +250,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
           ref={canvasRef}
           borderRadius="md"
           marginX="auto"
+          cursor="crosshair"
         />
         <Stack
           spacing="2"
@@ -176,11 +286,14 @@ export function Draw({ canvasRef, canDraw }: Props) {
         <Button
           leftIcon={<MdEdit />}
           onClick={() => {
-            setCurrentColor(colorBeforeEraser)
-            setColorBeforeEraser('')
-            setCurrentTool('PENCIL')
+            if (currentTool === TOOL.ERASER) {
+              setCurrentColor(colorBeforeEraser)
+              setColorBeforeEraser('')
+            }
+
+            setCurrentTool(TOOL.PENCIL)
           }}
-          variant={currentTool === 'PENCIL' ? 'solid' : 'ghost'}
+          variant={currentTool === TOOL.PENCIL ? 'solid' : 'ghost'}
           colorScheme="tertiary"
           disabled={!canDraw}
         >
@@ -191,13 +304,29 @@ export function Draw({ canvasRef, canDraw }: Props) {
           onClick={() => {
             setColorBeforeEraser(currentColor)
             setCurrentColor('white')
-            setCurrentTool('ERASER')
+            setCurrentTool(TOOL.ERASER)
           }}
-          variant={currentTool === 'ERASER' ? 'solid' : 'ghost'}
+          variant={currentTool === TOOL.ERASER ? 'solid' : 'ghost'}
           colorScheme="tertiary"
           disabled={!canDraw}
         >
           Eraser
+        </Button>
+        <Button
+          leftIcon={<MdFormatColorFill />}
+          onClick={() => {
+            if (currentTool === TOOL.ERASER) {
+              setCurrentColor(colorBeforeEraser)
+              setColorBeforeEraser('')
+            }
+
+            setCurrentTool(TOOL.BUCKET)
+          }}
+          variant={currentTool === TOOL.BUCKET ? 'solid' : 'ghost'}
+          colorScheme="tertiary"
+          disabled={!canDraw}
+        >
+          Bucket
         </Button>
         <Button
           leftIcon={<MdDelete />}

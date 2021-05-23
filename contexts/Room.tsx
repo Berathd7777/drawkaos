@@ -31,7 +31,9 @@ const RoomProvider = ({ children, roomId }: Props) => {
   })
 
   useEffect(() => {
-    if (!roomId) return
+    if (!roomId) {
+      return
+    }
 
     setState({
       status: REMOTE_DATA.LOADING,

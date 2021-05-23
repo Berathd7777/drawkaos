@@ -32,7 +32,9 @@ const PlayerProvider = ({ children, roomId, playerId }: Props) => {
   })
 
   useEffect(() => {
-    if (!roomId || !playerId) return
+    if (!roomId || !playerId) {
+      return
+    }
 
     setState({ status: REMOTE_DATA.LOADING, error: null, player: null })
 
