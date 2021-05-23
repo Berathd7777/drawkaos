@@ -1,4 +1,4 @@
-import { Heading, Stack } from '@chakra-ui/layout'
+import { Heading, Stack } from '@chakra-ui/react'
 import { AlertMessage } from 'components/AlertMessage'
 import { PlayersProvider } from 'contexts/Players'
 import { RoomProvider, useRoom } from 'contexts/Room'

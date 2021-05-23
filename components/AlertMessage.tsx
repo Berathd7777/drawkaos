@@ -15,7 +15,7 @@ type Props = {
 
 export function AlertMessage({ status, title, description }: Props) {
   return (
-    <Alert status={status} variant="solid">
+    <Alert status={status} variant="solid" borderRadius="md">
       <AlertIcon />
       {title && <AlertTitle>{title}</AlertTitle>}
       {description && <AlertDescription>{description}</AlertDescription>}

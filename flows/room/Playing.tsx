@@ -1,4 +1,13 @@
-import { Box, Button, Heading, Input, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import { Draw } from 'components/Draw'
 import { Reply } from 'components/Reply'
 import { storage } from 'firebase/init'
@@ -104,66 +113,72 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
       <Heading as="h1" textAlign="center">
         {room.name}
       </Heading>
-      <Heading fontSize="xl" textAlign="center">
-        Step {step + 1}/{players.length}
-      </Heading>
-      <Stack
-        spacing="4"
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-      >
-        <Box>
-          {isRunning && (
-            <CountdownCircleTimer
-              isPlaying
-              duration={room.stepTime}
-              onComplete={() => {
+      <Box backgroundColor="background.800" borderRadius="md" padding="4">
+        <Stack spacing="4">
+          <Stack
+            spacing="4"
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            height={10}
+          >
+            <Text>
+              Step {step + 1}/{players.length}
+            </Text>
+            <Box>
+              {isRunning && (
+                <CountdownCircleTimer
+                  isPlaying
+                  duration={room.stepTime}
+                  onComplete={() => {
+                    setIsRunning(false)
+                  }}
+                  size={40}
+                  strokeWidth={4}
+                  colors={[
+                    ['#16A34A', 0.33],
+                    ['#FACC15', 0.33],
+                    ['#DC2626', 0.33],
+                  ]}
+                >
+                  {({ remainingTime }) => remainingTime}
+                </CountdownCircleTimer>
+              )}
+            </Box>
+          </Stack>
+          {previousReply && <Reply align="center" result={previousReply} />}
+          {shouldDraw ? (
+            <Draw canvasRef={canvasRef} canDraw={isRunning} />
+          ) : (
+            <FormControl id="sentence">
+              <FormLabel>
+                {step
+                  ? 'Describe the drawing...'
+                  : 'Write something for others to draw...'}
+              </FormLabel>
+              <Input
+                value={sentence}
+                onChange={(event) => {
+                  setSentence(event.target.value)
+                }}
+                maxLength={280}
+                variant="filled"
+              />
+            </FormControl>
+          )}
+          <Stack direction="row" alignItems="center" justifyContent="center">
+            <Button
+              colorScheme="tertiary"
+              onClick={() => {
                 setIsRunning(false)
               }}
-              size={40}
-              strokeWidth={4}
-              colors={[
-                ['#16A34A', 0.33],
-                ['#FACC15', 0.33],
-                ['#DC2626', 0.33],
-              ]}
+              disabled={!isRunning}
             >
-              {({ remainingTime }) => remainingTime}
-            </CountdownCircleTimer>
-          )}
-        </Box>
-        <Box>
-          <Button
-            colorScheme="tertiary"
-            onClick={() => {
-              setIsRunning(false)
-            }}
-            disabled={!isRunning}
-          >
-            Done
-          </Button>
-        </Box>
-      </Stack>
-      {previousReply && <Reply align="center" result={previousReply} />}
-      {shouldDraw ? (
-        <Draw canvasRef={canvasRef} canDraw={isRunning} />
-      ) : (
-        <Input
-          value={sentence}
-          onChange={(event) => {
-            setSentence(event.target.value)
-          }}
-          name="sentence"
-          placeholder={
-            step
-              ? 'Describe the drawing...'
-              : 'Write something for others to draw...'
-          }
-          maxLength={280}
-          variant="filled"
-        />
-      )}
+              Done
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
     </Stack>
   )
 }

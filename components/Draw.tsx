@@ -1,7 +1,7 @@
-import { Box, chakra, Icon, IconButton, Stack } from '@chakra-ui/react'
+import { Box, Button, Icon, SimpleGrid, Stack } from '@chakra-ui/react'
 import React, { MutableRefObject, useEffect, useState } from 'react'
 import { BiEraser } from 'react-icons/bi'
-import { MdCheck, MdDelete } from 'react-icons/md'
+import { MdCheck, MdDelete, MdEdit } from 'react-icons/md'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
 const COLORS = [
@@ -19,6 +19,8 @@ const COLORS = [
   { value: '#ff008f', iconColor: 'background.500' },
 ]
 
+const SHAPE_SIZES = [{ value: 2 }, { value: 5 }, { value: 10 }]
+
 type Props = {
   canvasRef: MutableRefObject<HTMLCanvasElement>
   canDraw: boolean
@@ -27,6 +29,9 @@ type Props = {
 export function Draw({ canvasRef, canDraw }: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentColor, setCurrentColor] = useState('#18181B')
+  const [colorBeforeEraser, setColorBeforeEraser] = useState('')
+  const [currentTool, setCurrentTool] = useState('PENCIL')
+  const [currentLineWidth, setCurrentLineWidth] = useState(5)
 
   const prepareCanvas = () => {
     const canvas = canvasRef.current
@@ -37,10 +42,10 @@ export function Draw({ canvasRef, canDraw }: Props) {
 
     const context = canvas.getContext('2d')
     context.scale(1, 1)
-    context.fillStyle = 'white'
+    context.fillStyle = '#ffffff'
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
     context.strokeStyle = currentColor
-    context.lineWidth = 5
+    context.lineWidth = currentLineWidth
   }
 
   const startDrawing = ({ nativeEvent }) => {
@@ -75,6 +80,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
 
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
+    context.lineWidth = currentLineWidth
     context.strokeStyle = currentColor
     context.lineTo(offsetX, offsetY)
     context.stroke()
@@ -94,8 +100,38 @@ export function Draw({ canvasRef, canDraw }: Props) {
   }, [])
 
   return (
-    <Stack spacing="4">
-      <Box flex="1">
+    <Stack
+      spacing="4"
+      direction="row"
+      alignItems="center"
+      justifyContent="space-between"
+    >
+      <Box>
+        <SimpleGrid columns={2} spacing="2">
+          {COLORS.map(({ value, iconColor }) => (
+            <Button
+              key={value}
+              onClick={() => {
+                setCurrentColor(value)
+              }}
+              backgroundColor={value}
+              height={10}
+              width={10}
+              borderRadius="md"
+              disabled={!canDraw || currentTool !== 'PENCIL'}
+              colorScheme="transparent"
+            >
+              <Icon
+                as={MdCheck}
+                color={value === currentColor ? iconColor : value}
+                height={8}
+                width={8}
+              />
+            </Button>
+          ))}
+        </SimpleGrid>
+      </Box>
+      <Stack spacing="4" flex="1">
         <Box
           as="canvas"
           onMouseDown={startDrawing}
@@ -103,60 +139,76 @@ export function Draw({ canvasRef, canDraw }: Props) {
           onMouseMove={draw}
           // @ts-ignore
           ref={canvasRef}
+          borderRadius="md"
+          marginX="auto"
         />
-      </Box>
-      {canDraw && (
-        <Stack spacing="4">
-          <Stack
-            spacing="4"
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Stack spacing="2" direction="row">
-              {COLORS.map(({ value, iconColor }) => (
-                <chakra.button
-                  key={value}
-                  onClick={() => {
-                    setCurrentColor(value)
-                  }}
-                  backgroundColor={value}
-                  height={10}
-                  width={10}
-                  borderRadius="md"
-                >
-                  <Icon
-                    as={MdCheck}
-                    color={value === currentColor ? iconColor : value}
-                    height={8}
-                    width={8}
-                  />
-                </chakra.button>
-              ))}
-            </Stack>
-            <Stack spacing="4" direction="row">
-              <IconButton
-                aria-label="Eraser"
-                icon={<BiEraser />}
-                onClick={() => {
-                  setCurrentColor('white')
-                }}
-                variant={currentColor === 'white' ? 'solid' : 'outline'}
-                colorScheme="tertiary"
+        <Stack
+          spacing="2"
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+        >
+          {SHAPE_SIZES.map(({ value }) => (
+            <Button
+              key={value}
+              onClick={() => {
+                setCurrentLineWidth(value)
+              }}
+              variant={currentLineWidth === value ? 'solid' : 'ghost'}
+              colorScheme="tertiary"
+              disabled={!canDraw}
+              padding="1"
+            >
+              <Box
+                width={`${value + 2}px`}
+                height={`${value + 2}px`}
+                backgroundColor={
+                  currentLineWidth === value ? 'background.500' : 'tertiary.500'
+                }
+                borderRadius="full"
               />
-              <IconButton
-                aria-label="Clear"
-                icon={<MdDelete />}
-                onClick={clearCanvas}
-                variant="outline"
-                colorScheme="tertiary"
-              >
-                Clear
-              </IconButton>
-            </Stack>
-          </Stack>
+            </Button>
+          ))}
         </Stack>
-      )}
+      </Stack>
+
+      <Stack spacing="2">
+        <Button
+          leftIcon={<MdEdit />}
+          onClick={() => {
+            setCurrentColor(colorBeforeEraser)
+            setColorBeforeEraser('')
+            setCurrentTool('PENCIL')
+          }}
+          variant={currentTool === 'PENCIL' ? 'solid' : 'ghost'}
+          colorScheme="tertiary"
+          disabled={!canDraw}
+        >
+          Pencil
+        </Button>
+        <Button
+          leftIcon={<BiEraser />}
+          onClick={() => {
+            setColorBeforeEraser(currentColor)
+            setCurrentColor('white')
+            setCurrentTool('ERASER')
+          }}
+          variant={currentTool === 'ERASER' ? 'solid' : 'ghost'}
+          colorScheme="tertiary"
+          disabled={!canDraw}
+        >
+          Eraser
+        </Button>
+        <Button
+          leftIcon={<MdDelete />}
+          onClick={clearCanvas}
+          variant="ghost"
+          colorScheme="tertiary"
+          disabled={!canDraw}
+        >
+          Clear
+        </Button>
+      </Stack>
     </Stack>
   )
 }

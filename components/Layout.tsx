@@ -1,6 +1,9 @@
 import { Box, Container, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React, { ReactNode } from 'react'
+import { CANVAS_WIDTH } from 'utils/constants'
+
+const LAYOUT_WIDTH = `${CANVAS_WIDTH + 300}px`
 
 type Props = {
   children: ReactNode
@@ -11,11 +14,11 @@ export function Layout({ children }: Props) {
     <Stack
       spacing="0"
       minHeight="100vh"
-      minWidth="768px"
+      minWidth={LAYOUT_WIDTH}
       style={{ fontVariantNumeric: 'tabular-nums' }}
     >
       <Box as="header" py="2" backgroundColor="background.800">
-        <Container maxWidth="768px">
+        <Container maxWidth={LAYOUT_WIDTH}>
           <Stack
             spacing="4"
             direction="row"
@@ -30,10 +33,10 @@ export function Layout({ children }: Props) {
         </Container>
       </Box>
       <Box as="main" flex="1" py="8">
-        <Container maxWidth="768px">{children}</Container>
+        <Container maxWidth={LAYOUT_WIDTH}>{children}</Container>
       </Box>
       <Box as="footer" py="2" backgroundColor="background.800">
-        <Container maxWidth="768px">
+        <Container maxWidth={LAYOUT_WIDTH}>
           <Stack
             spacing="4"
             direction="row"
