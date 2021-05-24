@@ -257,8 +257,8 @@ function Reactions({
   return (
     <Stack spacing="4" direction="row" justifyContent={justifyContent}>
       <Button
-        colorScheme="tertiary"
-        variant={userReactions.love ? 'solid' : 'outline'}
+        colorScheme={userReactions.love ? 'tertiary' : 'background'}
+        variant="outline"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.LOVE)
@@ -268,8 +268,8 @@ function Reactions({
         <Text minWidth="1ch">{reactions.love}</Text>
       </Button>
       <Button
-        colorScheme="tertiary"
-        variant={userReactions.smile ? 'solid' : 'outline'}
+        colorScheme={userReactions.smile ? 'tertiary' : 'background'}
+        variant="outline"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.SMILE)
@@ -279,8 +279,8 @@ function Reactions({
         <Text minWidth="1ch">{reactions.smile}</Text>
       </Button>
       <Button
-        colorScheme="tertiary"
-        variant={userReactions.thumbUp ? 'solid' : 'outline'}
+        colorScheme={userReactions.thumbUp ? 'tertiary' : 'background'}
+        variant="outline"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.THUMB_UP)
@@ -290,8 +290,8 @@ function Reactions({
         <Text minWidth="1ch">{reactions.thumbUp}</Text>
       </Button>
       <Button
-        colorScheme="tertiary"
-        variant={userReactions.thumbDown ? 'solid' : 'outline'}
+        colorScheme={userReactions.thumbDown ? 'tertiary' : 'background'}
+        variant="outline"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.THUMB_DOWN)
