@@ -1,9 +1,8 @@
 import { Box, Container, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React, { ReactNode } from 'react'
-import { CANVAS_WIDTH } from 'utils/constants'
 
-const LAYOUT_WIDTH = `${CANVAS_WIDTH + 300}px`
+const LAYOUT_WIDTH = '1024px'
 
 type Props = {
   children: ReactNode

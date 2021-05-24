@@ -16,7 +16,7 @@ type Props = { roomId: string }
 
 export function JoinFormRoom({ roomId }: Props) {
   const router = useRouter()
-  const { showToast, updateToast } = useToasts()
+  const { showToast } = useToasts()
   const [formData, setFormData] = useState({
     userName: '',
   })
@@ -40,10 +40,6 @@ export function JoinFormRoom({ roomId }: Props) {
       return
     }
 
-    const toastId = showToast({
-      description: 'Joining the room...',
-    })
-
     try {
       setIsWorking(true)
 
@@ -52,23 +48,16 @@ export function JoinFormRoom({ roomId }: Props) {
         name: formData.userName,
       })
 
-      updateToast(toastId, {
-        status: 'success',
-        title: 'Yeay!',
-        description: `You've joined the room`,
-      })
-
       router.push(`${roomId}/${playerId}`)
     } catch (error) {
       console.error(error)
 
-      updateToast(toastId, {
+      showToast({
         status: 'error',
         title: 'Ups!',
-        description: 'There was an error',
+        description:
+          'There was an error while joining you to the room. Try again.',
       })
-    } finally {
-      setIsWorking(false)
     }
   }
 

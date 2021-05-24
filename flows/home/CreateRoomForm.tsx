@@ -14,7 +14,7 @@ import { createRoom } from 'utils/createRoom'
 
 export function CreateRoomForm() {
   const router = useRouter()
-  const { showToast, updateToast } = useToasts()
+  const { showToast } = useToasts()
   const [formData, setFormData] = useState({
     roomName: '',
     userName: '',
@@ -39,10 +39,6 @@ export function CreateRoomForm() {
       return
     }
 
-    const toastId = showToast({
-      description: 'Creating room...',
-    })
-
     try {
       setIsWorking(true)
 
@@ -51,23 +47,15 @@ export function CreateRoomForm() {
         adminName: formData.userName,
       })
 
-      updateToast(toastId, {
-        status: 'success',
-        title: 'Yeay!',
-        description: 'Room created!',
-      })
-
       router.push(`${roomId}/${adminId}`)
     } catch (error) {
       console.error(error)
 
-      updateToast(toastId, {
+      showToast({
         status: 'error',
         title: 'Ups!',
-        description: 'There was an error',
+        description: 'There was an error while creating the room. Try again.',
       })
-    } finally {
-      setIsWorking(false)
     }
   }
 

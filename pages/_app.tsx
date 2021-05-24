@@ -9,6 +9,7 @@ import SEO from 'next-seo.config'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import React from 'react'
+import 'styles/styles.css'
 import theme from 'styles/theme'
 
 function App({ Component, pageProps }: AppProps) {

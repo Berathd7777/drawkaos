@@ -14,7 +14,7 @@ export function ConfigureRoom() {
   const room = useRoom()
   const player = usePlayer()
   const players = usePlayers()
-  const { showToast, updateToast } = useToasts()
+  const { showToast } = useToasts()
   const [isWorking, setIsWorking] = useState(false)
 
   const canPlay = players.length >= 2
@@ -22,10 +22,6 @@ export function ConfigureRoom() {
   const admin = players.find((p) => p.id === room.adminId)
 
   const play = async () => {
-    const toastId = showToast({
-      description: 'Preparing the room...',
-    })
-
     try {
       setIsWorking(true)
 
@@ -34,19 +30,13 @@ export function ConfigureRoom() {
         players,
         action: ACTIVITY_TYPE.INIT,
       })
-
-      updateToast(toastId, {
-        status: 'success',
-        title: 'Yeay!',
-        description: 'Room successfully configured',
-      })
     } catch (error) {
       console.error(error)
 
-      updateToast(toastId, {
+      showToast({
         status: 'error',
         title: 'Ups!',
-        description: 'There was an error',
+        description: 'There was an error while starting the game. Try again.',
       })
     }
   }
@@ -65,7 +55,7 @@ export function ConfigureRoom() {
       showToast({
         status: 'error',
         title: 'Ups!',
-        description: 'There was an error updating the room',
+        description: 'There was an error updating the room. Try again.',
       })
     } finally {
       setIsWorking(false)

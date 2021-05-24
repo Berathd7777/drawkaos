@@ -13,7 +13,7 @@ import { Reply } from 'components/Reply'
 import { useToasts } from 'contexts/Toasts'
 import { storage } from 'firebase/init'
 import { GameState } from 'hooks/useGameState'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { Player, RESULT_TYPE } from 'types/Player'
 import { Room } from 'types/Room'
@@ -27,71 +27,59 @@ type PlayingProps = {
 }
 
 export function Playing({ room, player, players, gameState }: PlayingProps) {
-  const { showToast, updateToast } = useToasts()
-
+  const { showToast } = useToasts()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [canvasTouched, setCanvasTouched] = useState(false)
   const [sentence, setSentence] = useState('')
-  const [isRunning, setIsRunning] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
 
   const shouldDraw = gameState.step % 2 !== 0
   const step = gameState.step
 
-  useEffect(() => {
-    const saveImage = async () => {
-      let toastId = null
-
-      try {
-        if (!isRunning) {
-          toastId = showToast({
-            description: 'Saving...',
-          })
-
-          if (shouldDraw) {
-            const MIME_TYPE = 'image/jpeg'
-            const imgURL = canvasRef.current.toDataURL(MIME_TYPE)
-
-            const file = await storage
-              .child(`${room.id}/${player.id}/${gameState.step + 1}`)
-              .putString(imgURL, 'data_url')
-
-            const drawUrl = await file.ref.getDownloadURL()
-
-            await addPlayerAnswer(
-              room,
-              player,
-              RESULT_TYPE.DRAW,
-              drawUrl,
-              gameState.step
-            )
-          } else {
-            await addPlayerAnswer(
-              room,
-              player,
-              RESULT_TYPE.SENTENCE,
-              sentence || '(Empty)',
-              gameState.step
-            )
-          }
-
-          updateToast(toastId, {
-            status: 'success',
-            description: 'Saved!',
-          })
-        }
-      } catch (error) {
-        console.error(error)
-
-        updateToast(toastId, {
-          status: 'error',
-          description: 'There was an error',
-        })
-      }
+  const saveReply = async () => {
+    if (isSaving) {
+      return
     }
 
-    saveImage()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRunning])
+    setIsSaving(true)
+
+    try {
+      if (shouldDraw) {
+        const MIME_TYPE = 'image/jpeg'
+        const imgURL = canvasRef.current.toDataURL(MIME_TYPE)
+
+        const file = await storage
+          .child(`${room.id}/${player.id}/${gameState.step + 1}`)
+          .putString(imgURL, 'data_url')
+
+        const drawUrl = await file.ref.getDownloadURL()
+
+        await addPlayerAnswer(
+          room,
+          player,
+          RESULT_TYPE.DRAW,
+          drawUrl,
+          gameState.step
+        )
+      } else {
+        await addPlayerAnswer(
+          room,
+          player,
+          RESULT_TYPE.SENTENCE,
+          sentence || '(Empty)',
+          gameState.step
+        )
+      }
+    } catch (error) {
+      /* TODO: it would be nice to retry */
+      console.error(error)
+
+      showToast({
+        status: 'error',
+        description: 'There was an error while saving your reply. Try again.',
+      })
+    }
+  }
 
   const previousReply = useMemo(() => {
     const previousReplyPlayerId = player.steps[step]
@@ -112,12 +100,12 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
   const doneButton = (
     <Button
       colorScheme="tertiary"
-      onClick={() => {
-        setIsRunning(false)
-      }}
-      disabled={!isRunning || shouldDraw ? !canvasTouched : !sentence}
+      onClick={saveReply}
+      disabled={shouldDraw ? !canvasTouched : !sentence}
+      isLoading={isSaving}
+      loadingText="Wait..."
     >
-      {isRunning ? 'Done' : 'Wait...'}
+      Done
     </Button>
   )
 
@@ -139,12 +127,12 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
               Step {step + 1}/{players.length}
             </Text>
             <Box>
-              {isRunning && (
+              {!isSaving && (
                 <CountdownCircleTimer
                   isPlaying
                   duration={room.stepTime}
                   onComplete={() => {
-                    setIsRunning(false)
+                    saveReply()
                   }}
                   size={40}
                   strokeWidth={4}
@@ -163,7 +151,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
           {shouldDraw ? (
             <Draw
               canvasRef={canvasRef}
-              canDraw={isRunning}
+              canDraw={!isSaving}
               doneButton={doneButton}
               setCanvasTouched={setCanvasTouched}
             />

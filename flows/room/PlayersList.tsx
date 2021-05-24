@@ -26,7 +26,7 @@ export function PlayersList() {
       showToast({
         status: 'error',
         title: 'Ups!',
-        description: 'There was an error',
+        description: 'There was an error while removing the player. Try again.',
       })
     }
   }

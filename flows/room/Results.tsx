@@ -52,7 +52,8 @@ export function Results() {
           showToast({
             status: 'error',
             title: 'Ups!',
-            description: 'There was an error while generating the gif.',
+            description:
+              'There was an error while generating the gif. Try again.',
           })
 
           return
@@ -95,7 +96,8 @@ export function Results() {
         showToast({
           status: 'error',
           title: 'Ups!',
-          description: 'There was an error while generating the gif.',
+          description:
+            'There was an error while generating the gif. Try again.',
         })
       })
       .finally(() => {
@@ -118,7 +120,7 @@ export function Results() {
       showToast({
         status: 'error',
         title: 'Ups!',
-        description: 'There was an error while resetting the game.',
+        description: 'There was an error while resetting the game. Try again.',
       })
     }
   }
@@ -155,10 +157,10 @@ export function Results() {
                 {/* the key is a hack to make the fade animation work in every accordion expansion */}
                 <AccordionPanel key={`${isExpanded}`}>
                   <Stack spacing="4" alignItems="center">
-                    <FadeIn delay={2000}>
+                    <FadeIn delay={2000} className="w-full">
                       {player.results.map((result, index) => (
                         <PlayerAnswer
-                          key={result.author}
+                          key={result.id}
                           align={index % 2 === 0 ? 'left' : 'right'}
                           result={result}
                         />
