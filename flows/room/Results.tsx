@@ -17,8 +17,8 @@ import { Reply } from 'components/Reply'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
+import { useToasts } from 'contexts/Toasts'
 import { useReactions } from 'hooks/useReactions'
-import { useToasts } from 'hooks/useToasts'
 import React, { useState } from 'react'
 import FadeIn from 'react-fade-in'
 import StringSanitizer from 'string-sanitizer'
@@ -120,8 +120,6 @@ export function Results() {
         title: 'Ups!',
         description: 'There was an error while resetting the game.',
       })
-    } finally {
-      setIsPreparingNewRound(false)
     }
   }
 

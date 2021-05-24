@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react'
-import { useToasts } from 'hooks/useToasts'
+import { useToasts } from 'contexts/Toasts'
 import React from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import { MdContentCopy } from 'react-icons/md'

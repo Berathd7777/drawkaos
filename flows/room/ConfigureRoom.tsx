@@ -4,7 +4,7 @@ import { CopyInviteLink } from 'components/CopyInviteLink'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
-import { useToasts } from 'hooks/useToasts'
+import { useToasts } from 'contexts/Toasts'
 import React, { ChangeEvent, useState } from 'react'
 import { ACTIVITY_TYPE } from 'types/Room'
 import { initGame } from 'utils/initGame'
@@ -48,8 +48,6 @@ export function ConfigureRoom() {
         title: 'Ups!',
         description: 'There was an error',
       })
-    } finally {
-      setIsWorking(false)
     }
   }
 

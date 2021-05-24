@@ -7,7 +7,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { Avatar } from 'components/Avatar'
-import { useToasts } from 'hooks/useToasts'
+import { useToasts } from 'contexts/Toasts'
 import { useRouter } from 'next/router'
 import React, { ChangeEvent, useMemo, useState } from 'react'
 import { createRoom } from 'utils/createRoom'
