@@ -49,15 +49,25 @@ type Props = {
   canvasRef: MutableRefObject<HTMLCanvasElement>
   canDraw: boolean
   doneButton: ReactNode
+  setCanvasTouched: (canvasTouched: boolean) => void
 }
 
-export function Draw({ canvasRef, canDraw, doneButton }: Props) {
+export function Draw({
+  canvasRef,
+  canDraw,
+  doneButton,
+  setCanvasTouched,
+}: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentColor, setCurrentColor] = useState(COLORS[0].value)
   const [colorBeforeEraser, setColorBeforeEraser] = useState('')
   const [currentTool, setCurrentTool] = useState<TOOL>(TOOL.PENCIL)
   const [currentLineWidth, setCurrentLineWidth] = useState(5)
   const [undoStack, setUndoStack] = useState<string[]>([])
+
+  useEffect(() => {
+    setCanvasTouched(undoStack.length > 1)
+  }, [setCanvasTouched, undoStack])
 
   const handleUndo = () => {
     const canvas = canvasRef.current

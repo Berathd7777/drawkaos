@@ -30,6 +30,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
   const { showToast, updateToast } = useToasts()
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [canvasTouched, setCanvasTouched] = useState(false)
   const [sentence, setSentence] = useState('')
   const [isRunning, setIsRunning] = useState(true)
 
@@ -68,7 +69,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
               room,
               player,
               RESULT_TYPE.SENTENCE,
-              sentence,
+              sentence || '(Empty)',
               gameState.step
             )
           }
@@ -114,9 +115,9 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
       onClick={() => {
         setIsRunning(false)
       }}
-      disabled={!isRunning}
+      disabled={!isRunning || shouldDraw ? !canvasTouched : !sentence}
     >
-      Done
+      {isRunning ? 'Done' : 'Wait...'}
     </Button>
   )
 
@@ -164,6 +165,7 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
               canvasRef={canvasRef}
               canDraw={isRunning}
               doneButton={doneButton}
+              setCanvasTouched={setCanvasTouched}
             />
           ) : (
             <Stack spacing="4" alignItems="center" justifyContent="center">
