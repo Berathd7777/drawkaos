@@ -12,8 +12,8 @@ export function addPlayerAnswer(
   step: number
 ): Promise<void> {
   return new Promise(async (resolve, reject) => {
-    /* TODO: use a batch */
     try {
+      const batch = firestore.batch()
       const playerIdToUpdate = player.steps[step]
 
       const playerRef = firestore
@@ -23,18 +23,16 @@ export function addPlayerAnswer(
         .doc(playerIdToUpdate)
 
       const resultId = uuid()
+      const resultRef = firestore.collection('reactions').doc(resultId)
 
-      firestore
-        .collection('reactions')
-        .doc(resultId)
-        .set({
-          [REACTION_TYPE.LOVE]: [],
-          [REACTION_TYPE.SMILE]: [],
-          [REACTION_TYPE.THUMB_UP]: [],
-          [REACTION_TYPE.THUMB_DOWN]: [],
-        })
+      batch.set(resultRef, {
+        [REACTION_TYPE.LOVE]: [],
+        [REACTION_TYPE.SMILE]: [],
+        [REACTION_TYPE.THUMB_UP]: [],
+        [REACTION_TYPE.THUMB_DOWN]: [],
+      })
 
-      await playerRef.update({
+      batch.update(playerRef, {
         results: FieldValue.arrayUnion({
           id: resultId,
           type,
@@ -45,7 +43,7 @@ export function addPlayerAnswer(
 
       const roomRef = firestore.collection('rooms').doc(room.id)
 
-      await roomRef.update({
+      batch.update(roomRef, {
         activity: FieldValue.arrayUnion({
           playerId: player.id,
           step,
@@ -53,6 +51,8 @@ export function addPlayerAnswer(
           type: ACTIVITY_TYPE.REPLY,
         }),
       })
+
+      await batch.commit()
 
       resolve()
     } catch (error) {

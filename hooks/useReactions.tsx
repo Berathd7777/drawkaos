@@ -2,36 +2,38 @@ import { firestore } from 'firebase/init'
 import { useEffect, useState } from 'react'
 import { REACTION_TYPE } from 'types/Reaction'
 
-export const DEFAULT_REACTIONS = {
+const DEFAULT_REACTIONS = {
   love: 0,
   smile: 0,
   thumbUp: 0,
   thumbDown: 0,
 }
 
-export const DEFAULT_USER_REACTIONS = {
+const DEFAULT_USER_REACTIONS = {
   love: false,
   smile: false,
   thumbUp: false,
   thumbDown: false,
 }
 
-export type Reactions = {
+type Reactions = {
   love: number
   smile: number
   thumbUp: number
   thumbDown: number
 }
 
-export type UserReactions = {
+type UserReactions = {
   love: boolean
   smile: boolean
   thumbUp: boolean
   thumbDown: boolean
 }
 
+export type PlayersReaction = { playerId: string }
+
 type FirebaseReactions = {
-  [key in REACTION_TYPE]: { playerId: string }[]
+  [key in REACTION_TYPE]: PlayersReaction[]
 }
 
 export function useReactions(playerId: string, resultId: string) {

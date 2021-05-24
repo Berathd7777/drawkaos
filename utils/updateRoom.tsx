@@ -7,9 +7,12 @@ export function updateRoom({
 }: Pick<Room, 'id'> & Partial<Room>): Promise<boolean | Error> {
   return new Promise(async (resolve, reject) => {
     try {
+      const batch = firestore.batch()
       const roomRef = firestore.collection('rooms').doc(id)
 
-      await roomRef.update(roomData)
+      batch.update(roomRef, roomData)
+
+      await batch.commit()
 
       resolve(true)
     } catch (error) {
