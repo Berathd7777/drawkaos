@@ -1,8 +1,8 @@
 import { AlertMessage } from 'components/AlertMessage'
 import React from 'react'
 
-function Error() {
+function NotFound() {
   return <AlertMessage status="error" title="Page not found" />
 }
 
-export default Error
+export default NotFound
