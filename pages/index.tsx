@@ -6,7 +6,7 @@ function Home() {
   return (
     <Stack spacing="4">
       <Heading as="h1" textAlign="center">
-        Welcome to garlic-phone
+        Welcome to Garlic phone
       </Heading>
       <Heading fontSize="xl">Create a room</Heading>
       <CreateRoomForm />

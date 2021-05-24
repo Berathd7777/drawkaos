@@ -1,7 +1,8 @@
-import { Box, Container, Link, Stack } from '@chakra-ui/react'
+import { Box, Container, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React, { ReactNode } from 'react'
 import { CONTAINER_WIDTH, LAYOUT_WIDTH } from 'utils/constants'
+import { Garlic } from './Emojis'
 
 type Props = {
   children: ReactNode
@@ -25,7 +26,17 @@ export function Layout({ children }: Props) {
             height="40px"
           >
             <NextLink href="/" passHref>
-              <Link>garlic-phone</Link>
+              <Link>
+                <Stack
+                  spacing="2"
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Garlic width="6" height="6" />
+                  <Text>Garlic phone</Text>
+                </Stack>
+              </Link>
             </NextLink>
           </Stack>
         </Container>
