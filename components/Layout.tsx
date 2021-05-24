@@ -2,7 +2,7 @@ import { Box, Container, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React, { ReactNode } from 'react'
 import { CONTAINER_WIDTH, LAYOUT_WIDTH } from 'utils/constants'
-import { Garlic } from './Emojis'
+import { Garlic } from './Icons'
 
 type Props = {
   children: ReactNode

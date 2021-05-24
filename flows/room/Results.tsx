@@ -12,7 +12,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { Avatar } from 'components/Avatar'
-import { Heart, Smile, ThumbDown, ThumbUp } from 'components/Emojis'
+import { Heart, Smile, ThumbDown, ThumbUp } from 'components/Icons'
 import { Reply } from 'components/Reply'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
