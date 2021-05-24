@@ -286,7 +286,7 @@ export function Draw({
 
   return (
     <Stack spacing="4" direction="row" justifyContent="space-between">
-      <Box width="100px">
+      <Box flex="0 0 100px">
         <SimpleGrid columns={2} spacing="2">
           {COLORS.map(({ value, iconColor }) => (
             <Button
@@ -295,17 +295,17 @@ export function Draw({
                 setCurrentColor(value)
               }}
               backgroundColor={value}
-              height="46px"
-              width="46px"
+              height={10}
               borderRadius="md"
               disabled={!canDraw || currentTool === TOOL.ERASER}
               colorScheme="transparent"
+              padding="0"
             >
               <Icon
                 as={MdCheck}
                 color={value === currentColor ? iconColor : value}
-                height={10}
-                width={10}
+                height={8}
+                width={8}
               />
             </Button>
           ))}
