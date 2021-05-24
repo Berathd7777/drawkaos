@@ -16,17 +16,22 @@ import { GameState } from 'hooks/useGameState'
 import React, { useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { Player, RESULT_TYPE } from 'types/Player'
-import { Room } from 'types/Room'
+import {
+  ACTIVITY_TYPE,
+  Room,
+  RoomActivity,
+  RoomActivityReply,
+} from 'types/Room'
 import { addPlayerAnswer } from 'utils/addPlayerAnswer'
 
-type PlayingProps = {
+type Props = {
   room: Room
   player: Player
   players: Player[]
   gameState: GameState
 }
 
-export function Playing({ room, player, players, gameState }: PlayingProps) {
+export function Playing({ room, player, players, gameState }: Props) {
   const { showToast } = useToasts()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [canvasTouched, setCanvasTouched] = useState(false)
@@ -175,8 +180,59 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
               {doneButton}
             </Stack>
           )}
+          {isSaving && (
+            <WhoIsMissing
+              playerId={player.id}
+              players={players}
+              step={gameState.step}
+              activity={room.activity}
+            />
+          )}
         </Stack>
       </Box>
     </Stack>
+  )
+}
+
+type WhoIsMissingProps = {
+  playerId: string
+  step: number
+  activity: RoomActivity[]
+  players: Player[]
+}
+
+function WhoIsMissing({
+  playerId,
+  players,
+  activity,
+  step,
+}: WhoIsMissingProps) {
+  const missingPlayers = useMemo(() => {
+    const currentRoundActivity = activity.filter(
+      (a) => a.type === ACTIVITY_TYPE.REPLY && a.step === step
+    ) as RoomActivityReply[]
+    const currentRoundPlayers = currentRoundActivity.map((a) => a.playerId)
+
+    const playerNames = players
+      .filter(
+        (p) =>
+          p.id !== playerId &&
+          !currentRoundPlayers.find((roundPlayerId) => roundPlayerId === p.id)
+      )
+      .map((p) => p.name)
+
+    return playerNames.length > 1
+      ? playerNames.slice(0, -1).join(', ') + ' and ' + playerNames.slice(-1)
+      : playerNames.join(',')
+  }, [playerId, players, activity, step])
+
+  return (
+    <>
+      {missingPlayers ? (
+        <Text textAlign="center">
+          Waiting for {missingPlayers} to finish...
+        </Text>
+      ) : null}
+    </>
   )
 }
