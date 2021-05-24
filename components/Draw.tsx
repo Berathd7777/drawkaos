@@ -238,13 +238,8 @@ export function Draw({ canvasRef, canDraw }: Props) {
   }, [])
 
   return (
-    <Stack
-      spacing="4"
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-    >
-      <Box>
+    <Stack spacing="4" direction="row" justifyContent="space-between">
+      <Box width="100px">
         <SimpleGrid columns={2} spacing="2">
           {COLORS.map(({ value, iconColor }) => (
             <Button
@@ -253,8 +248,8 @@ export function Draw({ canvasRef, canDraw }: Props) {
                 setCurrentColor(value)
               }}
               backgroundColor={value}
-              height={10}
-              width={10}
+              height="46px"
+              width="46px"
               borderRadius="md"
               disabled={!canDraw || currentTool === TOOL.ERASER}
               colorScheme="transparent"
@@ -262,8 +257,8 @@ export function Draw({ canvasRef, canDraw }: Props) {
               <Icon
                 as={MdCheck}
                 color={value === currentColor ? iconColor : value}
-                height={8}
-                width={8}
+                height={10}
+                width={10}
               />
             </Button>
           ))}
@@ -310,7 +305,7 @@ export function Draw({ canvasRef, canDraw }: Props) {
           ))}
         </Stack>
       </Stack>
-      <Stack spacing="2">
+      <Stack spacing="2" width="100px">
         <Button
           leftIcon={<MdEdit />}
           onClick={() => {
