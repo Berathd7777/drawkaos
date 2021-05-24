@@ -12,6 +12,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { Avatar } from 'components/Avatar'
+import { Heart, Smile, ThumbDown, ThumbUp } from 'components/Emojis'
 import { Reply } from 'components/Reply'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
@@ -20,12 +21,6 @@ import { useReactions } from 'hooks/useReactions'
 import { useToasts } from 'hooks/useToasts'
 import React, { useState } from 'react'
 import FadeIn from 'react-fade-in'
-import {
-  MdFavorite,
-  MdPlusOne,
-  MdSentimentVerySatisfied,
-  MdThumbDown,
-} from 'react-icons/md'
 import StringSanitizer from 'string-sanitizer'
 import { Player, Result } from 'types/Player'
 import { REACTION_TYPE } from 'types/Reaction'
@@ -240,7 +235,7 @@ function Reactions({
   playerId,
   resultId,
 }: ReactionsProps) {
-  const reactions = useReactions(resultId)
+  const { reactions, userReactions } = useReactions(playerId, resultId)
   const [isUpdating, setIsUpdating] = useState(false)
 
   const updateReaction = async (reactionType: REACTION_TYPE) => {
@@ -263,45 +258,45 @@ function Reactions({
     <Stack spacing="4" direction="row" justifyContent={justifyContent}>
       <Button
         colorScheme="tertiary"
-        variant="outline"
+        variant={userReactions.love ? 'solid' : 'outline'}
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.LOVE)
         }}
-        leftIcon={<MdFavorite />}
+        leftIcon={<Heart />}
       >
         <Text minWidth="1ch">{reactions.love}</Text>
       </Button>
       <Button
         colorScheme="tertiary"
-        variant="outline"
+        variant={userReactions.smile ? 'solid' : 'outline'}
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.SMILE)
         }}
-        leftIcon={<MdSentimentVerySatisfied />}
+        leftIcon={<Smile />}
       >
         <Text minWidth="1ch">{reactions.smile}</Text>
       </Button>
       <Button
         colorScheme="tertiary"
-        variant="outline"
+        variant={userReactions.thumbUp ? 'solid' : 'outline'}
         disabled={isUpdating}
         onClick={() => {
-          updateReaction(REACTION_TYPE.PLUS_ONE)
+          updateReaction(REACTION_TYPE.THUMB_UP)
         }}
-        leftIcon={<MdPlusOne />}
+        leftIcon={<ThumbUp />}
       >
-        <Text minWidth="1ch">{reactions.plusOne}</Text>
+        <Text minWidth="1ch">{reactions.thumbUp}</Text>
       </Button>
       <Button
         colorScheme="tertiary"
-        variant="outline"
+        variant={userReactions.thumbDown ? 'solid' : 'outline'}
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.THUMB_DOWN)
         }}
-        leftIcon={<MdThumbDown />}
+        leftIcon={<ThumbDown />}
       >
         <Text minWidth="1ch">{reactions.thumbDown}</Text>
       </Button>

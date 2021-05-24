@@ -30,7 +30,7 @@ export function addPlayerAnswer(
         .set({
           [REACTION_TYPE.LOVE]: [],
           [REACTION_TYPE.SMILE]: [],
-          [REACTION_TYPE.PLUS_ONE]: [],
+          [REACTION_TYPE.THUMB_UP]: [],
           [REACTION_TYPE.THUMB_DOWN]: [],
         })
 

@@ -5,22 +5,45 @@ import { REACTION_TYPE } from 'types/Reaction'
 export const DEFAULT_REACTIONS = {
   love: 0,
   smile: 0,
-  plusOne: 0,
+  thumbUp: 0,
   thumbDown: 0,
+}
+
+export const DEFAULT_USER_REACTIONS = {
+  love: false,
+  smile: false,
+  thumbUp: false,
+  thumbDown: false,
 }
 
 export type Reactions = {
   love: number
   smile: number
-  plusOne: number
+  thumbUp: number
   thumbDown: number
 }
 
-export function useReactions(resultId: string) {
+export type UserReactions = {
+  love: boolean
+  smile: boolean
+  thumbUp: boolean
+  thumbDown: boolean
+}
+
+type FirebaseReactions = {
+  [key in REACTION_TYPE]: { playerId: string }[]
+}
+
+export function useReactions(playerId: string, resultId: string) {
   const [reactions, setReactions] = useState<Reactions>(DEFAULT_REACTIONS)
+  const [userReactions, setUserReactions] = useState<UserReactions>(
+    DEFAULT_USER_REACTIONS
+  )
 
   useEffect(() => {
-    if (!resultId) return
+    if (!playerId || !resultId) {
+      return
+    }
 
     setReactions(DEFAULT_REACTIONS)
 
@@ -29,13 +52,25 @@ export function useReactions(resultId: string) {
       .doc(resultId)
       .onSnapshot(
         (snapshot) => {
-          const reactionsData = snapshot.data()
+          const reactionsData = snapshot.data() as FirebaseReactions
+
+          const loveArr = reactionsData.LOVE
+          const smileArr = reactionsData.SMILE
+          const thumbUpArr = reactionsData.THUMB_UP
+          const thumbDownArr = reactionsData.THUMB_DOWN
 
           setReactions({
-            love: reactionsData[REACTION_TYPE.LOVE].length,
-            smile: reactionsData[REACTION_TYPE.SMILE].length,
-            plusOne: reactionsData[REACTION_TYPE.PLUS_ONE].length,
-            thumbDown: reactionsData[REACTION_TYPE.THUMB_DOWN].length,
+            love: loveArr.length,
+            smile: smileArr.length,
+            thumbUp: thumbUpArr.length,
+            thumbDown: thumbDownArr.length,
+          })
+
+          setUserReactions({
+            love: !!loveArr.find((r) => r.playerId === playerId),
+            smile: !!smileArr.find((r) => r.playerId === playerId),
+            thumbUp: !!thumbUpArr.find((r) => r.playerId === playerId),
+            thumbDown: !!thumbDownArr.find((r) => r.playerId === playerId),
           })
         },
         (error) => {
@@ -44,7 +79,7 @@ export function useReactions(resultId: string) {
       )
 
     return unsubscribe
-  }, [resultId])
+  }, [playerId, resultId])
 
-  return reactions
+  return { reactions, userReactions }
 }
