@@ -108,6 +108,18 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
     return previousPlayer.results[step - 1]
   }, [player, players, step])
 
+  const doneButton = (
+    <Button
+      colorScheme="tertiary"
+      onClick={() => {
+        setIsRunning(false)
+      }}
+      disabled={!isRunning}
+    >
+      Done
+    </Button>
+  )
+
   return (
     <Stack spacing="4">
       <Heading as="h1" textAlign="center">
@@ -148,35 +160,31 @@ export function Playing({ room, player, players, gameState }: PlayingProps) {
           </Stack>
           {previousReply && <Reply align="center" result={previousReply} />}
           {shouldDraw ? (
-            <Draw canvasRef={canvasRef} canDraw={isRunning} />
+            <Draw
+              canvasRef={canvasRef}
+              canDraw={isRunning}
+              doneButton={doneButton}
+            />
           ) : (
-            <FormControl id="sentence">
-              <FormLabel>
-                {step
-                  ? 'Describe the drawing...'
-                  : 'Write something for others to draw...'}
-              </FormLabel>
-              <Input
-                value={sentence}
-                onChange={(event) => {
-                  setSentence(event.target.value)
-                }}
-                maxLength={280}
-                variant="filled"
-              />
-            </FormControl>
+            <Stack spacing="4" alignItems="center" justifyContent="center">
+              <FormControl id="sentence">
+                <FormLabel>
+                  {step
+                    ? 'Describe the drawing...'
+                    : 'Write something for others to draw...'}
+                </FormLabel>
+                <Input
+                  value={sentence}
+                  onChange={(event) => {
+                    setSentence(event.target.value)
+                  }}
+                  maxLength={280}
+                  variant="filled"
+                />
+              </FormControl>
+              {doneButton}
+            </Stack>
           )}
-          <Stack direction="row" alignItems="center" justifyContent="center">
-            <Button
-              colorScheme="tertiary"
-              onClick={() => {
-                setIsRunning(false)
-              }}
-              disabled={!isRunning}
-            >
-              Done
-            </Button>
-          </Stack>
         </Stack>
       </Box>
     </Stack>

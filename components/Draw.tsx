@@ -1,6 +1,6 @@
 import { Box, Button, Icon, SimpleGrid, Stack } from '@chakra-ui/react'
 import Color from 'color'
-import React, { MutableRefObject, useEffect, useState } from 'react'
+import React, { MutableRefObject, ReactNode, useEffect, useState } from 'react'
 import { BiEraser } from 'react-icons/bi'
 import {
   MdCheck,
@@ -48,9 +48,10 @@ type RGBA_Color = { r: number; g: number; b: number; a: number }
 type Props = {
   canvasRef: MutableRefObject<HTMLCanvasElement>
   canDraw: boolean
+  doneButton: ReactNode
 }
 
-export function Draw({ canvasRef, canDraw }: Props) {
+export function Draw({ canvasRef, canDraw, doneButton }: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentColor, setCurrentColor] = useState(COLORS[0].value)
   const [colorBeforeEraser, setColorBeforeEraser] = useState('')
@@ -313,32 +314,42 @@ export function Draw({ canvasRef, canDraw }: Props) {
           cursor="crosshair"
         />
         <Stack
-          spacing="2"
+          spacing="8"
           direction="row"
           alignItems="center"
           justifyContent="center"
         >
-          {SHAPE_SIZES.map(({ value }) => (
-            <Button
-              key={value}
-              onClick={() => {
-                setCurrentLineWidth(value)
-              }}
-              variant={currentLineWidth === value ? 'solid' : 'ghost'}
-              colorScheme="tertiary"
-              disabled={!canDraw}
-              padding="1"
-            >
-              <Box
-                width={`${value + 2}px`}
-                height={`${value + 2}px`}
-                backgroundColor={
-                  currentLineWidth === value ? 'background.500' : 'tertiary.500'
-                }
-                borderRadius="full"
-              />
-            </Button>
-          ))}
+          <Stack
+            spacing="2"
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {SHAPE_SIZES.map(({ value }) => (
+              <Button
+                key={value}
+                onClick={() => {
+                  setCurrentLineWidth(value)
+                }}
+                variant={currentLineWidth === value ? 'solid' : 'ghost'}
+                colorScheme="tertiary"
+                disabled={!canDraw}
+                padding="1"
+              >
+                <Box
+                  width={`${value + 2}px`}
+                  height={`${value + 2}px`}
+                  backgroundColor={
+                    currentLineWidth === value
+                      ? 'background.500'
+                      : 'tertiary.500'
+                  }
+                  borderRadius="full"
+                />
+              </Button>
+            ))}
+          </Stack>
+          {doneButton}
         </Stack>
       </Stack>
       <Stack spacing="2" width="100px">
