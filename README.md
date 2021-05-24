@@ -1,4 +1,4 @@
-# gartic-phone
+# garlic-phone
 
 ## Development
 
