@@ -2,7 +2,13 @@ import { Box, Button, Icon, SimpleGrid, Stack } from '@chakra-ui/react'
 import Color from 'color'
 import React, { MutableRefObject, useEffect, useState } from 'react'
 import { BiEraser } from 'react-icons/bi'
-import { MdCheck, MdDelete, MdEdit, MdFormatColorFill } from 'react-icons/md'
+import {
+  MdCheck,
+  MdDelete,
+  MdEdit,
+  MdFormatColorFill,
+  MdUndo,
+} from 'react-icons/md'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
 const PALLETE = [
@@ -50,6 +56,28 @@ export function Draw({ canvasRef, canDraw }: Props) {
   const [colorBeforeEraser, setColorBeforeEraser] = useState('')
   const [currentTool, setCurrentTool] = useState<TOOL>(TOOL.PENCIL)
   const [currentLineWidth, setCurrentLineWidth] = useState(5)
+  const [undoStack, setUndoStack] = useState<string[]>([])
+
+  const handleUndo = () => {
+    const canvas = canvasRef.current
+    const context = canvas.getContext('2d')
+    context.fillStyle = 'white'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+
+    const copyUndoStack = [...undoStack]
+    copyUndoStack.pop()
+
+    setUndoStack(copyUndoStack)
+
+    const source = copyUndoStack[copyUndoStack.length - 1]
+
+    const img = new Image()
+    img.src = source
+    img.onload = () => {
+      context.imageSmoothingEnabled = false
+      context.drawImage(img, 0, 0, canvas.width, canvas.height)
+    }
+  }
 
   const getCurrentColor = () => {
     return Color.rgb(currentColor).string()
@@ -69,6 +97,8 @@ export function Draw({ canvasRef, canDraw }: Props) {
     context.strokeStyle = getCurrentColor()
     context.lineWidth = currentLineWidth
     context.lineCap = 'round'
+
+    setUndoStack([canvas.toDataURL()])
   }
 
   const startDrawing = ({ nativeEvent }) => {
@@ -195,6 +225,8 @@ export function Draw({ canvasRef, canDraw }: Props) {
     }
 
     context.putImageData(dstImg, 0, 0)
+
+    setUndoStack([...undoStack, canvas.toDataURL()])
   }
 
   const finishDrawing = () => {
@@ -207,6 +239,8 @@ export function Draw({ canvasRef, canDraw }: Props) {
     context.closePath()
 
     setIsDrawing(false)
+
+    setUndoStack([...undoStack, canvas.toDataURL()])
   }
 
   const draw = ({ nativeEvent }) => {
@@ -230,6 +264,8 @@ export function Draw({ canvasRef, canDraw }: Props) {
     const context = canvas.getContext('2d')
     context.fillStyle = 'white'
     context.fillRect(0, 0, canvas.width, canvas.height)
+
+    setUndoStack([canvas.toDataURL()])
   }
 
   useEffect(() => {
@@ -350,6 +386,17 @@ export function Draw({ canvasRef, canDraw }: Props) {
           disabled={!canDraw}
         >
           Bucket
+        </Button>
+        <Button
+          leftIcon={<MdUndo />}
+          onClick={() => {
+            handleUndo()
+          }}
+          variant="ghost"
+          colorScheme="tertiary"
+          disabled={!canDraw || !(undoStack.length > 1)}
+        >
+          Undo
         </Button>
         <Button
           leftIcon={<MdDelete />}
