@@ -275,10 +275,12 @@ export function Draw({
     }
 
     const { offsetX, offsetY } = event.nativeEvent
-    const { clientX, clientY } = event
+    const { clientX, clientY } =
+      // @ts-ignore
+      Array.isArray(event.touches) && event.touches[0] ? event.touches[0] : null
 
-    const from = offsetX || clientX
-    const to = offsetY || clientY
+    const from = clientX || offsetX
+    const to = clientY || offsetY
 
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
