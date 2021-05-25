@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Divider,
-  Heading,
   IconButton,
   Stack,
   StackProps,
@@ -119,11 +118,9 @@ export function Results() {
                   {`Start album's visualization`}
                 </Button>
               ) : (
-                <Stack spacing="4" alignItems="center">
-                  <Text textAlign="center">
-                    {`Waiting for the host to start the album's visualization.`}
-                  </Text>
-                </Stack>
+                <Text textAlign="center">
+                  {`Waiting for the host to start the album's visualization.`}
+                </Text>
               )}
             </Stack>
           )}
@@ -352,9 +349,9 @@ function PlayerAnswer({ result, align }: ResultProps) {
           justifyContent={justifyContent}
         >
           <Avatar seed={author.name} />
-          <Heading as="h3" fontSize="lg" isTruncated>
+          <Text flex="1" isTruncated>
             {author.name}
-          </Heading>
+          </Text>
         </Stack>
         <Reply result={result} align={align} />
         <Reactions

@@ -1,5 +1,6 @@
-import { Button, Heading, Stack, Text } from '@chakra-ui/react'
+import { Button, Stack } from '@chakra-ui/react'
 import { Step1, Step2, Step3, Step4, Step5 } from 'components/Icons'
+import { Information } from 'components/Information'
 import React, { useState } from 'react'
 
 const CONTENT = [
@@ -35,11 +36,11 @@ export function HowToPlay() {
 
   return (
     <Stack spacing="4">
-      <Stack spacing="4" alignItems="center" justifyContent="center">
-        {CONTENT[currentSlide].icon}
-        <Heading fontSize="md">{CONTENT[currentSlide].title}</Heading>
-        <Text textAlign="center">{CONTENT[currentSlide].description}</Text>
-      </Stack>
+      <Information
+        icon={CONTENT[currentSlide].icon}
+        title={CONTENT[currentSlide].title}
+        description={CONTENT[currentSlide].description}
+      />
       <Stack
         spacing="4"
         direction="row"

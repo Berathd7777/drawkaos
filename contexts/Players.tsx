@@ -53,6 +53,7 @@ const PlayersProvider = ({ children, roomId }: Props) => {
                 id: p.id,
               }
             })
+            .sort((p1, p2) => p1.name.localeCompare(p2.name))
 
           setState({
             status: REMOTE_DATA.SUCCESS,
