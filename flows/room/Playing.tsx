@@ -51,7 +51,7 @@ export function Playing({ room, player, players, gameState }: Props) {
 
     try {
       if (shouldDraw) {
-        const MIME_TYPE = 'image/jpeg'
+        /* const MIME_TYPE = 'image/jpeg'
         const imgURL = canvasRef.current.toDataURL(MIME_TYPE)
 
         const file = await storage
@@ -65,6 +65,14 @@ export function Playing({ room, player, players, gameState }: Props) {
           player,
           RESULT_TYPE.DRAW,
           drawUrl,
+          gameState.step
+        ) */
+
+        await addPlayerAnswer(
+          room,
+          player,
+          RESULT_TYPE.SENTENCE,
+          sentence || '(Empty)',
           gameState.step
         )
       } else {

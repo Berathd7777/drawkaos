@@ -8,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import CanvasDraw from 'react-canvas-draw'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { BiEraser } from 'react-icons/bi'
 import {
@@ -297,7 +298,8 @@ export function Draw({
   }
 
   useEffect(() => {
-    prepareCanvas()
+    setCanvasTouched(true)
+    /* prepareCanvas() */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -329,17 +331,17 @@ export function Draw({
         </SimpleGrid>
       </Box>
       <Stack spacing="4" flex="1">
-        <Box
+        <CanvasDraw canvasHeight={CANVAS_HEIGHT} canvasWidth={CANVAS_WIDTH} />
+        {/* <Box
           as="canvas"
           onMouseDown={startDrawing}
           onMouseUp={finishDrawing}
           onMouseMove={draw}
-          // @ts-ignore
           ref={canvasRef}
           borderRadius="md"
           marginX="auto"
           cursor="crosshair"
-        />
+        /> */}
         <Stack
           spacing="8"
           direction="row"
