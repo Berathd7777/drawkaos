@@ -1,6 +1,13 @@
 import { Box, Button, Icon, SimpleGrid, Stack } from '@chakra-ui/react'
 import Color from 'color'
-import React, { MutableRefObject, ReactNode, useEffect, useState } from 'react'
+import React, {
+  MutableRefObject,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { BiEraser } from 'react-icons/bi'
 import {
   MdCheck,
@@ -64,6 +71,13 @@ export function Draw({
   const [currentTool, setCurrentTool] = useState<TOOL>(TOOL.PENCIL)
   const [currentLineWidth, setCurrentLineWidth] = useState(5)
   const [undoStack, setUndoStack] = useState<string[]>([])
+  const undoRef = useRef<HTMLButtonElement>(null)
+
+  useHotkeys('ctrl+z, command+z', () => {
+    if (undoRef.current) {
+      undoRef.current.click()
+    }
+  })
 
   useEffect(() => {
     setCanvasTouched(undoStack.length > 1)
@@ -416,6 +430,7 @@ export function Draw({
           variant="ghost"
           colorScheme="tertiary"
           disabled={!canDraw || !(undoStack.length > 1)}
+          ref={undoRef}
         >
           Undo
         </Button>
