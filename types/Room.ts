@@ -29,4 +29,5 @@ export type Room = {
   adminId: string
   activity: RoomActivity[]
   stepTime: number
+  albumIndex: null | number
 }

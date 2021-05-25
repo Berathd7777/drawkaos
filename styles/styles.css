@@ -23,10 +23,3 @@
   border-radius: 10px;
   border: 3px solid #232946;
 }
-
-/*
-  This class is used in <Results /> to stretch the replies after the <FadeIn />
-*/
-.w-full {
-  width: 100%;
-}

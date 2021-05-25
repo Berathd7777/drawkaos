@@ -24,6 +24,7 @@ export function initGame({
 
       batch.update(roomRef, {
         activity,
+        albumIndex: null,
       })
 
       const game = getGameOrder(players)

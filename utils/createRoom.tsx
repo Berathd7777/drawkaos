@@ -26,6 +26,7 @@ export function createRoom({
         adminId,
         activity: [],
         stepTime: 60,
+        albumIndex: null,
       })
 
       await batch.commit()
