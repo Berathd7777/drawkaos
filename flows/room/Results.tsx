@@ -395,7 +395,7 @@ function Reactions({
   }
 
   return (
-    <Stack spacing="2" direction="row" justifyContent={justifyContent}>
+    <Stack spacing="4" direction="row" justifyContent={justifyContent}>
       <Button
         colorScheme={userReactions.love ? 'tertiary' : 'background'}
         variant="ghost"
@@ -403,7 +403,7 @@ function Reactions({
         onClick={() => {
           updateReaction(REACTION_TYPE.LOVE)
         }}
-        leftIcon={<Heart />}
+        leftIcon={<Heart height="10" width="6" />}
       >
         <Text minWidth="1ch">{reactions.love}</Text>
       </Button>
@@ -414,7 +414,7 @@ function Reactions({
         onClick={() => {
           updateReaction(REACTION_TYPE.SMILE)
         }}
-        leftIcon={<Smile />}
+        leftIcon={<Smile height="10" width="6" />}
       >
         <Text minWidth="1ch">{reactions.smile}</Text>
       </Button>
@@ -425,7 +425,7 @@ function Reactions({
         onClick={() => {
           updateReaction(REACTION_TYPE.THUMB_UP)
         }}
-        leftIcon={<ThumbUp />}
+        leftIcon={<ThumbUp height="10" width="6" />}
       >
         <Text minWidth="1ch">{reactions.thumbUp}</Text>
       </Button>
@@ -436,7 +436,7 @@ function Reactions({
         onClick={() => {
           updateReaction(REACTION_TYPE.THUMB_DOWN)
         }}
-        leftIcon={<Poop />}
+        leftIcon={<Poop height="10" width="6" />}
       >
         <Text minWidth="1ch">{reactions.thumbDown}</Text>
       </Button>
