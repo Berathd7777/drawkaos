@@ -269,24 +269,20 @@ export function Draw({
     setUndoStack([...undoStack, canvas.toDataURL()])
   }
 
-  const draw = (event: MouseEvent<HTMLCanvasElement & HTMLDivElement>) => {
+  const draw = ({
+    nativeEvent,
+  }: MouseEvent<HTMLCanvasElement & HTMLDivElement>) => {
     if (!isDrawing || !canDraw) {
       return
     }
 
-    const { offsetX, offsetY } = event.nativeEvent
-    const { clientX, clientY } =
-      // @ts-ignore
-      Array.isArray(event.touches) && event.touches[0] ? event.touches[0] : null
-
-    const from = clientX || offsetX
-    const to = clientY || offsetY
+    const { offsetX, offsetY } = nativeEvent
 
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
     context.lineWidth = currentLineWidth
     context.strokeStyle = getCurrentColor()
-    context.lineTo(from, to)
+    context.lineTo(offsetX, offsetY)
     context.stroke()
   }
 
