@@ -173,6 +173,7 @@ export function Playing({ room, player, players, gameState }: Props) {
                   onChange={(event) => {
                     setSentence(event.target.value)
                   }}
+                  disabled={isSaving}
                   maxLength={280}
                   variant="filled"
                 />
