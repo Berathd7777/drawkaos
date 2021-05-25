@@ -139,7 +139,7 @@ export function Playing({ room, player, players, gameState }: Props) {
                   onComplete={() => {
                     saveReply()
                   }}
-                  size={40}
+                  size={48}
                   strokeWidth={4}
                   colors={[
                     ['#16A34A', 0.33],
@@ -147,7 +147,9 @@ export function Playing({ room, player, players, gameState }: Props) {
                     ['#DC2626', 0.33],
                   ]}
                 >
-                  {({ remainingTime }) => remainingTime}
+                  {({ remainingTime }) => (
+                    <Text fontSize="sm">{remainingTime}</Text>
+                  )}
                 </CountdownCircleTimer>
               )}
             </Box>
