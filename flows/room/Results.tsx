@@ -3,12 +3,14 @@ import {
   Button,
   Divider,
   Heading,
+  IconButton,
   Stack,
   StackProps,
   Text,
 } from '@chakra-ui/react'
 import { Avatar } from 'components/Avatar'
-import { Heart, Smile, ThumbDown, ThumbUp, UpHand } from 'components/Icons'
+import { DarkBox } from 'components/DarkBox'
+import { Heart, Poop, Smile, ThumbUp } from 'components/Icons'
 import { Reply } from 'components/Reply'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
@@ -17,6 +19,7 @@ import { useToasts } from 'contexts/Toasts'
 import { useReactions } from 'hooks/useReactions'
 import React, { useMemo, useState } from 'react'
 import FadeIn from 'react-fade-in'
+import { MdChevronLeft, MdChevronRight, MdFileDownload } from 'react-icons/md'
 import StringSanitizer from 'string-sanitizer'
 import { Player, Result } from 'types/Player'
 import { REACTION_TYPE } from 'types/Reaction'
@@ -59,32 +62,35 @@ export function Results() {
   }
 
   return (
-    <Stack spacing="4" direction="row">
-      <Box width="72">
+    <Stack spacing="8" direction="row">
+      <Box width="80">
         <Stack spacing="2">
-          {players.map((player, index) => (
-            <Stack
-              key={player.id}
-              spacing="4"
-              direction="row"
-              alignItems="center"
-              paddingY="2"
-              paddingX="4"
-              backgroundColor={
-                index === room.albumIndex ? 'background.800' : null
-              }
-              borderRadius="md"
-            >
-              <Avatar seed={player.name} />
-              <Heading as="h3" fontSize="lg">
-                {player.name}
-              </Heading>
-            </Stack>
-          ))}
+          {players.map((player, index) => {
+            const isSelected = index === room.albumIndex
+
+            return (
+              <Stack
+                key={player.id}
+                spacing="4"
+                direction="row"
+                alignItems="center"
+                paddingY="2"
+                paddingX="4"
+                backgroundColor={isSelected ? 'background.800' : null}
+                boxShadow={isSelected ? 'md' : null}
+                borderRadius="md"
+              >
+                <Avatar seed={player.name} />
+                <Text flex="1" isTruncated>
+                  {player.name}
+                </Text>
+              </Stack>
+            )
+          })}
         </Stack>
       </Box>
       <Box flex="1">
-        <Box backgroundColor="background.800" borderRadius="md" padding="4">
+        <DarkBox>
           {selectedPlayer ? (
             <PlayerResult
               key={room.albumIndex}
@@ -108,21 +114,20 @@ export function Results() {
                     onUpdateRoom(0)
                   }}
                   isLoading={isWorking}
-                  loadingText="Wait..."
+                  loadingText="Wait"
                 >
                   {`Start album's visualization`}
                 </Button>
               ) : (
                 <Stack spacing="4" alignItems="center">
-                  <UpHand width="20" height="20" />
                   <Text textAlign="center">
-                    {`Waiting for the host to start the album's visualization`}
+                    {`Waiting for the host to start the album's visualization.`}
                   </Text>
                 </Stack>
               )}
             </Stack>
           )}
-        </Box>
+        </DarkBox>
       </Box>
     </Stack>
   )
@@ -145,9 +150,10 @@ function PlayerResult({
   const players = usePlayers()
   const { showToast } = useToasts()
   const [isWorking, setIsWorking] = useState(false)
+  const [isGeneratingGIF, setIsGeneratingGIF] = useState(false)
 
   const downloadGIF = (player: Player) => {
-    setIsWorking(true)
+    setIsGeneratingGIF(true)
 
     const answers = player.results.map((result) => ({
       ...result,
@@ -212,7 +218,7 @@ function PlayerResult({
         })
       })
       .finally(() => {
-        setIsWorking(false)
+        setIsGeneratingGIF(false)
       })
   }
 
@@ -265,55 +271,54 @@ function PlayerResult({
       </FadeIn>
       <Divider />
       <Stack
-        spacing="0"
+        spacing="4"
         direction="row"
         alignItems="center"
         justifyContent={isAdmin ? 'space-between' : 'center'}
         width="full"
       >
-        <Button
-          colorScheme="tertiary"
-          variant={isAdmin ? 'ghost' : 'solid'}
-          onClick={() => {
-            downloadGIF(player)
-          }}
-          isLoading={isWorking}
-          loadingText="Generating .gif"
-        >
-          Download .gif
-        </Button>
+        <Box>
+          <Button
+            leftIcon={<MdFileDownload />}
+            colorScheme="tertiary"
+            onClick={() => {
+              downloadGIF(player)
+            }}
+            isLoading={isGeneratingGIF}
+            loadingText="Generating .gif"
+          >
+            Download .gif
+          </Button>
+        </Box>
         <Stack spacing="4" direction="row" alignItems="center">
           {isAdmin && albumIndex && (
-            <Button
+            <IconButton
+              aria-label="Previous album"
+              icon={<MdChevronLeft />}
               colorScheme="tertiary"
-              variant="outline"
               onClick={() => {
                 updateAlbumIndex(albumIndex - 1)
               }}
               isLoading={isWorking}
-              loadingText="Moving to the previous album..."
-            >
-              Previous album
-            </Button>
+            />
           )}
           {isAdmin ? (
             albumIndex < players.length - 1 ? (
-              <Button
+              <IconButton
+                aria-label="Next album"
+                icon={<MdChevronRight />}
                 colorScheme="tertiary"
                 onClick={() => {
                   updateAlbumIndex(albumIndex + 1)
                 }}
                 isLoading={isWorking}
-                loadingText="Moving to the next album..."
-              >
-                Next album
-              </Button>
+              />
             ) : (
               <Button
                 colorScheme="tertiary"
                 onClick={playAgain}
                 isLoading={isWorking}
-                loadingText="Wait..."
+                loadingText="Wait"
               >
                 Play again
               </Button>
@@ -347,7 +352,7 @@ function PlayerAnswer({ result, align }: ResultProps) {
           justifyContent={justifyContent}
         >
           <Avatar seed={author.name} />
-          <Heading as="h3" fontSize="lg">
+          <Heading as="h3" fontSize="lg" isTruncated>
             {author.name}
           </Heading>
         </Stack>
@@ -393,10 +398,10 @@ function Reactions({
   }
 
   return (
-    <Stack spacing="4" direction="row" justifyContent={justifyContent}>
+    <Stack spacing="2" direction="row" justifyContent={justifyContent}>
       <Button
         colorScheme={userReactions.love ? 'tertiary' : 'background'}
-        variant="outline"
+        variant="ghost"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.LOVE)
@@ -407,7 +412,7 @@ function Reactions({
       </Button>
       <Button
         colorScheme={userReactions.smile ? 'tertiary' : 'background'}
-        variant="outline"
+        variant="ghost"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.SMILE)
@@ -418,7 +423,7 @@ function Reactions({
       </Button>
       <Button
         colorScheme={userReactions.thumbUp ? 'tertiary' : 'background'}
-        variant="outline"
+        variant="ghost"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.THUMB_UP)
@@ -429,12 +434,12 @@ function Reactions({
       </Button>
       <Button
         colorScheme={userReactions.thumbDown ? 'tertiary' : 'background'}
-        variant="outline"
+        variant="ghost"
         disabled={isUpdating}
         onClick={() => {
           updateReaction(REACTION_TYPE.THUMB_DOWN)
         }}
-        leftIcon={<ThumbDown />}
+        leftIcon={<Poop />}
       >
         <Text minWidth="1ch">{reactions.thumbDown}</Text>
       </Button>

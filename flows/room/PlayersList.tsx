@@ -1,4 +1,11 @@
-import { Heading, IconButton, Stack, Tag, Text } from '@chakra-ui/react'
+import {
+  Divider,
+  Heading,
+  IconButton,
+  Stack,
+  Tag,
+  Text,
+} from '@chakra-ui/react'
 import { Avatar } from 'components/Avatar'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
@@ -36,6 +43,7 @@ export function PlayersList() {
       <Heading as="h2" fontSize="xl" textAlign="center">
         Players ({players.length})
       </Heading>
+      <Divider />
       {Boolean(players.length) &&
         players.map((player) => (
           <PlayerRow
@@ -62,7 +70,9 @@ function PlayerRow({ name, isRoomAdmin, onRemovePlayer }: PlayerProps) {
   return (
     <Stack spacing="4" direction="row" alignItems="center">
       <Avatar seed={name} />
-      <Text flex="1">{name}</Text>
+      <Text flex="1" isTruncated>
+        {name}
+      </Text>
       {isRoomAdmin && <Tag colorScheme="tertiary">Admin</Tag>}
       {onRemovePlayer && (
         <IconButton

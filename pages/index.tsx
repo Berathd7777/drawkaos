@@ -1,33 +1,33 @@
-import { Box, Heading, Stack } from '@chakra-ui/react'
+import { Box, Divider, Heading, Stack } from '@chakra-ui/react'
+import { DarkBox } from 'components/DarkBox'
+import { Page } from 'components/Page'
 import { CreateRoomForm } from 'flows/home/CreateRoomForm'
 import { HowToPlay } from 'flows/home/HowToPlay'
 import React from 'react'
 
 function Home() {
   return (
-    <Stack spacing="4">
-      <Heading as="h1" textAlign="center">
-        Welcome to Garlic phone
-      </Heading>
-      <Stack spacing="4" direction="row">
+    <Page title="Welcome to Garlic phone">
+      <Stack spacing="8" direction="row">
         <Box flex="1">
           <Stack spacing="4">
             <Heading fontSize="xl">Create a room</Heading>
             <CreateRoomForm />
           </Stack>
         </Box>
-        <Box width="72">
-          <Box backgroundColor="background.800" borderRadius="md" padding="4">
+        <Box width="80">
+          <DarkBox>
             <Stack spacing="4">
               <Heading fontSize="xl" textAlign="center">
                 How to play
               </Heading>
+              <Divider />
               <HowToPlay />
             </Stack>
-          </Box>
+          </DarkBox>
         </Box>
       </Stack>
-    </Stack>
+    </Page>
   )
 }
 

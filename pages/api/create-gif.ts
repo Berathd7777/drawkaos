@@ -8,7 +8,7 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
     res.status(405).json({
-      message: 'Method not allowed',
+      message: 'Method not allowed.',
     })
 
     return
@@ -95,7 +95,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     console.error(error)
 
     res.status(500).json({
-      message: 'Error generating the gif',
+      message: 'Error generating the gif.',
     })
   }
 }

@@ -66,12 +66,11 @@ export function JoinFormRoom({ roomId }: Props) {
       <Stack spacing="4">
         <Stack spacing="4" direction="row" alignItems="center">
           <Avatar seed={formData.userName} />
-          <FormControl id="userName" flex="1">
+          <FormControl id="userName" isDisabled={isWorking} flex="1">
             <FormLabel>Your name</FormLabel>
             <Input
               value={formData.userName}
               onChange={onChange}
-              disabled={isWorking}
               variant="filled"
               maxLength={140}
             />
@@ -83,7 +82,7 @@ export function JoinFormRoom({ roomId }: Props) {
             colorScheme="tertiary"
             disabled={!canSubmit}
             isLoading={isWorking}
-            loadingText="Joining..."
+            loadingText="Joining"
           >
             Join
           </Button>

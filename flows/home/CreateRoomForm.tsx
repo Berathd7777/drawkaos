@@ -62,24 +62,22 @@ export function CreateRoomForm() {
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
-        <FormControl id="roomName">
+        <FormControl id="roomName" isDisabled={isWorking}>
           <FormLabel>Room name</FormLabel>
           <Input
             value={formData.roomName}
             onChange={onChange}
-            disabled={isWorking}
             variant="filled"
             maxLength={140}
           />
         </FormControl>
         <Stack spacing="4" direction="row" alignItems="center">
           <Avatar seed={formData.userName} />
-          <FormControl id="userName" flex="1">
+          <FormControl id="userName" isDisabled={isWorking} flex="1">
             <FormLabel>Your name</FormLabel>
             <Input
               value={formData.userName}
               onChange={onChange}
-              disabled={isWorking}
               variant="filled"
               maxLength={140}
             />
@@ -91,7 +89,7 @@ export function CreateRoomForm() {
             colorScheme="tertiary"
             disabled={!canSubmit}
             isLoading={isWorking}
-            loadingText="Creating..."
+            loadingText="Creating"
           >
             Create
           </Button>

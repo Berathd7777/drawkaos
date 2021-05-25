@@ -77,7 +77,7 @@ const PlayersProvider = ({ children, roomId }: Props) => {
   return (
     <PlayersContext.Provider value={state}>
       <Async
-        errorMessage="There was an error getting the players"
+        errorMessage="There was an error getting the players."
         status={state.status}
       >
         {children}
@@ -90,7 +90,7 @@ function usePlayers() {
   const context = useContext(PlayersContext)
 
   if (!context) {
-    throw new Error('usePlayers must be used within <PlayersProvider />')
+    throw new Error('usePlayers must be used within <PlayersProvider />.')
   }
 
   return context.players

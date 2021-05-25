@@ -93,7 +93,7 @@ const RoomProvider = ({ children, roomId }: Props) => {
   return (
     <RoomContext.Provider value={state}>
       <Async
-        errorMessage="There was an error getting the room"
+        errorMessage="There was an error getting the room."
         status={state.status}
       >
         {children}
@@ -106,7 +106,7 @@ function useRoom() {
   const context = useContext(RoomContext)
 
   if (!context) {
-    throw new Error('useRoom must be used within <RoomProvider />')
+    throw new Error('useRoom must be used within <RoomProvider />.')
   }
 
   return context.room

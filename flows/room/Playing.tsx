@@ -3,12 +3,13 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Heading,
   Input,
   Stack,
   Text,
 } from '@chakra-ui/react'
+import { DarkBox } from 'components/DarkBox'
 import { Draw } from 'components/Draw'
+import { Page } from 'components/Page'
 import { Reply } from 'components/Reply'
 import { useToasts } from 'contexts/Toasts'
 import { storage } from 'firebase/init'
@@ -108,25 +109,21 @@ export function Playing({ room, player, players, gameState }: Props) {
       onClick={saveReply}
       disabled={shouldDraw ? !canvasTouched : !sentence}
       isLoading={isSaving}
-      loadingText="Wait..."
     >
       Done
     </Button>
   )
 
   return (
-    <Stack spacing="4">
-      <Heading as="h1" textAlign="center">
-        {room.name}
-      </Heading>
-      <Box backgroundColor="background.800" borderRadius="md" padding="4">
-        <Stack spacing="4">
+    <Page title={room.name}>
+      <DarkBox>
+        <Stack spacing="8">
           <Stack
-            spacing="4"
+            spacing="0"
             direction="row"
             alignItems="center"
             justifyContent="space-between"
-            height={10}
+            height="12"
           >
             <Text>
               Step {step + 1}/{players.length}
@@ -163,19 +160,18 @@ export function Playing({ room, player, players, gameState }: Props) {
               setCanvasTouched={setCanvasTouched}
             />
           ) : (
-            <Stack spacing="4" alignItems="center" justifyContent="center">
-              <FormControl id="sentence">
+            <Stack spacing="8" alignItems="center" justifyContent="center">
+              <FormControl id="sentence" isDisabled={isSaving}>
                 <FormLabel>
                   {step
-                    ? 'Describe the drawing...'
-                    : 'Write something for others to draw...'}
+                    ? 'Describe the drawing'
+                    : 'Write something for others to draw'}
                 </FormLabel>
                 <Input
                   value={sentence}
                   onChange={(event) => {
                     setSentence(event.target.value)
                   }}
-                  disabled={isSaving}
                   maxLength={280}
                   variant="filled"
                 />
@@ -192,8 +188,8 @@ export function Playing({ room, player, players, gameState }: Props) {
             />
           )}
         </Stack>
-      </Box>
-    </Stack>
+      </DarkBox>
+    </Page>
   )
 }
 
@@ -232,9 +228,7 @@ function WhoIsMissing({
   return (
     <>
       {missingPlayers ? (
-        <Text textAlign="center">
-          Waiting for {missingPlayers} to finish...
-        </Text>
+        <Text textAlign="center">Waiting for {missingPlayers} to finish</Text>
       ) : null}
     </>
   )

@@ -22,7 +22,7 @@ export function CopyInviteLink({ text }: Props) {
     <CopyToClipboard text={text} onCopy={showToastOnCopy}>
       <Button
         colorScheme="tertiary"
-        variant="outline"
+        variant="ghost"
         leftIcon={<MdContentCopy />}
       >
         Copy invite link

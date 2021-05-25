@@ -16,7 +16,7 @@ export function Layout({ children }: Props) {
       minWidth={LAYOUT_WIDTH}
       style={{ fontVariantNumeric: 'tabular-nums' }}
     >
-      <Box as="header" py="2" backgroundColor="background.800">
+      <Box as="header" py="2" backgroundColor="background.800" boxShadow="md">
         <Container maxWidth={CONTAINER_WIDTH}>
           <Stack
             spacing="4"
@@ -44,7 +44,7 @@ export function Layout({ children }: Props) {
       <Box as="main" flex="1" py="8">
         <Container maxWidth={CONTAINER_WIDTH}>{children}</Container>
       </Box>
-      <Box as="footer" py="2" backgroundColor="background.800">
+      <Box as="footer" py="2" backgroundColor="background.800" boxShadow="md">
         <Container maxWidth={CONTAINER_WIDTH}>
           <Stack
             spacing="4"

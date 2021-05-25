@@ -48,7 +48,7 @@ function useToasts() {
   const context = useContext(ToastContext)
 
   if (!context) {
-    throw new Error('useToasts must be used within <ToastProvider />')
+    throw new Error('useToasts must be used within <ToastProvider />.')
   }
 
   return context

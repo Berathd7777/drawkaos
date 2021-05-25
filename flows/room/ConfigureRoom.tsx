@@ -21,7 +21,7 @@ export function ConfigureRoom() {
   const isCurrentPlayerRoomAdmin = room.adminId === player.id
   const admin = players.find((p) => p.id === room.adminId)
 
-  const play = async () => {
+  const startGame = async () => {
     try {
       setIsWorking(true)
 
@@ -63,22 +63,25 @@ export function ConfigureRoom() {
   }
 
   return (
-    <Stack spacing="4">
+    <Stack spacing="8">
       {!isCurrentPlayerRoomAdmin && (
         <AlertMessage
           status="info"
-          title="Be prepared"
+          title="Be prepared."
           description={`Waiting for ${admin.name} to start the game.`}
         />
       )}
-      <FormControl id="roundTime" flex="1">
+      <FormControl
+        id="roundTime"
+        flex="1"
+        isDisabled={room.adminId !== player.id}
+      >
         <FormLabel>Round time</FormLabel>
         <Select
           flex="1"
           variant="filled"
           value={room.stepTime}
           onChange={updateRoomSettings}
-          disabled={room.adminId !== player.id}
         >
           <option value="30">30 seconds</option>
           <option value="60">1 minute</option>
@@ -94,12 +97,12 @@ export function ConfigureRoom() {
         <CopyInviteLink text={`${window.location.origin}/${room.id}`} />
         <Button
           colorScheme="tertiary"
-          onClick={play}
+          onClick={startGame}
           disabled={!isCurrentPlayerRoomAdmin || !canPlay || isWorking}
           isLoading={isWorking}
-          loadingText="Wait..."
+          loadingText="Wait"
         >
-          Play
+          Start game
         </Button>
       </Stack>
     </Stack>

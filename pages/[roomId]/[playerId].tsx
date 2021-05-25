@@ -1,4 +1,6 @@
-import { Box, Heading, Stack } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
+import { DarkBox } from 'components/DarkBox'
+import { Page } from 'components/Page'
 import { PlayerProvider, usePlayer } from 'contexts/Player'
 import { PlayersProvider, usePlayers } from 'contexts/Players'
 import { RoomProvider, useRoom } from 'contexts/Room'
@@ -39,32 +41,18 @@ function Content() {
 
   if (gameState.status === ROOM_STATUS.CREATED) {
     return (
-      <Stack spacing="4">
-        <Heading as="h1" textAlign="center">
-          {room.name}
-        </Heading>
+      <Page title={room.name}>
         <Stack spacing="4" direction="row">
           <Box flex="1">
             <ConfigureRoom />
           </Box>
-          <Box width="72">
-            <Box backgroundColor="background.800" borderRadius="md" padding="4">
+          <Box width="80">
+            <DarkBox>
               <PlayersList />
-            </Box>
+            </DarkBox>
           </Box>
         </Stack>
-      </Stack>
-    )
-  }
-
-  if (gameState.status === ROOM_STATUS.FINISHED) {
-    return (
-      <Stack spacing="4">
-        <Heading as="h1" textAlign="center">
-          {room.name}: game finished
-        </Heading>
-        <Results />
-      </Stack>
+      </Page>
     )
   }
 
@@ -77,6 +65,14 @@ function Content() {
         players={players}
         gameState={gameState}
       />
+    )
+  }
+
+  if (gameState.status === ROOM_STATUS.FINISHED) {
+    return (
+      <Page title={`${room.name}: game finished`}>
+        <Results />
+      </Page>
     )
   }
 

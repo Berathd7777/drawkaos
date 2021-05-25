@@ -7,5 +7,5 @@ export const CONTAINER_WIDTH = `${
   MAX_WIDTH + SCROLLBAR_WIDTH - CONTAINER_PADDING
 }px`
 
-export const CANVAS_WIDTH = MAX_WIDTH - 328
+export const CANVAS_WIDTH = MAX_WIDTH - 316
 export const CANVAS_HEIGHT = CANVAS_WIDTH * (9 / 16)
