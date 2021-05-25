@@ -35,7 +35,6 @@ export function Reply({ result, align }: Props) {
           src={result.value}
           margin={margin}
           borderRadius="md"
-          boxShadow="md"
           fallback={
             <Stack
               height={CANVAS_HEIGHT}

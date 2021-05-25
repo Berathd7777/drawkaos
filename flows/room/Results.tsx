@@ -76,7 +76,6 @@ export function Results() {
                 paddingY="2"
                 paddingX="4"
                 backgroundColor={isSelected ? 'background.800' : null}
-                boxShadow={isSelected ? 'md' : null}
                 borderRadius="md"
               >
                 <Avatar seed={player.name} />

@@ -11,12 +11,7 @@ export function ColourBox({
   backgroundColor = 'background.800',
 }: Props) {
   return (
-    <Box
-      backgroundColor={backgroundColor}
-      borderRadius="md"
-      boxShadow="md"
-      padding="4"
-    >
+    <Box backgroundColor={backgroundColor} borderRadius="md" padding="4">
       {children}
     </Box>
   )
