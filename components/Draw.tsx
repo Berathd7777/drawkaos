@@ -269,20 +269,30 @@ export function Draw({
     setUndoStack([...undoStack, canvas.toDataURL()])
   }
 
-  const draw = ({
-    nativeEvent,
-  }: MouseEvent<HTMLCanvasElement & HTMLDivElement>) => {
+  function getMousePositionOnCanvas(event) {
+    const clientX = event.clientX || event.touches[0].clientX
+    const clientY = event.clientY || event.touches[0].clientY
+
+    const { offsetLeft, offsetTop } = event.target
+
+    const canvasX = clientX - offsetLeft
+    const canvasY = clientY - offsetTop
+
+    return { x: canvasX, y: canvasY }
+  }
+
+  const draw = (event: MouseEvent<HTMLCanvasElement & HTMLDivElement>) => {
     if (!isDrawing || !canDraw) {
       return
     }
 
-    const { offsetX, offsetY } = nativeEvent
+    const { x, y } = getMousePositionOnCanvas(event.nativeEvent)
 
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
     context.lineWidth = currentLineWidth
     context.strokeStyle = getCurrentColor()
-    context.lineTo(offsetX, offsetY)
+    context.lineTo(x, y)
     context.stroke()
   }
 
@@ -333,6 +343,7 @@ export function Draw({
           as="canvas"
           onMouseDown={startDrawing}
           onMouseUp={finishDrawing}
+          onMouseOut={finishDrawing}
           onMouseMove={draw}
           // @ts-ignore
           ref={canvasRef}
