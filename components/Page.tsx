@@ -1,4 +1,4 @@
-import { Divider, Heading, Stack } from '@chakra-ui/layout'
+import { Divider, Heading, Stack } from '@chakra-ui/react'
 import React, { ReactNode } from 'react'
 
 type Props = {

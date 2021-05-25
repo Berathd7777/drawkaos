@@ -1,5 +1,5 @@
 import { Box, Divider, Heading, Stack } from '@chakra-ui/react'
-import { DarkBox } from 'components/DarkBox'
+import { ColourBox } from 'components/ColourBox'
 import { Page } from 'components/Page'
 import { CreateRoomForm } from 'flows/home/CreateRoomForm'
 import { HowToPlay } from 'flows/home/HowToPlay'
@@ -16,7 +16,7 @@ function Home() {
           </Stack>
         </Box>
         <Box width="80">
-          <DarkBox>
+          <ColourBox>
             <Stack spacing="4">
               <Heading fontSize="xl" textAlign="center">
                 How to play
@@ -24,7 +24,7 @@ function Home() {
               <Divider />
               <HowToPlay />
             </Stack>
-          </DarkBox>
+          </ColourBox>
         </Box>
       </Stack>
     </Page>

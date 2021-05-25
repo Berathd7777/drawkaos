@@ -7,7 +7,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { DarkBox } from 'components/DarkBox'
+import { ColourBox } from 'components/ColourBox'
 import { Draw } from 'components/Draw'
 import { Page } from 'components/Page'
 import { Reply } from 'components/Reply'
@@ -116,7 +116,7 @@ export function Playing({ room, player, players, gameState }: Props) {
 
   return (
     <Page title={room.name}>
-      <DarkBox>
+      <ColourBox>
         <Stack spacing="8">
           <Stack
             spacing="0"
@@ -188,7 +188,7 @@ export function Playing({ room, player, players, gameState }: Props) {
             />
           )}
         </Stack>
-      </DarkBox>
+      </ColourBox>
     </Page>
   )
 }

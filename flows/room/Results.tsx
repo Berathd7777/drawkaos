@@ -8,7 +8,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { Avatar } from 'components/Avatar'
-import { DarkBox } from 'components/DarkBox'
+import { ColourBox } from 'components/ColourBox'
 import { Heart, Poop, Smile, ThumbUp } from 'components/Icons'
 import { Reply } from 'components/Reply'
 import { usePlayer } from 'contexts/Player'
@@ -89,7 +89,7 @@ export function Results() {
         </Stack>
       </Box>
       <Box flex="1">
-        <DarkBox>
+        <ColourBox>
           {selectedPlayer ? (
             <PlayerResult
               key={room.albumIndex}
@@ -124,7 +124,7 @@ export function Results() {
               )}
             </Stack>
           )}
-        </DarkBox>
+        </ColourBox>
       </Box>
     </Stack>
   )
@@ -349,7 +349,7 @@ function PlayerAnswer({ result, align }: ResultProps) {
           justifyContent={justifyContent}
         >
           <Avatar seed={author.name} />
-          <Text flex="1" isTruncated>
+          <Text maxWidth="60" isTruncated>
             {author.name}
           </Text>
         </Stack>

@@ -1,5 +1,5 @@
 import { Box, Stack } from '@chakra-ui/react'
-import { DarkBox } from 'components/DarkBox'
+import { ColourBox } from 'components/ColourBox'
 import { Page } from 'components/Page'
 import { PlayerProvider, usePlayer } from 'contexts/Player'
 import { PlayersProvider, usePlayers } from 'contexts/Players'
@@ -47,9 +47,9 @@ function Content() {
             <ConfigureRoom />
           </Box>
           <Box width="80">
-            <DarkBox>
+            <ColourBox>
               <PlayersList />
-            </DarkBox>
+            </ColourBox>
           </Box>
         </Stack>
       </Page>

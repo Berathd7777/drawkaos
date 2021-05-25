@@ -1,4 +1,4 @@
-import { Heading, Stack, Text } from '@chakra-ui/layout'
+import { Heading, Stack, Text } from '@chakra-ui/react'
 import React, { ReactNode } from 'react'
 
 type Props = {

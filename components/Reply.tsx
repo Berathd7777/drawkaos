@@ -6,10 +6,10 @@ import {
   Text,
   TypographyProps,
 } from '@chakra-ui/react'
+import { ColourBox } from 'components/ColourBox'
 import React from 'react'
 import { Result, RESULT_TYPE } from 'types/Player'
 import { CANVAS_HEIGHT } from 'utils/constants'
-import { DarkBox } from './DarkBox'
 
 type Props = {
   align: TypographyProps['textAlign']
@@ -19,9 +19,9 @@ type Props = {
 export function Reply({ result, align }: Props) {
   if (result.type === RESULT_TYPE.SENTENCE) {
     return (
-      <DarkBox>
+      <ColourBox backgroundColor="background.500">
         <Text textAlign={align}>{result.value}</Text>
-      </DarkBox>
+      </ColourBox>
     )
   }
 
