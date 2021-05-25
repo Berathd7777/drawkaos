@@ -1,6 +1,7 @@
 import { Box, Button, Icon, SimpleGrid, Stack } from '@chakra-ui/react'
 import Color from 'color'
 import React, {
+  MouseEvent,
   MutableRefObject,
   ReactNode,
   useEffect,
@@ -268,18 +269,22 @@ export function Draw({
     setUndoStack([...undoStack, canvas.toDataURL()])
   }
 
-  const draw = ({ nativeEvent }) => {
+  const draw = (event: MouseEvent<HTMLCanvasElement & HTMLDivElement>) => {
     if (!isDrawing || !canDraw) {
       return
     }
 
-    const { offsetX, offsetY } = nativeEvent
+    const { offsetX, offsetY } = event.nativeEvent
+    const { clientX, clientY } = event
+
+    const from = offsetX || clientX
+    const to = offsetY || clientY
 
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
     context.lineWidth = currentLineWidth
     context.strokeStyle = getCurrentColor()
-    context.lineTo(offsetX, offsetY)
+    context.lineTo(from, to)
     context.stroke()
   }
 
