@@ -7,6 +7,7 @@ import { useRoom } from 'contexts/Room'
 import { useToasts } from 'contexts/Toasts'
 import React, { ChangeEvent, useState } from 'react'
 import { ACTIVITY_TYPE } from 'types/Room'
+import useSound from 'use-sound'
 import { initGame } from 'utils/initGame'
 import { updateRoom } from 'utils/updateRoom'
 
@@ -16,6 +17,10 @@ export function ConfigureRoom() {
   const players = usePlayers()
   const { showToast } = useToasts()
   const [isWorking, setIsWorking] = useState(false)
+  const [playAnnouncement] = useSound('/sounds/announcement.wav', {
+    volume: 0.85,
+    soundEnabled: JSON.parse(window.localStorage.getItem('sound')).enabled,
+  })
 
   const canPlay = players.length >= 2
   const isCurrentPlayerRoomAdmin = room.adminId === player.id
@@ -30,6 +35,10 @@ export function ConfigureRoom() {
         players,
         action: ACTIVITY_TYPE.INIT,
       })
+
+      if (JSON.parse(window.localStorage.getItem('sound')).enabled) {
+        playAnnouncement()
+      }
     } catch (error) {
       console.error(error)
 

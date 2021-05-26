@@ -1,5 +1,7 @@
 import { Box, Stack } from '@chakra-ui/react'
 import { ColourBox } from 'components/ColourBox'
+import { One, Three, Two } from 'components/Icons'
+import { Information } from 'components/Information'
 import { Page } from 'components/Page'
 import { PlayerProvider, usePlayer } from 'contexts/Player'
 import { PlayersProvider, usePlayers } from 'contexts/Players'
@@ -10,7 +12,7 @@ import { Playing } from 'flows/room/Playing'
 import { Results } from 'flows/room/Results'
 import { useGameState } from 'hooks/useGameState'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { ReactNode, useEffect, useRef, useState } from 'react'
 import { ROOM_STATUS } from 'types/Room'
 
 function PlayerId() {
@@ -58,13 +60,15 @@ function Content() {
 
   if (gameState.status === ROOM_STATUS.PLAYING) {
     return (
-      <Playing
-        key={gameState.step}
-        room={room}
-        player={player}
-        players={players}
-        gameState={gameState}
-      />
+      <Announcement isVisible={!gameState.step}>
+        <Playing
+          key={gameState.step}
+          room={room}
+          player={player}
+          players={players}
+          gameState={gameState}
+        />
+      </Announcement>
     )
   }
 
@@ -77,6 +81,57 @@ function Content() {
   }
 
   throw new Error('Unknown room status: ' + gameState.status)
+}
+
+function useInterval(callback: () => void, delay: number | null) {
+  const savedCallback = useRef(callback)
+
+  useEffect(() => {
+    savedCallback.current = callback
+  }, [callback])
+
+  useEffect(() => {
+    if (delay === null) {
+      return
+    }
+
+    const id = setInterval(() => savedCallback.current(), delay)
+
+    return () => clearInterval(id)
+  }, [delay])
+}
+
+type AnnouncementProps = {
+  children: ReactNode
+  isVisible: boolean
+}
+
+function Announcement({ children, isVisible }: AnnouncementProps) {
+  const [times, setTimes] = useState(isVisible ? 0 : 3)
+
+  useInterval(
+    () => {
+      setTimes(times + 1)
+    },
+    times < 3 ? 1000 : null
+  )
+
+  return times < 3 ? (
+    <Information
+      icon={
+        !times ? (
+          <Three width="20" height="20" />
+        ) : times === 1 ? (
+          <Two width="20" height="20" />
+        ) : (
+          <One width="20" height="20" />
+        )
+      }
+      title={!times ? 'Ready?' : times === 1 ? 'Steady' : 'Go'}
+    />
+  ) : (
+    <Stack>{children}</Stack>
+  )
 }
 
 export default PlayerId

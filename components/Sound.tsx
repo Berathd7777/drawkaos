@@ -1,19 +1,17 @@
 import { IconButton } from '@chakra-ui/button'
+import { useLocalStorage } from 'hooks/useLocalStorage'
 import React from 'react'
 import { MdVolumeOff, MdVolumeUp } from 'react-icons/md'
+import { SoundPreference } from 'types/SoundPreference'
 import useSound from 'use-sound'
 
-type Sound = {
-  enabled: boolean
-}
-
 export function Sound() {
-  const [playSoundOn] = useSound('sounds/sound-off.wav', { volume: 0.5 })
-  const [playSoundOff] = useSound('sounds/sound-on.wav', { volume: 0.5 })
+  const [playSoundOn] = useSound('/sounds/sound-off.wav', { volume: 0.25 })
+  const [playSoundOff] = useSound('/sounds/sound-on.wav', { volume: 0.25 })
   const {
     value: { enabled },
     setValue: setHasSound,
-  } = useLocalStorage<Sound>('sound', {
+  } = useLocalStorage<SoundPreference>('sound', {
     enabled: true,
   })
 
@@ -38,22 +36,4 @@ export function Sound() {
       onClick={onSoundPreferenceChange}
     />
   )
-}
-
-function useLocalStorage<T>(key: string, defaultValue: T) {
-  const [value, setValue] = React.useState(defaultValue)
-
-  React.useEffect(() => {
-    const storedValue = window.localStorage.getItem(key)
-
-    if (storedValue !== null) {
-      setValue(JSON.parse(storedValue))
-    }
-  }, [key])
-
-  React.useEffect(() => {
-    window.localStorage.setItem(key, JSON.stringify(value))
-  }, [key, value])
-
-  return { value, setValue }
 }
