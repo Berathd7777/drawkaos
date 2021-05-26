@@ -3,6 +3,7 @@ import { Garlic } from 'components/Icons'
 import NextLink from 'next/link'
 import React, { ReactNode } from 'react'
 import { CONTAINER_WIDTH, LAYOUT_WIDTH } from 'utils/constants'
+import { Sound } from './Sound'
 
 type Props = {
   children: ReactNode
@@ -22,8 +23,7 @@ export function Layout({ children }: Props) {
             spacing="4"
             direction="row"
             alignItems="center"
-            justifyContent="center"
-            height="40px"
+            justifyContent="space-between"
           >
             <NextLink href="/" passHref>
               <Link>
@@ -38,6 +38,7 @@ export function Layout({ children }: Props) {
                 </Stack>
               </Link>
             </NextLink>
+            <Sound />
           </Stack>
         </Container>
       </Box>
@@ -51,7 +52,7 @@ export function Layout({ children }: Props) {
             direction="row"
             alignItems="center"
             justifyContent="center"
-            height="40px"
+            height="10"
           >
             <Link href="https://twitter.com/DuranCristhian" isExternal>
               @durancristhian
