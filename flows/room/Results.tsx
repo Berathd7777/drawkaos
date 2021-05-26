@@ -256,15 +256,16 @@ function PlayerResult({
 
   return (
     <Stack spacing="4" alignItems="center">
-      <FadeIn delay={2000}>
+      <Box as={FadeIn} delay={2000} width="full">
         {player.results.map((result, index) => (
           <PlayerAnswer
             key={result.id}
+            isFirstRow={!index}
             align={index % 2 === 0 ? 'left' : 'right'}
             result={result}
           />
         ))}
-      </FadeIn>
+      </Box>
       <Divider />
       <Stack
         spacing="4"
@@ -329,9 +330,10 @@ function PlayerResult({
 type ResultProps = {
   align: 'left' | 'right'
   result: Result
+  isFirstRow: boolean
 }
 
-function PlayerAnswer({ result, align }: ResultProps) {
+function PlayerAnswer({ result, align, isFirstRow }: ResultProps) {
   const player = usePlayer()
   const players = usePlayers()
 
@@ -339,7 +341,7 @@ function PlayerAnswer({ result, align }: ResultProps) {
   const author = players.find((p) => p.id === result.author)
 
   return (
-    <Box mt="4">
+    <Box mt={isFirstRow ? 0 : '4'}>
       <Stack key={result.author} spacing="4">
         <Stack
           spacing="4"

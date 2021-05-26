@@ -34,6 +34,8 @@ export function Reply({ result, align }: Props) {
         <Image
           src={result.value}
           margin={margin}
+          /* The image is transparent so we add a white background */
+          backgroundColor="white"
           borderRadius="md"
           fallback={
             <Stack

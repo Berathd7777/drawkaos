@@ -15,6 +15,7 @@ import { useToasts } from 'contexts/Toasts'
 import { storage } from 'firebase/init'
 import { GameState } from 'hooks/useGameState'
 import React, { useMemo, useRef, useState } from 'react'
+import CanvasDraw from 'react-canvas-draw'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { Player, RESULT_TYPE } from 'types/Player'
 import {
@@ -34,10 +35,18 @@ type Props = {
 
 export function Playing({ room, player, players, gameState }: Props) {
   const { showToast } = useToasts()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [canvasTouched, setCanvasTouched] = useState(false)
+  const canvasRef = useRef<CanvasDraw>(null)
   const [sentence, setSentence] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+
+  /*
+    HACK
+    https://github.com/embiem/react-canvas-draw/issues/43#issue-527164185
+  */
+  const getDraw = () => {
+    // @ts-ignore
+    return canvasRef.current.canvasContainer.children[1].toDataURL()
+  }
 
   const shouldDraw = gameState.step % 2 !== 0
   const step = gameState.step
@@ -51,8 +60,7 @@ export function Playing({ room, player, players, gameState }: Props) {
 
     try {
       if (shouldDraw) {
-        /* const MIME_TYPE = 'image/jpeg'
-        const imgURL = canvasRef.current.toDataURL(MIME_TYPE)
+        const imgURL = getDraw()
 
         const file = await storage
           .child(`${room.id}/${player.id}/${gameState.step + 1}`)
@@ -66,14 +74,6 @@ export function Playing({ room, player, players, gameState }: Props) {
           RESULT_TYPE.DRAW,
           drawUrl,
           gameState.step
-        ) */
-
-        await addPlayerAnswer(
-          room,
-          player,
-          RESULT_TYPE.SENTENCE,
-          sentence || '(Empty)',
-          gameState.step
         )
       } else {
         await addPlayerAnswer(
@@ -85,13 +85,14 @@ export function Playing({ room, player, players, gameState }: Props) {
         )
       }
     } catch (error) {
-      /* TODO: it would be nice to retry */
       console.error(error)
 
       showToast({
         status: 'error',
         description: 'There was an error while saving your reply. Try again.',
       })
+
+      setIsSaving(false)
     }
   }
 
@@ -112,12 +113,7 @@ export function Playing({ room, player, players, gameState }: Props) {
   }, [player, players, step])
 
   const doneButton = (
-    <Button
-      colorScheme="tertiary"
-      onClick={saveReply}
-      disabled={shouldDraw ? !canvasTouched : !sentence}
-      isLoading={isSaving}
-    >
+    <Button colorScheme="tertiary" onClick={saveReply} isLoading={isSaving}>
       Done
     </Button>
   )
@@ -165,7 +161,6 @@ export function Playing({ room, player, players, gameState }: Props) {
               canvasRef={canvasRef}
               canDraw={!isSaving}
               doneButton={doneButton}
-              setCanvasTouched={setCanvasTouched}
             />
           ) : (
             <Stack spacing="8" alignItems="center" justifyContent="center">

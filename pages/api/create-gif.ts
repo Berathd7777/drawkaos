@@ -66,6 +66,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           if (answer.type === RESULT_TYPE.DRAW) {
             const image = await loadImage(answer.value)
 
+            /* The image is transparent so we add a white square */
+            ctx.fillStyle = 'white'
+            ctx.fillRect(
+              (GIF_WIDTH - CANVAS_WIDTH) / 2,
+              (GIT_HEIGHT - CANVAS_HEIGHT) / 2,
+              CANVAS_WIDTH,
+              CANVAS_HEIGHT
+            )
+
             ctx.drawImage(
               image,
               (GIF_WIDTH - CANVAS_WIDTH) / 2,

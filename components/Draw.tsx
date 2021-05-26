@@ -1,23 +1,20 @@
-import { Box, Button, Icon, SimpleGrid, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Icon,
+  SimpleGrid,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
+  Stack,
+} from '@chakra-ui/react'
 import Color from 'color'
-import React, {
-  MouseEvent,
-  MutableRefObject,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import React, { MutableRefObject, ReactNode, useMemo, useState } from 'react'
 import CanvasDraw from 'react-canvas-draw'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { BiEraser } from 'react-icons/bi'
-import {
-  MdCheck,
-  MdDelete,
-  MdEdit,
-  MdFormatColorFill,
-  MdUndo,
-} from 'react-icons/md'
+import { MdCheck, MdDelete, MdEdit, MdUndo } from 'react-icons/md'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
 const PALLETE = [
@@ -44,264 +41,50 @@ const COLORS = PALLETE.map((color) => {
   }
 })
 
-const SHAPE_SIZES = [{ value: 2 }, { value: 5 }, { value: 10 }]
+const SHAPE_SIZES = [
+  { value: 1, dotSize: '5px' },
+  { value: 3, dotSize: '8px' },
+  { value: 4, dotSize: '10px' },
+]
 
 enum TOOL {
   PENCIL = 'PENCIL',
   ERASER = 'ERASER',
-  BUCKET = 'BUCKET',
 }
-
-type RGBA_Color = { r: number; g: number; b: number; a: number }
 
 type Props = {
-  canvasRef: MutableRefObject<HTMLCanvasElement>
+  canvasRef: MutableRefObject<CanvasDraw>
   canDraw: boolean
   doneButton: ReactNode
-  setCanvasTouched: (canvasTouched: boolean) => void
 }
 
-export function Draw({
-  canvasRef,
-  canDraw,
-  doneButton,
-  setCanvasTouched,
-}: Props) {
-  const [isDrawing, setIsDrawing] = useState(false)
-  const [currentColor, setCurrentColor] = useState(COLORS[0].value)
-  const [colorBeforeEraser, setColorBeforeEraser] = useState('')
+export function Draw({ canvasRef, canDraw, doneButton }: Props) {
   const [currentTool, setCurrentTool] = useState<TOOL>(TOOL.PENCIL)
-  const [currentLineWidth, setCurrentLineWidth] = useState(5)
-  const [undoStack, setUndoStack] = useState<string[]>([])
-  const undoRef = useRef<HTMLButtonElement>(null)
+  const [currentColor, setCurrentColor] = useState(COLORS[0].value)
+  const [alpha, setAlpha] = useState(1)
+  const [colorBeforeEraser, setColorBeforeEraser] = useState('')
+  const [alplhaBeforeEraser, setAlplhaBeforeEraser] = useState(null)
+  const [currentLineWidth, setCurrentLineWidth] = useState(SHAPE_SIZES[1].value)
 
   useHotkeys('ctrl+z, command+z', () => {
-    if (undoRef.current) {
-      undoRef.current.click()
-    }
+    undo()
   })
 
-  useEffect(() => {
-    setCanvasTouched(undoStack.length > 1)
-  }, [setCanvasTouched, undoStack])
-
-  const handleUndo = () => {
-    const canvas = canvasRef.current
-    const context = canvas.getContext('2d')
-    context.fillStyle = 'white'
-    context.fillRect(0, 0, canvas.width, canvas.height)
-
-    const copyUndoStack = [...undoStack]
-    copyUndoStack.pop()
-
-    setUndoStack(copyUndoStack)
-
-    const source = copyUndoStack[copyUndoStack.length - 1]
-
-    const img = new Image()
-    img.src = source
-    img.onload = () => {
-      context.imageSmoothingEnabled = false
-      context.drawImage(img, 0, 0, canvas.width, canvas.height)
-    }
-  }
-
-  const getCurrentColor = () => {
-    return Color.rgb(currentColor).string()
-  }
-
-  const prepareCanvas = () => {
-    const canvas = canvasRef.current
-    canvas.width = CANVAS_WIDTH
-    canvas.height = CANVAS_HEIGHT
-    canvas.style.width = `${CANVAS_WIDTH}px`
-    canvas.style.height = `${CANVAS_HEIGHT}px`
-
-    const context = canvas.getContext('2d')
-    context.scale(1, 1)
-    context.fillStyle = '#ffffff'
-    context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-    context.strokeStyle = getCurrentColor()
-    context.lineWidth = currentLineWidth
-    context.lineCap = 'round'
-
-    setUndoStack([canvas.toDataURL()])
-  }
-
-  const startDrawing = ({ nativeEvent }) => {
-    if (!canDraw) {
-      return
-    }
-
-    const { offsetX, offsetY } = nativeEvent
-
-    if (currentTool !== TOOL.BUCKET) {
-      const canvas = canvasRef.current
-      const context = canvas.getContext('2d')
-
-      if (currentTool === TOOL.PENCIL) {
-        context.beginPath()
-        context.lineWidth = currentLineWidth
-        context.strokeStyle = getCurrentColor()
-        context.lineTo(offsetX, offsetY)
-        context.lineTo(offsetX + 1, offsetY + 1)
-        context.stroke()
-        context.closePath()
-      }
-
-      context.beginPath()
-      context.moveTo(offsetX, offsetY)
-
-      setIsDrawing(true)
-    } else {
-      floodFill(offsetX, offsetY)
-    }
-  }
-
-  const getPixelPos = function (x: number, y: number, canvasWidth: number) {
-    return (y * canvasWidth + x) * 4
-  }
-
-  const matchStartColor = function (
-    data: unknown,
-    pos: number,
-    startColor: RGBA_Color
-  ) {
-    return (
-      data[pos] === startColor.r &&
-      data[pos + 1] === startColor.g &&
-      data[pos + 2] === startColor.b &&
-      data[pos + 3] === startColor.a
-    )
-  }
-
-  const colorPixel = function (data: unknown, pos: number, color: RGBA_Color) {
-    data[pos] = color.r || 0
-    data[pos + 1] = color.g || 0
-    data[pos + 2] = color.b || 0
-    data[pos + 3] = color.a || 255
-  }
-
-  const floodFill = (offsetX: number, offsetY: number) => {
-    const canvas = canvasRef.current
-    const context = canvas.getContext('2d')
-    const dstImg = context.getImageData(0, 0, canvas.width, canvas.height)
-    const dstData = dstImg.data
-
-    const startPos = getPixelPos(offsetX, offsetY, canvas.width)
-    const startColor = {
-      r: dstData[startPos],
-      g: dstData[startPos + 1],
-      b: dstData[startPos + 2],
-      a: dstData[startPos + 3],
-    }
-    const todo = [[offsetX, offsetY]]
-    const fillColor = Color.rgb(currentColor).object()
-    const rgba = {
-      r: fillColor['r'],
-      g: fillColor['g'],
-      b: fillColor['b'],
-      a: fillColor.alpha,
-    }
-
-    while (todo.length) {
-      const pos = todo.pop()
-      const x = pos[0]
-      let y = pos[1]
-      let currentPos = getPixelPos(x, y, canvas.width)
-
-      while (y-- >= 0 && matchStartColor(dstData, currentPos, startColor)) {
-        currentPos -= canvas.width * 4
-      }
-
-      currentPos += canvas.width * 4
-      ++y
-      let reachLeft = false
-      let reachRight = false
-
-      while (
-        y++ < canvas.height - 1 &&
-        matchStartColor(dstData, currentPos, startColor)
-      ) {
-        colorPixel(dstData, currentPos, rgba)
-
-        if (x > 0) {
-          if (matchStartColor(dstData, currentPos - 4, startColor)) {
-            if (!reachLeft) {
-              todo.push([x - 1, y])
-              reachLeft = true
-            }
-          } else if (reachLeft) {
-            reachLeft = false
-          }
-        }
-
-        if (x < canvas.width - 1) {
-          if (matchStartColor(dstData, currentPos + 4, startColor)) {
-            if (!reachRight) {
-              todo.push([x + 1, y])
-              reachRight = true
-            }
-          } else if (reachRight) {
-            reachRight = false
-          }
-        }
-
-        currentPos += canvas.width * 4
-      }
-    }
-
-    context.putImageData(dstImg, 0, 0)
-
-    setUndoStack([...undoStack, canvas.toDataURL()])
-  }
-
-  const finishDrawing = () => {
-    if (!isDrawing) {
-      return
-    }
-
-    const canvas = canvasRef.current
-    const context = canvas.getContext('2d')
-    context.closePath()
-
-    setIsDrawing(false)
-
-    setUndoStack([...undoStack, canvas.toDataURL()])
-  }
-
-  const draw = ({
-    nativeEvent,
-  }: MouseEvent<HTMLCanvasElement & HTMLDivElement>) => {
-    if (!isDrawing || !canDraw) {
-      return
-    }
-
-    const { offsetX, offsetY } = nativeEvent
-
-    const canvas = canvasRef.current
-    const context = canvas.getContext('2d')
-    context.lineWidth = currentLineWidth
-    context.strokeStyle = getCurrentColor()
-    context.lineTo(offsetX, offsetY)
-    context.stroke()
-  }
+  const color = useMemo(() => {
+    return Color(currentColor).alpha(alpha).string()
+  }, [currentColor, alpha])
 
   const clearCanvas = () => {
-    const canvas = canvasRef.current
-
-    const context = canvas.getContext('2d')
-    context.fillStyle = 'white'
-    context.fillRect(0, 0, canvas.width, canvas.height)
-
-    setUndoStack([canvas.toDataURL()])
+    if (canvasRef.current) {
+      canvasRef.current.clear()
+    }
   }
 
-  useEffect(() => {
-    setCanvasTouched(true)
-    /* prepareCanvas() */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const undo = () => {
+    if (canvasRef.current) {
+      canvasRef.current.undo()
+    }
+  }
 
   return (
     <Stack spacing="4" direction="row" justifyContent="space-between">
@@ -331,22 +114,28 @@ export function Draw({
         </SimpleGrid>
       </Box>
       <Stack spacing="4" flex="1">
-        <CanvasDraw canvasHeight={CANVAS_HEIGHT} canvasWidth={CANVAS_WIDTH} />
-        {/* <Box
-          as="canvas"
-          onMouseDown={startDrawing}
-          onMouseUp={finishDrawing}
-          onMouseMove={draw}
-          ref={canvasRef}
+        <Box
+          as={CanvasDraw}
+          ref={(canvasDraw) =>
+            (canvasRef.current = (canvasDraw as unknown) as CanvasDraw)
+          }
+          canvasHeight={CANVAS_HEIGHT}
+          canvasWidth={CANVAS_WIDTH}
+          brushColor={color}
+          brushRadius={currentLineWidth}
+          hideGrid
+          hideInterface
+          lazyRadius={0}
+          disabled={!canDraw}
           borderRadius="md"
           marginX="auto"
           cursor="crosshair"
-        /> */}
+        />
         <Stack
-          spacing="8"
+          spacing="0"
           direction="row"
           alignItems="center"
-          justifyContent="center"
+          justifyContent="space-between"
         >
           <Stack
             spacing="2"
@@ -354,7 +143,7 @@ export function Draw({
             alignItems="center"
             justifyContent="center"
           >
-            {SHAPE_SIZES.map(({ value }) => (
+            {SHAPE_SIZES.map(({ value, dotSize }) => (
               <Button
                 key={value}
                 onClick={() => {
@@ -366,8 +155,8 @@ export function Draw({
                 padding="1"
               >
                 <Box
-                  width={`${value + 2}px`}
-                  height={`${value + 2}px`}
+                  width={dotSize}
+                  height={dotSize}
                   backgroundColor={
                     currentLineWidth === value
                       ? 'background.500'
@@ -378,6 +167,21 @@ export function Draw({
               </Button>
             ))}
           </Stack>
+          <Slider
+            colorScheme="tertiary"
+            defaultValue={1}
+            min={0.1}
+            max={1}
+            step={0.1}
+            onChangeEnd={setAlpha}
+            disabled={!canDraw || currentTool === TOOL.ERASER}
+            width="40"
+          >
+            <SliderTrack>
+              <SliderFilledTrack />
+            </SliderTrack>
+            <SliderThumb />
+          </Slider>
           {doneButton}
         </Stack>
       </Stack>
@@ -387,7 +191,9 @@ export function Draw({
           onClick={() => {
             if (currentTool === TOOL.ERASER) {
               setCurrentColor(colorBeforeEraser)
+              setAlpha(alplhaBeforeEraser)
               setColorBeforeEraser('')
+              setAlplhaBeforeEraser(null)
             }
 
             setCurrentTool(TOOL.PENCIL)
@@ -402,7 +208,9 @@ export function Draw({
           leftIcon={<BiEraser />}
           onClick={() => {
             setColorBeforeEraser(currentColor)
+            setAlplhaBeforeEraser(alpha)
             setCurrentColor('white')
+            setAlpha(1)
             setCurrentTool(TOOL.ERASER)
           }}
           variant={currentTool === TOOL.ERASER ? 'solid' : 'ghost'}
@@ -412,30 +220,11 @@ export function Draw({
           Eraser
         </Button>
         <Button
-          leftIcon={<MdFormatColorFill />}
-          onClick={() => {
-            if (currentTool === TOOL.ERASER) {
-              setCurrentColor(colorBeforeEraser)
-              setColorBeforeEraser('')
-            }
-
-            setCurrentTool(TOOL.BUCKET)
-          }}
-          variant={currentTool === TOOL.BUCKET ? 'solid' : 'ghost'}
-          colorScheme="tertiary"
-          disabled={!canDraw}
-        >
-          Bucket
-        </Button>
-        <Button
           leftIcon={<MdUndo />}
-          onClick={() => {
-            handleUndo()
-          }}
+          onClick={undo}
           variant="ghost"
           colorScheme="tertiary"
-          disabled={!canDraw || !(undoStack.length > 1)}
-          ref={undoRef}
+          disabled={!canDraw}
         >
           Undo
         </Button>
