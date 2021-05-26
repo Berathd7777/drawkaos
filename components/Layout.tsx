@@ -3,7 +3,7 @@ import { Garlic } from 'components/Icons'
 import NextLink from 'next/link'
 import React, { ReactNode } from 'react'
 import { CONTAINER_WIDTH, LAYOUT_WIDTH } from 'utils/constants'
-import { Sound } from './Sound'
+import { ToggleSound } from './ToggleSound'
 
 type Props = {
   children: ReactNode
@@ -38,7 +38,7 @@ export function Layout({ children }: Props) {
                 </Stack>
               </Link>
             </NextLink>
-            <Sound />
+            <ToggleSound />
           </Stack>
         </Container>
       </Box>

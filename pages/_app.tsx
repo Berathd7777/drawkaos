@@ -3,6 +3,7 @@ import '@fontsource/inter/400.css'
 import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
 import { Layout } from 'components/Layout'
+import { SoundProvider } from 'contexts/Sounds'
 import { ToastProvider } from 'contexts/Toasts'
 import { DefaultSeo } from 'next-seo'
 import SEO from 'next-seo.config'
@@ -26,9 +27,11 @@ function App({ Component, pageProps }: AppProps) {
       </Head>
       <ChakraProvider theme={theme}>
         <ToastProvider>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          <SoundProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </SoundProvider>
         </ToastProvider>
       </ChakraProvider>
     </>
