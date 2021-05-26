@@ -39,11 +39,11 @@ export function Playing({ room, player, players, gameState }: Props) {
   const [sentence, setSentence] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
-  /*
-    HACK
-    https://github.com/embiem/react-canvas-draw/issues/43#issue-527164185
-  */
   const getDraw = () => {
+    /*
+      HACK
+      https://github.com/embiem/react-canvas-draw/issues/43#issue-527164185
+    */
     // @ts-ignore
     return canvasRef.current.canvasContainer.children[1].toDataURL()
   }

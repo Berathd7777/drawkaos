@@ -8,4 +8,4 @@ export const CONTAINER_WIDTH = `${
 }px`
 
 export const CANVAS_WIDTH = MAX_WIDTH - 316
-export const CANVAS_HEIGHT = CANVAS_WIDTH * (9 / 16)
+export const CANVAS_HEIGHT = Math.floor(CANVAS_WIDTH * (9 / 16))
