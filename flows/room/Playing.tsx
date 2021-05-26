@@ -15,7 +15,7 @@ import { Reply } from 'components/Reply'
 import { useToasts } from 'contexts/Toasts'
 import { storage } from 'firebase/init'
 import { GameState } from 'hooks/useGameState'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { Player, RESULT_TYPE } from 'types/Player'
 import {
@@ -149,29 +149,20 @@ export function Playing({ room, player, players, gameState }: Props) {
           {previousReply && <Reply align="center" result={previousReply} />}
           {shouldDraw ? (
             <Draw
+              key={step}
               canvasRef={canvasRef}
               canDraw={!isSaving}
               doneButton={doneButton}
             />
           ) : (
-            <Stack spacing="8" alignItems="center" justifyContent="center">
-              <FormControl id="sentence" isDisabled={isSaving}>
-                <FormLabel>
-                  {step
-                    ? 'Describe the drawing'
-                    : 'Write something for others to draw'}
-                </FormLabel>
-                <Input
-                  value={sentence}
-                  onChange={(event) => {
-                    setSentence(event.target.value)
-                  }}
-                  maxLength={280}
-                  variant="filled"
-                />
-              </FormControl>
-              {doneButton}
-            </Stack>
+            <Write
+              key={step}
+              doneButton={doneButton}
+              isSaving={isSaving}
+              step={step}
+              sentence={sentence}
+              setSentence={setSentence}
+            />
           )}
           {isSaving && (
             <WhoIsMissing
@@ -225,5 +216,49 @@ function WhoIsMissing({
         <Text textAlign="center">Waiting for {missingPlayers} to finish</Text>
       ) : null}
     </>
+  )
+}
+
+type WriteProps = {
+  doneButton: ReactNode
+  isSaving: boolean
+  step: number
+  sentence: string
+  setSentence: (newSentence: string) => void
+}
+
+function Write({
+  doneButton,
+  isSaving,
+  step,
+  sentence,
+  setSentence,
+}: WriteProps) {
+  const initialFocusRef = useRef<HTMLInputElement>()
+
+  useEffect(() => {
+    if (initialFocusRef.current) {
+      initialFocusRef.current.focus()
+    }
+  }, [])
+
+  return (
+    <Stack spacing="8" alignItems="center" justifyContent="center">
+      <FormControl id="sentence" isDisabled={isSaving}>
+        <FormLabel>
+          {step ? 'Describe the drawing' : 'Write something for others to draw'}
+        </FormLabel>
+        <Input
+          value={sentence}
+          onChange={(event) => {
+            setSentence(event.target.value)
+          }}
+          maxLength={280}
+          variant="filled"
+          ref={initialFocusRef}
+        />
+      </FormControl>
+      {doneButton}
+    </Stack>
   )
 }

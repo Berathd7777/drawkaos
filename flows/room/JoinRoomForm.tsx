@@ -9,7 +9,7 @@ import {
 import { Avatar } from 'components/Avatar'
 import { useToasts } from 'contexts/Toasts'
 import { useRouter } from 'next/router'
-import React, { ChangeEvent, useMemo, useState } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { addPlayerToRoom } from 'utils/addPlayerToRoom'
 
 type Props = { roomId: string }
@@ -21,6 +21,13 @@ export function JoinFormRoom({ roomId }: Props) {
     userName: '',
   })
   const [isWorking, setIsWorking] = useState(false)
+  const initialFocusRef = useRef<HTMLInputElement>()
+
+  useEffect(() => {
+    if (initialFocusRef.current) {
+      initialFocusRef.current.focus()
+    }
+  }, [])
 
   const canSubmit = useMemo(() => {
     return formData.userName
@@ -73,6 +80,7 @@ export function JoinFormRoom({ roomId }: Props) {
               onChange={onChange}
               variant="filled"
               maxLength={140}
+              ref={initialFocusRef}
             />
           </FormControl>
         </Stack>

@@ -11,7 +11,14 @@ import {
 } from '@chakra-ui/react'
 import Color from 'color'
 import CanvasDraw from 'components/react-canvas-draw/CanvasDraw'
-import React, { MutableRefObject, ReactNode, useMemo, useState } from 'react'
+import React, {
+  MutableRefObject,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { BiEraser } from 'react-icons/bi'
 import { MdCheck, MdDelete, MdEdit, MdUndo } from 'react-icons/md'
@@ -65,6 +72,13 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
   const [colorBeforeEraser, setColorBeforeEraser] = useState('')
   const [alplhaBeforeEraser, setAlplhaBeforeEraser] = useState(null)
   const [currentLineWidth, setCurrentLineWidth] = useState(SHAPE_SIZES[1].value)
+  const initialFocusRef = useRef<HTMLInputElement>()
+
+  useEffect(() => {
+    if (initialFocusRef.current) {
+      initialFocusRef.current.focus()
+    }
+  }, [])
 
   useHotkeys('ctrl+z, command+z', () => {
     undo()
@@ -201,6 +215,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
           variant={currentTool === TOOL.PENCIL ? 'solid' : 'ghost'}
           colorScheme="tertiary"
           disabled={!canDraw}
+          ref={initialFocusRef}
         >
           Pencil
         </Button>

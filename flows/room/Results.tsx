@@ -17,7 +17,7 @@ import { useRoom } from 'contexts/Room'
 import { useToasts } from 'contexts/Toasts'
 import { useReactions } from 'hooks/useReactions'
 import { Frame } from 'pages/api/create-picture'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import FadeIn from 'react-fade-in'
 import { MdChevronLeft, MdChevronRight, MdFileDownload } from 'react-icons/md'
 import StringSanitizer from 'string-sanitizer'
@@ -33,6 +33,13 @@ export function Results() {
   const players = usePlayers()
   const { showToast } = useToasts()
   const [isWorking, setIsWorking] = useState(false)
+  const initialFocusRef = useRef<HTMLInputElement>()
+
+  useEffect(() => {
+    if (initialFocusRef.current) {
+      initialFocusRef.current.focus()
+    }
+  }, [])
 
   const isAdmin = room.adminId === user.id
 
@@ -114,6 +121,7 @@ export function Results() {
                   }}
                   isLoading={isWorking}
                   loadingText="Wait"
+                  ref={initialFocusRef}
                 >
                   {`Start album's visualization`}
                 </Button>
@@ -148,6 +156,13 @@ function PlayerResult({
   const { showToast } = useToasts()
   const [isWorking, setIsWorking] = useState(false)
   const [isGeneratingGIF, setIsGeneratingGIF] = useState(false)
+  const initialFocusRef = useRef<HTMLInputElement>()
+
+  useEffect(() => {
+    if (initialFocusRef.current) {
+      initialFocusRef.current.focus()
+    }
+  }, [])
 
   const downloadGIF = (player: Player) => {
     setIsGeneratingGIF(true)
@@ -311,6 +326,7 @@ function PlayerResult({
                   updateAlbumIndex(albumIndex + 1)
                 }}
                 isLoading={isWorking}
+                ref={initialFocusRef}
               />
             ) : (
               <Button
@@ -318,6 +334,7 @@ function PlayerResult({
                 onClick={playAgain}
                 isLoading={isWorking}
                 loadingText="Wait"
+                ref={initialFocusRef}
               >
                 Play again
               </Button>
@@ -412,7 +429,7 @@ function PlayerAnswer({ result, align, isFirstRow, prevResult }: ResultProps) {
   }
 
   return (
-    <Box mt={isFirstRow ? 0 : '4'}>
+    <Box mt={isFirstRow ? 0 : '8'}>
       <Stack key={result.author} spacing="4">
         <Stack
           spacing="4"
