@@ -10,8 +10,8 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import Color from 'color'
+import CanvasDraw from 'components/react-canvas-draw/CanvasDraw'
 import React, { MutableRefObject, ReactNode, useMemo, useState } from 'react'
-import CanvasDraw from 'react-canvas-draw'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { BiEraser } from 'react-icons/bi'
 import { MdCheck, MdDelete, MdEdit, MdUndo } from 'react-icons/md'

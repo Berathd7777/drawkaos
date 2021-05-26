@@ -10,12 +10,12 @@ import {
 import { ColourBox } from 'components/ColourBox'
 import { Draw } from 'components/Draw'
 import { Page } from 'components/Page'
+import CanvasDraw from 'components/react-canvas-draw/CanvasDraw'
 import { Reply } from 'components/Reply'
 import { useToasts } from 'contexts/Toasts'
 import { storage } from 'firebase/init'
 import { GameState } from 'hooks/useGameState'
 import React, { useMemo, useRef, useState } from 'react'
-import CanvasDraw from 'react-canvas-draw'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { Player, RESULT_TYPE } from 'types/Player'
 import {
@@ -39,15 +39,6 @@ export function Playing({ room, player, players, gameState }: Props) {
   const [sentence, setSentence] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
-  const getDraw = () => {
-    /*
-      HACK
-      https://github.com/embiem/react-canvas-draw/issues/43#issue-527164185
-    */
-    // @ts-ignore
-    return canvasRef.current.canvasContainer.children[1].toDataURL()
-  }
-
   const shouldDraw = gameState.step % 2 !== 0
   const step = gameState.step
 
@@ -60,7 +51,7 @@ export function Playing({ room, player, players, gameState }: Props) {
 
     try {
       if (shouldDraw) {
-        const imgURL = getDraw()
+        const imgURL = canvasRef.current.getDataURL()
 
         const file = await storage
           .child(`${room.id}/${player.id}/${gameState.step + 1}`)
