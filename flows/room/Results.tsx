@@ -16,6 +16,7 @@ import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
 import { useToasts } from 'contexts/Toasts'
 import { useReactions } from 'hooks/useReactions'
+import fileDownload from 'js-file-download'
 import { Frame } from 'pages/api/create-picture'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import FadeIn from 'react-fade-in'
@@ -204,20 +205,11 @@ function PlayerResult({
 
         const blob = new Blob(chunks)
 
-        const url = URL.createObjectURL(blob)
-
         const sanitizedRoomName = StringSanitizer.sanitize(room.name)
         const sanitizedPlayerName = StringSanitizer.sanitize(player.name)
+        const fileName = `${sanitizedRoomName} - ${sanitizedPlayerName}.gif`
 
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${sanitizedRoomName} - ${sanitizedPlayerName}.gif`
-        a.style.visibility = 'hidden'
-
-        document.body.appendChild(a)
-
-        a.click()
-        a.remove()
+        fileDownload(blob, fileName)
       })
       .catch((error) => {
         console.error(error)
@@ -397,21 +389,12 @@ function PlayerAnswer({ result, align, isFirstRow, prevResult }: ResultProps) {
 
         const blob = new Blob(chunks)
 
-        const url = URL.createObjectURL(blob)
-
         const sanitizedUpperText = StringSanitizer.sanitize(upperText)
         const sanitizedLowerText = StringSanitizer.sanitize(lowerText || '')
         const last = lowerText ? ` - ${sanitizedLowerText}` : ''
 
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${sanitizedUpperText}${last}.png`
-        a.style.visibility = 'hidden'
-
-        document.body.appendChild(a)
-
-        a.click()
-        a.remove()
+        const fileName = `${sanitizedUpperText}${last}.png`
+        fileDownload(blob, fileName)
       })
       .catch((error) => {
         console.error(error)
