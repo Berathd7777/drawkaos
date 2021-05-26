@@ -101,6 +101,13 @@ function useInterval(callback: () => void, delay: number | null) {
   }, [delay])
 }
 
+const ICONS = {
+  0: Three,
+  1: Two,
+  2: One,
+  3: () => void 0,
+}
+
 type AnnouncementProps = {
   children: ReactNode
   isVisible: boolean
@@ -116,21 +123,15 @@ function Announcement({ children, isVisible }: AnnouncementProps) {
     times < 3 ? 1000 : null
   )
 
+  const Icon = ICONS[times]
+
   return times < 3 ? (
     <Information
-      icon={
-        !times ? (
-          <Three width="20" height="20" />
-        ) : times === 1 ? (
-          <Two width="20" height="20" />
-        ) : (
-          <One width="20" height="20" />
-        )
-      }
+      icon={<Icon width="20" height="20" />}
       title={!times ? 'Ready?' : times === 1 ? 'Steady' : 'Go'}
     />
   ) : (
-    <Stack>{children}</Stack>
+    <>{children}</>
   )
 }
 
