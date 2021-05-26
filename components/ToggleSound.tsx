@@ -8,9 +8,9 @@ export function ToggleSound() {
 
   const onSoundPreferenceChange = () => {
     if (isSoundEnabled) {
-      play(SOUNDS.SOUND_ON)
-    } else {
       play(SOUNDS.SOUND_OFF)
+    } else {
+      play(SOUNDS.SOUND_ON)
     }
 
     toggleIsSoundEnabled()

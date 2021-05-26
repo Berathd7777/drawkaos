@@ -1,12 +1,12 @@
 import { useLocalStorage } from 'hooks/useLocalStorage'
 import React, { createContext, ReactNode, useContext } from 'react'
 import { SoundPreference } from 'types/SoundPreference'
-import useSound from 'use-sound'
+import createPlayer from 'web-audio-player'
 
 export enum SOUNDS {
-  SOUND_ON = 'SOUND_ON',
-  SOUND_OFF = 'SOUND_OFF',
-  ANNOUNCEMENT = 'ANNOUNCEMENT',
+  SOUND_ON = 'sound-on',
+  SOUND_OFF = 'sound-off',
+  ANNOUNCEMENT = 'announcement',
 }
 
 type SoundContextState = {
@@ -28,27 +28,22 @@ function SoundProvider({ children }: Props) {
   } = useLocalStorage<SoundPreference>('sound', {
     isSoundEnabled: true,
   })
-  const [playSoundOn] = useSound('/sounds/sound-off.wav', { volume: 0.25 })
-  const [playSoundOff] = useSound('/sounds/sound-on.wav', { volume: 0.25 })
-  const [playAnnouncement] = useSound('/sounds/announcement.wav', {
-    volume: 0.85,
-  })
 
   const play = (soundId: SOUNDS) => {
-    switch (soundId) {
-      case SOUNDS.SOUND_ON:
-        playSoundOn()
-        break
-      case SOUNDS.SOUND_OFF:
-        playSoundOff()
-        break
-      case SOUNDS.ANNOUNCEMENT:
-        if (isSoundEnabled) {
-          playAnnouncement()
-        }
-      default:
-        break
+    if (
+      soundId !== SOUNDS.SOUND_ON &&
+      soundId !== SOUNDS.SOUND_OFF &&
+      !isSoundEnabled
+    ) {
+      return
     }
+
+    const audio = createPlayer(`/sounds/${soundId}.wav`)
+
+    audio.on('load', () => {
+      audio.play()
+      audio.node.connect(audio.context.destination)
+    })
   }
 
   const toggleIsSoundEnabled = () => {
