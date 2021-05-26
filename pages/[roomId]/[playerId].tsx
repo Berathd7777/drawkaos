@@ -11,8 +11,9 @@ import { PlayersList } from 'flows/room/PlayersList'
 import { Playing } from 'flows/room/Playing'
 import { Results } from 'flows/room/Results'
 import { useGameState } from 'hooks/useGameState'
+import { useInterval } from 'hooks/useInterval'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { ROOM_STATUS } from 'types/Room'
 
 function PlayerId() {
@@ -81,24 +82,6 @@ function Content() {
   }
 
   throw new Error('Unknown room status: ' + gameState.status)
-}
-
-function useInterval(callback: () => void, delay: number | null) {
-  const savedCallback = useRef(callback)
-
-  useEffect(() => {
-    savedCallback.current = callback
-  }, [callback])
-
-  useEffect(() => {
-    if (delay === null) {
-      return
-    }
-
-    const id = setInterval(() => savedCallback.current(), delay)
-
-    return () => clearInterval(id)
-  }, [delay])
 }
 
 const ICONS = {

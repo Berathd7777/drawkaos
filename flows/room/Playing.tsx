@@ -15,6 +15,7 @@ import { Reply } from 'components/Reply'
 import { useToasts } from 'contexts/Toasts'
 import { storage } from 'firebase/init'
 import { GameState } from 'hooks/useGameState'
+import { useInterval } from 'hooks/useInterval'
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { Player, RESULT_TYPE } from 'types/Player'
@@ -38,9 +39,23 @@ export function Playing({ room, player, players, gameState }: Props) {
   const canvasRef = useRef<CanvasDraw>(null)
   const [sentence, setSentence] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const [canSubmit, setCanSubmit] = useState(false)
 
   const shouldDraw = gameState.step % 2 !== 0
   const step = gameState.step
+
+  useInterval(
+    () => {
+      setCanSubmit(
+        shouldDraw
+          ? canvasRef.current
+            ? JSON.parse(canvasRef.current.getSaveData()).lines.length
+            : false
+          : sentence
+      )
+    },
+    isSaving ? null : 500
+  )
 
   const saveReply = async () => {
     if (isSaving) {
@@ -104,7 +119,12 @@ export function Playing({ room, player, players, gameState }: Props) {
   }, [player, players, step])
 
   const doneButton = (
-    <Button colorScheme="tertiary" onClick={saveReply} isLoading={isSaving}>
+    <Button
+      colorScheme="tertiary"
+      onClick={saveReply}
+      disabled={!canSubmit}
+      isLoading={isSaving}
+    >
       Done
     </Button>
   )
