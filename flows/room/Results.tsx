@@ -16,11 +16,12 @@ import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
 import { useToasts } from 'contexts/Toasts'
 import { useReactions } from 'hooks/useReactions'
+import { Frame } from 'pages/api/create-picture'
 import React, { useMemo, useState } from 'react'
 import FadeIn from 'react-fade-in'
 import { MdChevronLeft, MdChevronRight, MdFileDownload } from 'react-icons/md'
 import StringSanitizer from 'string-sanitizer'
-import { Player, Result } from 'types/Player'
+import { Player, Result, RESULT_TYPE } from 'types/Player'
 import { REACTION_TYPE } from 'types/Reaction'
 import { initGame } from 'utils/initGame'
 import { toggleReaction } from 'utils/toggleReaction'
@@ -156,7 +157,7 @@ function PlayerResult({
       author: players.find((p) => p.id === result.author).name,
     }))
 
-    fetch('/api/create-gif', {
+    fetch('/api/create-album', {
       method: 'POST',
       body: JSON.stringify(answers),
     })
@@ -166,7 +167,7 @@ function PlayerResult({
             status: 'error',
             title: 'Ups!',
             description:
-              'There was an error while generating the gif. Try again.',
+              'There was an error while generating the album. Try again.',
           })
 
           return
@@ -210,7 +211,7 @@ function PlayerResult({
           status: 'error',
           title: 'Ups!',
           description:
-            'There was an error while generating the gif. Try again.',
+            'There was an error while generating the album. Try again.',
         })
       })
       .finally(() => {
@@ -257,12 +258,13 @@ function PlayerResult({
   return (
     <Stack spacing="4" alignItems="center">
       <Box as={FadeIn} delay={2000} width="full">
-        {player.results.map((result, index) => (
+        {player.results.map((result, index, arr) => (
           <PlayerAnswer
             key={result.id}
             isFirstRow={!index}
             align={index % 2 === 0 ? 'left' : 'right'}
             result={result}
+            prevResult={index ? arr[index - 1] : null}
           />
         ))}
       </Box>
@@ -282,9 +284,9 @@ function PlayerResult({
               downloadGIF(player)
             }}
             isLoading={isGeneratingGIF}
-            loadingText="Generating .gif"
+            loadingText="Generating album"
           >
-            Download .gif
+            Download album
           </Button>
         </Box>
         <Stack spacing="4" direction="row" alignItems="center">
@@ -330,15 +332,84 @@ function PlayerResult({
 type ResultProps = {
   align: 'left' | 'right'
   result: Result
+  prevResult: Result | null
   isFirstRow: boolean
 }
 
-function PlayerAnswer({ result, align, isFirstRow }: ResultProps) {
+function PlayerAnswer({ result, align, isFirstRow, prevResult }: ResultProps) {
+  const { showToast } = useToasts()
   const player = usePlayer()
   const players = usePlayers()
+  const [isGeneratingPicture, setIsGeneratingPicture] = useState(false)
 
   const justifyContent = align === 'left' ? 'flex-start' : 'flex-end'
   const author = players.find((p) => p.id === result.author)
+
+  const downloadPicture = ({ upperText, picture, lowerText }: Frame) => {
+    setIsGeneratingPicture(true)
+
+    fetch('/api/create-picture', {
+      method: 'POST',
+      body: JSON.stringify({ upperText, picture, lowerText }),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          showToast({
+            status: 'error',
+            title: 'Ups!',
+            description:
+              'There was an error while generating the picture. Try again.',
+          })
+
+          return
+        }
+
+        const reader = response.body.getReader()
+
+        const chunks = []
+
+        while (true) {
+          const { done, value } = await reader.read()
+
+          if (done) {
+            break
+          }
+
+          chunks.push(value)
+        }
+
+        const blob = new Blob(chunks)
+
+        const url = URL.createObjectURL(blob)
+
+        const sanitizedUpperText = StringSanitizer.sanitize(upperText)
+        const sanitizedLowerText = StringSanitizer.sanitize(lowerText || '')
+        const last = lowerText ? ` - ${sanitizedLowerText}` : ''
+
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${sanitizedUpperText}${last}.png`
+        a.style.visibility = 'hidden'
+
+        document.body.appendChild(a)
+
+        a.click()
+        a.remove()
+      })
+      .catch((error) => {
+        console.error(error)
+
+        showToast({
+          status: 'error',
+          title: 'Ups!',
+          description:
+            'There was an error while generating the picture. Try again.',
+        })
+      })
+      .finally(() => {
+        setIsGeneratingPicture(false)
+      })
+  }
 
   return (
     <Box mt={isFirstRow ? 0 : '4'}>
@@ -355,11 +426,35 @@ function PlayerAnswer({ result, align, isFirstRow }: ResultProps) {
           </Text>
         </Stack>
         <Reply result={result} align={align} />
-        <Reactions
-          playerId={player.id}
-          resultId={result.id}
-          justifyContent={justifyContent}
-        />
+        <Stack
+          spacing="0"
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Box>
+            {result.type === RESULT_TYPE.DRAW && (
+              <IconButton
+                aria-label="Download picture"
+                icon={<MdFileDownload />}
+                colorScheme="tertiary"
+                onClick={() => {
+                  downloadPicture({
+                    upperText: prevResult ? prevResult.value : player.name,
+                    picture: result.value,
+                    lowerText: prevResult ? player.name : '',
+                  })
+                }}
+                isLoading={isGeneratingPicture}
+              />
+            )}
+          </Box>
+          <Reactions
+            playerId={player.id}
+            resultId={result.id}
+            justifyContent={justifyContent}
+          />
+        </Stack>
       </Stack>
     </Box>
   )

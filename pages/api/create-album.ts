@@ -104,7 +104,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     console.error(error)
 
     res.status(500).json({
-      message: 'Error generating the gif.',
+      message: 'Error generating the album.',
     })
   }
 }
