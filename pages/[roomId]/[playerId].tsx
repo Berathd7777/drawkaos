@@ -6,6 +6,7 @@ import { Page } from 'components/Page'
 import { PlayerProvider, usePlayer } from 'contexts/Player'
 import { PlayersProvider, usePlayers } from 'contexts/Players'
 import { RoomProvider, useRoom } from 'contexts/Room'
+import { SOUNDS, useSounds } from 'contexts/Sounds'
 import { ConfigureRoom } from 'flows/room/ConfigureRoom'
 import { PlayersList } from 'flows/room/PlayersList'
 import { Playing } from 'flows/room/Playing'
@@ -13,7 +14,7 @@ import { Results } from 'flows/room/Results'
 import { useGameState } from 'hooks/useGameState'
 import { useInterval } from 'hooks/useInterval'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { ROOM_STATUS } from 'types/Room'
 
 function PlayerId() {
@@ -98,6 +99,12 @@ type AnnouncementProps = {
 
 function Announcement({ children, isVisible }: AnnouncementProps) {
   const [times, setTimes] = useState(isVisible ? 0 : 3)
+  const { play } = useSounds()
+
+  useEffect(() => {
+    play(SOUNDS.ANNOUNCEMENT)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useInterval(
     () => {

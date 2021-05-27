@@ -4,7 +4,6 @@ import { CopyInviteLink } from 'components/CopyInviteLink'
 import { usePlayer } from 'contexts/Player'
 import { usePlayers } from 'contexts/Players'
 import { useRoom } from 'contexts/Room'
-import { SOUNDS, useSounds } from 'contexts/Sounds'
 import { useToasts } from 'contexts/Toasts'
 import React, { ChangeEvent, useState } from 'react'
 import { ACTIVITY_TYPE } from 'types/Room'
@@ -17,7 +16,6 @@ export function ConfigureRoom() {
   const players = usePlayers()
   const { showToast } = useToasts()
   const [isWorking, setIsWorking] = useState(false)
-  const { play } = useSounds()
 
   const canPlay = players.length >= 2
   const isCurrentPlayerRoomAdmin = room.adminId === player.id
@@ -32,8 +30,6 @@ export function ConfigureRoom() {
         players,
         action: ACTIVITY_TYPE.INIT,
       })
-
-      play(SOUNDS.ANNOUNCEMENT)
     } catch (error) {
       console.error(error)
 
