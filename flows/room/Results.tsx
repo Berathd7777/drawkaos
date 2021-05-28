@@ -440,9 +440,9 @@ function PlayerAnswer({ result, align, isFirstRow, prevResult }: ResultProps) {
                 colorScheme="primary"
                 onClick={() => {
                   downloadPicture({
-                    upperText: prevResult ? prevResult.value : player.name,
+                    upperText: prevResult ? prevResult.value : author.name,
                     picture: result.value,
-                    lowerText: prevResult ? player.name : '',
+                    lowerText: prevResult ? author.name : '',
                   })
                 }}
                 isLoading={isGeneratingPicture}
