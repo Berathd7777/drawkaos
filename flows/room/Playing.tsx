@@ -126,7 +126,6 @@ export function Playing({ room, player, players, gameState }: Props) {
           {shouldDraw ? (
             <Draw
               key={gameState.step}
-              isSaving={isSaving}
               timeExpired={timeExpired}
               saveReply={saveReply}
               storagePath={`${room.id}/${player.id}/${gameState.step + 1}`}
@@ -134,7 +133,6 @@ export function Playing({ room, player, players, gameState }: Props) {
           ) : (
             <Write
               key={gameState.step}
-              isSaving={isSaving}
               timeExpired={timeExpired}
               saveReply={saveReply}
               label={
@@ -201,12 +199,12 @@ function WhoIsMissing({
 
 type WriteProps = {
   timeExpired: boolean
-  isSaving: boolean
   label: ReactNode
   saveReply: (value: string) => Promise<void>
 }
 
-function Write({ isSaving, label, timeExpired, saveReply }: WriteProps) {
+function Write({ label, timeExpired, saveReply }: WriteProps) {
+  const [isSaving, setIsSaving] = useState(false)
   const [sentence, setSentence] = useState('')
   const initialFocusRef = useRef<HTMLInputElement>()
 
@@ -216,9 +214,15 @@ function Write({ isSaving, label, timeExpired, saveReply }: WriteProps) {
     }
   }, [])
 
+  const submitReply = async () => {
+    setIsSaving(true)
+
+    await saveReply(sentence || '(Empty)')
+  }
+
   useEffect(() => {
     if (timeExpired) {
-      saveReply(sentence || '(Empty)')
+      submitReply()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeExpired])
@@ -228,7 +232,7 @@ function Write({ isSaving, label, timeExpired, saveReply }: WriteProps) {
       onSubmit={(event) => {
         event.preventDefault()
 
-        saveReply(sentence)
+        submitReply()
       }}
     >
       <Stack spacing="8" alignItems="center" justifyContent="center">

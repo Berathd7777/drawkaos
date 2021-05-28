@@ -8,6 +8,7 @@ import {
   SliderThumb,
   SliderTrack,
   Stack,
+  Text,
 } from '@chakra-ui/react'
 import Color from 'color'
 import CanvasDraw from 'components/react-canvas-draw/CanvasDraw'
@@ -56,15 +57,14 @@ enum TOOL {
 }
 
 type Props = {
-  isSaving: boolean
   timeExpired: boolean
   saveReply: (value: string) => Promise<void>
   storagePath: string
 }
 
-export function Draw({ isSaving, timeExpired, saveReply, storagePath }: Props) {
+export function Draw({ timeExpired, saveReply, storagePath }: Props) {
   const { showToast } = useToasts()
-  const [currentTool, setCurrentTool] = useState<TOOL>(TOOL.PENCIL)
+  const [currentTool, setCurrentTool] = useState(TOOL.PENCIL)
   const [currentColor, setCurrentColor] = useState(COLORS[0].value)
   const [alpha, setAlpha] = useState(1)
   const [colorBeforeEraser, setColorBeforeEraser] = useState('')
@@ -73,6 +73,7 @@ export function Draw({ isSaving, timeExpired, saveReply, storagePath }: Props) {
   const canvasRef = useRef<CanvasDraw>(null)
   const initialFocusRef = useRef<HTMLInputElement>()
   const [canSubmit, setCanSubmit] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (initialFocusRef.current) {
@@ -93,6 +94,8 @@ export function Draw({ isSaving, timeExpired, saveReply, storagePath }: Props) {
 
   const submitReply = async () => {
     try {
+      setIsSaving(true)
+
       const imgURL = canvasRef.current.getDataURL()
 
       const file = await storage
@@ -101,7 +104,7 @@ export function Draw({ isSaving, timeExpired, saveReply, storagePath }: Props) {
 
       const drawUrl = await file.ref.getDownloadURL()
 
-      saveReply(drawUrl)
+      await saveReply(drawUrl)
     } catch (error) {
       console.error(error)
 
@@ -196,6 +199,7 @@ export function Draw({ isSaving, timeExpired, saveReply, storagePath }: Props) {
             alignItems="center"
             justifyContent="center"
           >
+            <Text>Size</Text>
             {SHAPE_SIZES.map(({ value, dotSize }) => (
               <Button
                 key={value}
@@ -220,21 +224,24 @@ export function Draw({ isSaving, timeExpired, saveReply, storagePath }: Props) {
               </Button>
             ))}
           </Stack>
-          <Slider
-            colorScheme="primary"
-            defaultValue={1}
-            min={0.1}
-            max={1}
-            step={0.1}
-            onChangeEnd={setAlpha}
-            disabled={isSaving || currentTool === TOOL.ERASER}
-            width="40"
-          >
-            <SliderTrack>
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-          </Slider>
+          <Stack spacing="4" direction="row" alignItems="center">
+            <Text>Opacity</Text>
+            <Slider
+              colorScheme="primary"
+              defaultValue={1}
+              min={0.1}
+              max={1}
+              step={0.1}
+              onChangeEnd={setAlpha}
+              disabled={isSaving || currentTool === TOOL.ERASER}
+              width="40"
+            >
+              <SliderTrack>
+                <SliderFilledTrack />
+              </SliderTrack>
+              <SliderThumb />
+            </Slider>
+          </Stack>
           <Button
             colorScheme="primary"
             onClick={submitReply}
