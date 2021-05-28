@@ -53,7 +53,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         ctx.textAlign = 'center'
         ctx.fillText(frame.upperText, GIF_WIDTH / 2, 52)
 
-        /* lowerText */
+        /* lower text */
         ctx.font = `16px 'Inter'`
         ctx.fillText(frame.lowerText, GIF_WIDTH / 2, GIT_HEIGHT - 40)
 

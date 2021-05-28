@@ -15,7 +15,7 @@ const SEO: NextSeoProps = {
     title: TITLE,
     description: DESCRIPTION,
     site_name: TITLE,
-    images: [{ url: `${BASE_URL}/social.jpg`, alt: TITLE }],
+    images: [{ url: `${BASE_URL}/social.jpeg`, alt: TITLE }],
   },
   twitter: {
     handle: '@durancristhian@gmail.com',

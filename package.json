@@ -8,8 +8,9 @@
     "gen:theme-typings": "chakra-cli tokens ./styles/theme.ts",
     "postinstall": "npm run gen:theme-typings",
     "prepare": "husky install",
+    "social-image": "node scripts/social-image",
     "start": "next start",
-    "vercel-build": "yum install libuuid-devel libmount-devel zlib && cp /lib64/{libuuid,libmount,libblkid,libz}.so.1 node_modules/canvas/build/Release/ && npm run build"
+    "vercel-build": "yum install libuuid-devel libmount-devel zlib && cp /lib64/{libuuid,libmount,libblkid,libz}.so.1 node_modules/canvas/build/Release/ && npm run social-image && npm run build"
   },
   "lint-staged": {
     "*.{js,json,jsx,ts,tsx}": "eslint --cache --fix"
