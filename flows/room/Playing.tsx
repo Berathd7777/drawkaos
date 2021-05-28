@@ -120,7 +120,7 @@ export function Playing({ room, player, players, gameState }: Props) {
 
   const doneButton = (
     <Button
-      colorScheme="tertiary"
+      colorScheme="primary"
       onClick={saveReply}
       disabled={!canSubmit}
       isLoading={isSaving}

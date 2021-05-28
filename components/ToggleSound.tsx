@@ -20,7 +20,7 @@ export function ToggleSound() {
     <IconButton
       aria-label={isSoundEnabled ? 'Turn off sound' : 'Turn on sound'}
       icon={isSoundEnabled ? <MdVolumeUp /> : <MdVolumeOff />}
-      colorScheme="tertiary"
+      colorScheme="primary"
       variant="ghost"
       onClick={onSoundPreferenceChange}
     />

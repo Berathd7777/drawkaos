@@ -73,7 +73,7 @@ function PlayerRow({ name, isRoomAdmin, onRemovePlayer }: PlayerProps) {
       <Text flex="1" isTruncated>
         {name}
       </Text>
-      {isRoomAdmin && <Tag colorScheme="tertiary">Admin</Tag>}
+      {isRoomAdmin && <Tag colorScheme="primary">Admin</Tag>}
       {onRemovePlayer && (
         <IconButton
           aria-label="Remove player"

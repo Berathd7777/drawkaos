@@ -116,7 +116,7 @@ export function Results() {
             >
               {isAdmin ? (
                 <Button
-                  colorScheme="tertiary"
+                  colorScheme="primary"
                   onClick={() => {
                     onUpdateRoom(0)
                   }}
@@ -286,7 +286,7 @@ function PlayerResult({
         <Box>
           <Button
             leftIcon={<MdFileDownload />}
-            colorScheme="tertiary"
+            colorScheme="primary"
             onClick={() => {
               downloadGIF(player)
             }}
@@ -301,7 +301,7 @@ function PlayerResult({
             <IconButton
               aria-label="Previous album"
               icon={<MdChevronLeft />}
-              colorScheme="tertiary"
+              colorScheme="primary"
               onClick={() => {
                 updateAlbumIndex(albumIndex - 1)
               }}
@@ -313,7 +313,7 @@ function PlayerResult({
               <IconButton
                 aria-label="Next album"
                 icon={<MdChevronRight />}
-                colorScheme="tertiary"
+                colorScheme="primary"
                 onClick={() => {
                   updateAlbumIndex(albumIndex + 1)
                 }}
@@ -322,7 +322,7 @@ function PlayerResult({
               />
             ) : (
               <Button
-                colorScheme="tertiary"
+                colorScheme="primary"
                 onClick={playAgain}
                 isLoading={isWorking}
                 loadingText="Wait"
@@ -437,7 +437,7 @@ function PlayerAnswer({ result, align, isFirstRow, prevResult }: ResultProps) {
               <IconButton
                 aria-label="Download picture"
                 icon={<MdFileDownload />}
-                colorScheme="tertiary"
+                colorScheme="primary"
                 onClick={() => {
                   downloadPicture({
                     upperText: prevResult ? prevResult.value : player.name,
@@ -493,7 +493,7 @@ function Reactions({
   return (
     <Stack spacing="4" direction="row" justifyContent={justifyContent}>
       <Button
-        colorScheme={userReactions.love ? 'tertiary' : 'background'}
+        colorScheme={userReactions.love ? 'primary' : 'background'}
         variant="ghost"
         disabled={isUpdating}
         onClick={() => {
@@ -504,7 +504,7 @@ function Reactions({
         <Text minWidth="1ch">{reactions.love}</Text>
       </Button>
       <Button
-        colorScheme={userReactions.smile ? 'tertiary' : 'background'}
+        colorScheme={userReactions.smile ? 'primary' : 'background'}
         variant="ghost"
         disabled={isUpdating}
         onClick={() => {
@@ -515,7 +515,7 @@ function Reactions({
         <Text minWidth="1ch">{reactions.smile}</Text>
       </Button>
       <Button
-        colorScheme={userReactions.thumbUp ? 'tertiary' : 'background'}
+        colorScheme={userReactions.thumbUp ? 'primary' : 'background'}
         variant="ghost"
         disabled={isUpdating}
         onClick={() => {
@@ -526,7 +526,7 @@ function Reactions({
         <Text minWidth="1ch">{reactions.thumbUp}</Text>
       </Button>
       <Button
-        colorScheme={userReactions.thumbDown ? 'tertiary' : 'background'}
+        colorScheme={userReactions.thumbDown ? 'primary' : 'background'}
         variant="ghost"
         disabled={isUpdating}
         onClick={() => {

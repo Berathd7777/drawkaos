@@ -28,7 +28,7 @@ export function CopyInviteLink({ text }: Props) {
   return (
     <CopyToClipboard text={text} onCopy={showToastOnCopy}>
       <Button
-        colorScheme="tertiary"
+        colorScheme="primary"
         variant="ghost"
         leftIcon={<MdContentCopy />}
         ref={initialFocusRef}

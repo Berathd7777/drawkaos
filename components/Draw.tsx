@@ -164,7 +164,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
                   setCurrentLineWidth(value)
                 }}
                 variant={currentLineWidth === value ? 'solid' : 'ghost'}
-                colorScheme="tertiary"
+                colorScheme="primary"
                 disabled={!canDraw}
                 padding="1"
               >
@@ -174,7 +174,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
                   backgroundColor={
                     currentLineWidth === value
                       ? 'background.500'
-                      : 'tertiary.500'
+                      : 'primary.500'
                   }
                   borderRadius="full"
                 />
@@ -182,7 +182,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
             ))}
           </Stack>
           <Slider
-            colorScheme="tertiary"
+            colorScheme="primary"
             defaultValue={1}
             min={0.1}
             max={1}
@@ -213,7 +213,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
             setCurrentTool(TOOL.PENCIL)
           }}
           variant={currentTool === TOOL.PENCIL ? 'solid' : 'ghost'}
-          colorScheme="tertiary"
+          colorScheme="primary"
           disabled={!canDraw}
           ref={initialFocusRef}
         >
@@ -229,7 +229,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
             setCurrentTool(TOOL.ERASER)
           }}
           variant={currentTool === TOOL.ERASER ? 'solid' : 'ghost'}
-          colorScheme="tertiary"
+          colorScheme="primary"
           disabled={!canDraw}
         >
           Eraser
@@ -238,7 +238,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
           leftIcon={<MdUndo />}
           onClick={undo}
           variant="ghost"
-          colorScheme="tertiary"
+          colorScheme="primary"
           disabled={!canDraw}
         >
           Undo
@@ -247,7 +247,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
           leftIcon={<MdDelete />}
           onClick={clearCanvas}
           variant="ghost"
-          colorScheme="tertiary"
+          colorScheme="primary"
           disabled={!canDraw}
         >
           Clear

@@ -96,7 +96,7 @@ export function ConfigureRoom() {
       >
         <CopyInviteLink text={`${window.location.origin}/${room.id}`} />
         <Button
-          colorScheme="tertiary"
+          colorScheme="primary"
           onClick={startGame}
           disabled={!isCurrentPlayerRoomAdmin || !canPlay || isWorking}
           isLoading={isWorking}

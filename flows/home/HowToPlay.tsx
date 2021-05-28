@@ -51,7 +51,7 @@ export function HowToPlay() {
           <Button
             key={slideNumber}
             size="sm"
-            colorScheme="tertiary"
+            colorScheme="primary"
             variant={slideNumber === currentSlide ? 'solid' : 'ghost'}
             onClick={() => {
               setCurrentSlide(slideNumber)

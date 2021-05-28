@@ -87,7 +87,7 @@ export function JoinFormRoom({ roomId }: Props) {
         <Stack alignItems="center" justifyContent="center">
           <Button
             type="submit"
-            colorScheme="tertiary"
+            colorScheme="primary"
             disabled={!canSubmit}
             isLoading={isWorking}
             loadingText="Joining"
