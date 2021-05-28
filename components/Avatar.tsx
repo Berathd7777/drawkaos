@@ -17,7 +17,7 @@ export function Avatar({ seed, size = 64 }: Props) {
       size={size}
       name={text}
       variant="beam"
-      colors={['#9D9F89', '#84AF97', '#8BC59B', '#B2DE93', '#CCEE8D']}
+      colors={['#FFAB07', '#E9D558', '#72AD75', '#0E8D94', '#434D53']}
     />
   )
 }
