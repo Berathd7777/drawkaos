@@ -11,14 +11,10 @@ import {
 } from '@chakra-ui/react'
 import Color from 'color'
 import CanvasDraw from 'components/react-canvas-draw/CanvasDraw'
-import React, {
-  MutableRefObject,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { useToasts } from 'contexts/Toasts'
+import { storage } from 'firebase/init'
+import { useInterval } from 'hooks/useInterval'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { BiEraser } from 'react-icons/bi'
 import { MdCheck, MdDelete, MdEdit, MdUndo } from 'react-icons/md'
@@ -60,25 +56,68 @@ enum TOOL {
 }
 
 type Props = {
-  canvasRef: MutableRefObject<CanvasDraw>
-  canDraw: boolean
-  doneButton: ReactNode
+  isSaving: boolean
+  timeExpired: boolean
+  saveReply: (value: string) => Promise<void>
+  storagePath: string
 }
 
-export function Draw({ canvasRef, canDraw, doneButton }: Props) {
+export function Draw({ isSaving, timeExpired, saveReply, storagePath }: Props) {
+  const { showToast } = useToasts()
   const [currentTool, setCurrentTool] = useState<TOOL>(TOOL.PENCIL)
   const [currentColor, setCurrentColor] = useState(COLORS[0].value)
   const [alpha, setAlpha] = useState(1)
   const [colorBeforeEraser, setColorBeforeEraser] = useState('')
   const [alplhaBeforeEraser, setAlplhaBeforeEraser] = useState(null)
   const [currentLineWidth, setCurrentLineWidth] = useState(SHAPE_SIZES[1].value)
+  const canvasRef = useRef<CanvasDraw>(null)
   const initialFocusRef = useRef<HTMLInputElement>()
+  const [canSubmit, setCanSubmit] = useState(false)
 
   useEffect(() => {
     if (initialFocusRef.current) {
       initialFocusRef.current.focus()
     }
   }, [])
+
+  useInterval(
+    () => {
+      setCanSubmit(
+        canvasRef.current
+          ? JSON.parse(canvasRef.current.getSaveData()).lines.length
+          : false
+      )
+    },
+    isSaving ? null : 500
+  )
+
+  const submitReply = async () => {
+    try {
+      const imgURL = canvasRef.current.getDataURL()
+
+      const file = await storage
+        .child(storagePath)
+        .putString(imgURL, 'data_url')
+
+      const drawUrl = await file.ref.getDownloadURL()
+
+      saveReply(drawUrl)
+    } catch (error) {
+      console.error(error)
+
+      showToast({
+        status: 'error',
+        description: 'There was an error while saving your draw. Try again.',
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (timeExpired) {
+      submitReply()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeExpired])
 
   useHotkeys('ctrl+z, command+z', () => {
     undo()
@@ -113,7 +152,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
               backgroundColor={value}
               height={10}
               borderRadius="md"
-              disabled={!canDraw || currentTool === TOOL.ERASER}
+              disabled={isSaving || currentTool === TOOL.ERASER}
               colorScheme="transparent"
               padding="0"
             >
@@ -140,7 +179,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
           hideGrid
           hideInterface
           lazyRadius={0}
-          disabled={!canDraw}
+          disabled={isSaving}
           borderRadius="md"
           marginX="auto"
           cursor="crosshair"
@@ -165,7 +204,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
                 }}
                 variant={currentLineWidth === value ? 'solid' : 'ghost'}
                 colorScheme="primary"
-                disabled={!canDraw}
+                disabled={isSaving}
                 padding="1"
               >
                 <Box
@@ -188,7 +227,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
             max={1}
             step={0.1}
             onChangeEnd={setAlpha}
-            disabled={!canDraw || currentTool === TOOL.ERASER}
+            disabled={isSaving || currentTool === TOOL.ERASER}
             width="40"
           >
             <SliderTrack>
@@ -196,7 +235,14 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
             </SliderTrack>
             <SliderThumb />
           </Slider>
-          {doneButton}
+          <Button
+            colorScheme="primary"
+            onClick={submitReply}
+            disabled={!canSubmit || timeExpired}
+            isLoading={isSaving}
+          >
+            Done
+          </Button>
         </Stack>
       </Stack>
       <Stack spacing="2" width="100px">
@@ -214,7 +260,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
           }}
           variant={currentTool === TOOL.PENCIL ? 'solid' : 'ghost'}
           colorScheme="primary"
-          disabled={!canDraw}
+          disabled={isSaving}
           ref={initialFocusRef}
         >
           Pencil
@@ -230,7 +276,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
           }}
           variant={currentTool === TOOL.ERASER ? 'solid' : 'ghost'}
           colorScheme="primary"
-          disabled={!canDraw}
+          disabled={isSaving}
         >
           Eraser
         </Button>
@@ -239,7 +285,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
           onClick={undo}
           variant="ghost"
           colorScheme="primary"
-          disabled={!canDraw}
+          disabled={isSaving}
         >
           Undo
         </Button>
@@ -248,7 +294,7 @@ export function Draw({ canvasRef, canDraw, doneButton }: Props) {
           onClick={clearCanvas}
           variant="ghost"
           colorScheme="primary"
-          disabled={!canDraw}
+          disabled={isSaving}
         >
           Clear
         </Button>

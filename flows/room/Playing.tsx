@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  chakra,
   FormControl,
   FormLabel,
   Input,
@@ -10,12 +11,9 @@ import {
 import { ColourBox } from 'components/ColourBox'
 import { Draw } from 'components/Draw'
 import { Page } from 'components/Page'
-import CanvasDraw from 'components/react-canvas-draw/CanvasDraw'
 import { Reply } from 'components/Reply'
 import { useToasts } from 'contexts/Toasts'
-import { storage } from 'firebase/init'
 import { GameState } from 'hooks/useGameState'
-import { useInterval } from 'hooks/useInterval'
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { Player, RESULT_TYPE } from 'types/Player'
@@ -36,28 +34,12 @@ type Props = {
 
 export function Playing({ room, player, players, gameState }: Props) {
   const { showToast } = useToasts()
-  const canvasRef = useRef<CanvasDraw>(null)
-  const [sentence, setSentence] = useState('')
+  const [timeExpired, setTimeExpired] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [canSubmit, setCanSubmit] = useState(false)
 
   const shouldDraw = gameState.step % 2 !== 0
-  const step = gameState.step
 
-  useInterval(
-    () => {
-      setCanSubmit(
-        shouldDraw
-          ? canvasRef.current
-            ? JSON.parse(canvasRef.current.getSaveData()).lines.length
-            : false
-          : sentence
-      )
-    },
-    isSaving ? null : 500
-  )
-
-  const saveReply = async () => {
+  const saveReply = async (value: string) => {
     if (isSaving) {
       return
     }
@@ -65,31 +47,15 @@ export function Playing({ room, player, players, gameState }: Props) {
     setIsSaving(true)
 
     try {
-      if (shouldDraw) {
-        const imgURL = canvasRef.current.getDataURL()
+      await addPlayerAnswer(
+        room,
+        player,
+        shouldDraw ? RESULT_TYPE.DRAW : RESULT_TYPE.SENTENCE,
+        value,
+        gameState.step
+      )
 
-        const file = await storage
-          .child(`${room.id}/${player.id}/${gameState.step + 1}`)
-          .putString(imgURL, 'data_url')
-
-        const drawUrl = await file.ref.getDownloadURL()
-
-        await addPlayerAnswer(
-          room,
-          player,
-          RESULT_TYPE.DRAW,
-          drawUrl,
-          gameState.step
-        )
-      } else {
-        await addPlayerAnswer(
-          room,
-          player,
-          RESULT_TYPE.SENTENCE,
-          sentence || '(Empty)',
-          gameState.step
-        )
-      }
+      setTimeExpired(false)
     } catch (error) {
       console.error(error)
 
@@ -99,11 +65,12 @@ export function Playing({ room, player, players, gameState }: Props) {
       })
 
       setIsSaving(false)
+      setTimeExpired(false)
     }
   }
 
   const previousReply = useMemo(() => {
-    const previousReplyPlayerId = player.steps[step]
+    const previousReplyPlayerId = player.steps[gameState.step]
 
     if (!previousReplyPlayerId) {
       return null
@@ -115,19 +82,8 @@ export function Playing({ room, player, players, gameState }: Props) {
       return null
     }
 
-    return previousPlayer.results[step - 1]
-  }, [player, players, step])
-
-  const doneButton = (
-    <Button
-      colorScheme="primary"
-      onClick={saveReply}
-      disabled={!canSubmit}
-      isLoading={isSaving}
-    >
-      Done
-    </Button>
-  )
+    return previousPlayer.results[gameState.step - 1]
+  }, [player, players, gameState.step])
 
   return (
     <Page title={room.name}>
@@ -141,7 +97,7 @@ export function Playing({ room, player, players, gameState }: Props) {
             height="12"
           >
             <Text>
-              Step {step + 1}/{players.length}
+              Step {gameState.step + 1}/{players.length}
             </Text>
             <Box>
               {!isSaving && (
@@ -149,7 +105,7 @@ export function Playing({ room, player, players, gameState }: Props) {
                   isPlaying
                   duration={room.stepTime}
                   onComplete={() => {
-                    saveReply()
+                    setTimeExpired(true)
                   }}
                   size={48}
                   strokeWidth={4}
@@ -169,19 +125,23 @@ export function Playing({ room, player, players, gameState }: Props) {
           {previousReply && <Reply align="center" result={previousReply} />}
           {shouldDraw ? (
             <Draw
-              key={step}
-              canvasRef={canvasRef}
-              canDraw={!isSaving}
-              doneButton={doneButton}
+              key={gameState.step}
+              isSaving={isSaving}
+              timeExpired={timeExpired}
+              saveReply={saveReply}
+              storagePath={`${room.id}/${player.id}/${gameState.step + 1}`}
             />
           ) : (
             <Write
-              key={step}
-              doneButton={doneButton}
+              key={gameState.step}
               isSaving={isSaving}
-              step={step}
-              sentence={sentence}
-              setSentence={setSentence}
+              timeExpired={timeExpired}
+              saveReply={saveReply}
+              label={
+                gameState.step
+                  ? 'Describe the drawing'
+                  : 'Write something for others to draw'
+              }
             />
           )}
           {isSaving && (
@@ -240,20 +200,14 @@ function WhoIsMissing({
 }
 
 type WriteProps = {
-  doneButton: ReactNode
+  timeExpired: boolean
   isSaving: boolean
-  step: number
-  sentence: string
-  setSentence: (newSentence: string) => void
+  label: ReactNode
+  saveReply: (value: string) => Promise<void>
 }
 
-function Write({
-  doneButton,
-  isSaving,
-  step,
-  sentence,
-  setSentence,
-}: WriteProps) {
+function Write({ isSaving, label, timeExpired, saveReply }: WriteProps) {
+  const [sentence, setSentence] = useState('')
   const initialFocusRef = useRef<HTMLInputElement>()
 
   useEffect(() => {
@@ -262,23 +216,43 @@ function Write({
     }
   }, [])
 
+  useEffect(() => {
+    if (timeExpired) {
+      saveReply(sentence || '(Empty)')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeExpired])
+
   return (
-    <Stack spacing="8" alignItems="center" justifyContent="center">
-      <FormControl id="sentence" isDisabled={isSaving}>
-        <FormLabel>
-          {step ? 'Describe the drawing' : 'Write something for others to draw'}
-        </FormLabel>
-        <Input
-          value={sentence}
-          onChange={(event) => {
-            setSentence(event.target.value)
-          }}
-          maxLength={280}
-          variant="filled"
-          ref={initialFocusRef}
-        />
-      </FormControl>
-      {doneButton}
-    </Stack>
+    <chakra.form
+      onSubmit={(event) => {
+        event.preventDefault()
+
+        saveReply(sentence)
+      }}
+    >
+      <Stack spacing="8" alignItems="center" justifyContent="center">
+        <FormControl id="sentence" isDisabled={isSaving}>
+          <FormLabel>{label}</FormLabel>
+          <Input
+            value={sentence}
+            onChange={(event) => {
+              setSentence(event.target.value)
+            }}
+            maxLength={280}
+            variant="filled"
+            ref={initialFocusRef}
+          />
+        </FormControl>
+        <Button
+          type="submit"
+          colorScheme="primary"
+          disabled={!sentence || timeExpired}
+          isLoading={isSaving}
+        >
+          Done
+        </Button>
+      </Stack>
+    </chakra.form>
   )
 }
