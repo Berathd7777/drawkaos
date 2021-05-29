@@ -95,6 +95,8 @@ export default class extends PureComponent {
     this.valuesChanged = true
     this.isDrawing = false
     this.isPressing = false
+
+    this.redoHistory = []
   }
 
   componentDidMount() {
@@ -174,10 +176,36 @@ export default class extends PureComponent {
   }
 
   undo = () => {
+    if (!this.canUndo()) {
+      return
+    }
+
+    const last = this.lines[this.lines.length - 1]
+    this.redoHistory.push(last)
     const lines = this.lines.slice(0, -1)
     this.clear()
     this.simulateDrawingLines({ lines, immediate: true })
     this.triggerOnChange()
+  }
+
+  redo = () => {
+    if (!this.canRedo()) {
+      return
+    }
+
+    const last = this.redoHistory.splice(-1, 1)
+    const lines = this.lines.concat(last)
+    this.clear()
+    this.simulateDrawingLines({ lines, immediate: true })
+    this.triggerOnChange()
+  }
+
+  canUndo = () => {
+    return Boolean(this.lines.length)
+  }
+
+  canRedo = () => {
+    return Boolean(this.redoHistory.length)
   }
 
   getSaveData = () => {
@@ -282,6 +310,10 @@ export default class extends PureComponent {
 
   handleDrawStart = (e) => {
     e.preventDefault()
+
+    if (this.canRedo()) {
+      this.redoHistory = []
+    }
 
     // Start drawing
     this.isPressing = true

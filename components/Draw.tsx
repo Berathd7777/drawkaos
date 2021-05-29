@@ -18,7 +18,7 @@ import { useInterval } from 'hooks/useInterval'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { BiEraser } from 'react-icons/bi'
-import { MdCheck, MdDelete, MdEdit, MdUndo } from 'react-icons/md'
+import { MdCheck, MdDelete, MdEdit, MdRedo, MdUndo } from 'react-icons/md'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
 const PALLETE = [
@@ -139,6 +139,12 @@ export function Draw({ timeExpired, saveReply, storagePath }: Props) {
   const undo = () => {
     if (canvasRef.current) {
       canvasRef.current.undo()
+    }
+  }
+
+  const redo = () => {
+    if (canvasRef.current) {
+      canvasRef.current.redo()
     }
   }
 
@@ -292,9 +298,22 @@ export function Draw({ timeExpired, saveReply, storagePath }: Props) {
           onClick={undo}
           variant="ghost"
           colorScheme="primary"
-          disabled={isSaving}
+          disabled={
+            isSaving || (canvasRef.current && !canvasRef.current.canUndo())
+          }
         >
           Undo
+        </Button>
+        <Button
+          leftIcon={<MdRedo />}
+          onClick={redo}
+          variant="ghost"
+          colorScheme="primary"
+          disabled={
+            isSaving || (canvasRef.current && !canvasRef.current.canRedo())
+          }
+        >
+          Redo
         </Button>
         <Button
           leftIcon={<MdDelete />}
