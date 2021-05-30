@@ -205,9 +205,8 @@ function PlayerResult({
 
         const blob = new Blob(chunks)
 
-        const sanitizedRoomName = StringSanitizer.sanitize(room.name)
         const sanitizedPlayerName = StringSanitizer.sanitize(player.name)
-        const fileName = `${sanitizedRoomName} - ${sanitizedPlayerName}.gif`
+        const fileName = `${sanitizedPlayerName}.gif`
 
         fileDownload(blob, fileName)
       })

@@ -1,6 +1,5 @@
 import { Heading, Stack } from '@chakra-ui/react'
 import { AlertMessage } from 'components/AlertMessage'
-import { Page } from 'components/Page'
 import { PlayersProvider } from 'contexts/Players'
 import { RoomProvider, useRoom } from 'contexts/Room'
 import { JoinFormRoom } from 'flows/room/JoinRoomForm'
@@ -31,7 +30,7 @@ function Content() {
   const isGameInProgress = gameState.status !== ROOM_STATUS.CREATED
 
   return (
-    <Page title={room.name}>
+    <>
       {isGameInProgress ? (
         <AlertMessage
           status="info"
@@ -40,11 +39,13 @@ function Content() {
         />
       ) : (
         <Stack spacing="4">
-          <Heading fontSize="xl">Join a room</Heading>
+          <Heading as="h1" textAlign="center">
+            Join a room
+          </Heading>
           <JoinFormRoom roomId={room.id} />
         </Stack>
       )}
-    </Page>
+    </>
   )
 }
 

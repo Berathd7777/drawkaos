@@ -63,7 +63,7 @@ export function ConfigureRoom() {
   }
 
   return (
-    <Stack spacing="8">
+    <Stack spacing="4">
       {!isCurrentPlayerRoomAdmin && (
         <AlertMessage
           status="info"

@@ -1,8 +1,7 @@
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, Heading, Stack } from '@chakra-ui/react'
 import { ColourBox } from 'components/ColourBox'
 import { One, Three, Two } from 'components/Icons'
 import { Information } from 'components/Information'
-import { Page } from 'components/Page'
 import { PlayerProvider, usePlayer } from 'contexts/Player'
 import { PlayersProvider, usePlayers } from 'contexts/Players'
 import { RoomProvider, useRoom } from 'contexts/Room'
@@ -45,18 +44,19 @@ function Content() {
 
   if (gameState.status === ROOM_STATUS.CREATED) {
     return (
-      <Page title={room.name}>
-        <Stack spacing="4" direction="row">
-          <Box flex="1">
-            <ConfigureRoom />
-          </Box>
-          <Box width="80">
-            <ColourBox>
-              <PlayersList />
-            </ColourBox>
-          </Box>
+      <Stack spacing="8" direction="row">
+        <Stack spacing="4" flex="1">
+          <Heading as="h1" textAlign="center">
+            Configure game
+          </Heading>
+          <ConfigureRoom />
         </Stack>
-      </Page>
+        <Box width="80">
+          <ColourBox>
+            <PlayersList />
+          </ColourBox>
+        </Box>
+      </Stack>
     )
   }
 
@@ -75,11 +75,7 @@ function Content() {
   }
 
   if (gameState.status === ROOM_STATUS.FINISHED) {
-    return (
-      <Page title={`${room.name}: game finished`}>
-        <Results />
-      </Page>
-    )
+    return <Results />
   }
 
   throw new Error('Unknown room status: ' + gameState.status)
@@ -102,7 +98,9 @@ function Announcement({ children, isVisible }: AnnouncementProps) {
   const { play } = useSounds()
 
   useEffect(() => {
-    play(SOUNDS.ANNOUNCEMENT)
+    if (times === 0) {
+      play(SOUNDS.ANNOUNCEMENT)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

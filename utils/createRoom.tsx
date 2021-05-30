@@ -2,10 +2,8 @@ import { firestore } from 'firebase/init'
 import { addPlayerToRoom } from 'utils/addPlayerToRoom'
 
 export function createRoom({
-  name,
   adminName,
 }: {
-  name: string
   adminName: string
 }): Promise<{ roomId: string; adminId: string }> {
   return new Promise(async (resolve, reject) => {
@@ -22,7 +20,6 @@ export function createRoom({
       const adminId = adminRef.id
 
       batch.set(roomRef, {
-        name,
         adminId,
         activity: [],
         stepTime: 120,

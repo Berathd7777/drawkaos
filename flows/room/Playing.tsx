@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react'
 import { ColourBox } from 'components/ColourBox'
 import { Draw } from 'components/Draw'
-import { Page } from 'components/Page'
 import { Reply } from 'components/Reply'
 import { useToasts } from 'contexts/Toasts'
 import { GameState } from 'hooks/useGameState'
@@ -86,73 +85,71 @@ export function Playing({ room, player, players, gameState }: Props) {
   }, [player, players, gameState.step])
 
   return (
-    <Page title={room.name}>
-      <ColourBox>
-        <Stack spacing="8">
-          <Stack
-            spacing="0"
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            height="12"
-          >
-            <Text>
-              Step {gameState.step + 1}/{players.length}
-            </Text>
-            <Box>
-              {!isSaving && (
-                <CountdownCircleTimer
-                  isPlaying
-                  duration={room.stepTime}
-                  onComplete={() => {
-                    setTimeExpired(true)
-                  }}
-                  size={48}
-                  strokeWidth={4}
-                  colors={[
-                    ['#16A34A', 0.33],
-                    ['#FACC15', 0.33],
-                    ['#DC2626', 0.33],
-                  ]}
-                >
-                  {({ remainingTime }) => (
-                    <Text fontSize="sm">{remainingTime}</Text>
-                  )}
-                </CountdownCircleTimer>
-              )}
-            </Box>
-          </Stack>
-          {previousReply && <Reply align="center" result={previousReply} />}
-          {shouldDraw ? (
-            <Draw
-              key={gameState.step}
-              timeExpired={timeExpired}
-              saveReply={saveReply}
-              storagePath={`${room.id}/${player.id}/${gameState.step + 1}`}
-            />
-          ) : (
-            <Write
-              key={gameState.step}
-              timeExpired={timeExpired}
-              saveReply={saveReply}
-              label={
-                gameState.step
-                  ? 'Describe the drawing'
-                  : 'Write something for others to draw'
-              }
-            />
-          )}
-          {isSaving && (
-            <WhoIsMissing
-              playerId={player.id}
-              players={players}
-              step={gameState.step}
-              activity={room.activity}
-            />
-          )}
+    <ColourBox>
+      <Stack spacing="8">
+        <Stack
+          spacing="0"
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          height="12"
+        >
+          <Text>
+            Step {gameState.step + 1}/{players.length}
+          </Text>
+          <Box>
+            {!isSaving && (
+              <CountdownCircleTimer
+                isPlaying
+                duration={room.stepTime}
+                onComplete={() => {
+                  setTimeExpired(true)
+                }}
+                size={48}
+                strokeWidth={4}
+                colors={[
+                  ['#16A34A', 0.33],
+                  ['#FACC15', 0.33],
+                  ['#DC2626', 0.33],
+                ]}
+              >
+                {({ remainingTime }) => (
+                  <Text fontSize="sm">{remainingTime}</Text>
+                )}
+              </CountdownCircleTimer>
+            )}
+          </Box>
         </Stack>
-      </ColourBox>
-    </Page>
+        {previousReply && <Reply align="center" result={previousReply} />}
+        {shouldDraw ? (
+          <Draw
+            key={gameState.step}
+            timeExpired={timeExpired}
+            saveReply={saveReply}
+            storagePath={`${room.id}/${player.id}/${gameState.step + 1}`}
+          />
+        ) : (
+          <Write
+            key={gameState.step}
+            timeExpired={timeExpired}
+            saveReply={saveReply}
+            label={
+              gameState.step
+                ? 'Describe the drawing'
+                : 'Write something for others to draw'
+            }
+          />
+        )}
+        {isSaving && (
+          <WhoIsMissing
+            playerId={player.id}
+            players={players}
+            step={gameState.step}
+            activity={room.activity}
+          />
+        )}
+      </Stack>
+    </ColourBox>
   )
 }
 

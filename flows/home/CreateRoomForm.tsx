@@ -16,7 +16,6 @@ export function CreateRoomForm() {
   const router = useRouter()
   const { showToast } = useToasts()
   const [formData, setFormData] = useState({
-    roomName: '',
     userName: '',
   })
   const [isWorking, setIsWorking] = useState(false)
@@ -29,7 +28,7 @@ export function CreateRoomForm() {
   }, [])
 
   const canSubmit = useMemo(() => {
-    return formData.roomName && formData.userName
+    return !!formData.userName
   }, [formData])
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +49,6 @@ export function CreateRoomForm() {
       setIsWorking(true)
 
       const { roomId, adminId } = await createRoom({
-        name: formData.roomName,
         adminName: formData.userName,
       })
 
@@ -69,16 +67,6 @@ export function CreateRoomForm() {
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack spacing="4">
-        <FormControl id="roomName" isDisabled={isWorking}>
-          <FormLabel>Room name</FormLabel>
-          <Input
-            value={formData.roomName}
-            onChange={onChange}
-            variant="filled"
-            maxLength={140}
-            ref={initialFocusRef}
-          />
-        </FormControl>
         <Stack spacing="4" direction="row" alignItems="center">
           <Avatar seed={formData.userName} />
           <FormControl id="userName" isDisabled={isWorking} flex="1">
@@ -88,6 +76,7 @@ export function CreateRoomForm() {
               onChange={onChange}
               variant="filled"
               maxLength={140}
+              ref={initialFocusRef}
             />
           </FormControl>
         </Stack>

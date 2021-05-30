@@ -40,7 +40,7 @@ export function PlayersList() {
 
   return (
     <Stack spacing="4">
-      <Heading as="h2" fontSize="xl" textAlign="center">
+      <Heading fontSize="xl" textAlign="center">
         Players ({players.length})
       </Heading>
       <Divider />
