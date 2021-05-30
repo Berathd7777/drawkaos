@@ -1,5 +1,5 @@
 import { useLocalStorage } from 'hooks/useLocalStorage'
-import React, { createContext, ReactNode, useContext } from 'react'
+import React, { createContext, ReactNode, useContext, useEffect } from 'react'
 import { SoundPreference } from 'types/SoundPreference'
 import createPlayer from 'web-audio-player'
 
@@ -7,18 +7,26 @@ export enum SOUNDS {
   SOUND_ON = 'sound-on',
   SOUND_OFF = 'sound-off',
   ANNOUNCEMENT = 'announcement',
+  EMPTY = 'empty',
 }
 
 const SOUND_VOLUME = {
   'sound-on': 0.5,
   'sound-off': 0.5,
   announcement: 1,
+  empty: 0,
 }
 
 type SoundContextState = {
   isSoundEnabled: boolean
   toggleIsSoundEnabled: () => void
   play: (soundId: SOUNDS) => void
+}
+
+const emptySoundSrc = {
+  src:
+    'data:audio/mp3;base64,SUQzAwAAAAAAFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/4xjAAAAAAlwAAAAAtASxAAAACAAATQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/4xjAMQAAAlwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/4xjAbAAAAlwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+  type: 'audio/mp3',
 }
 
 const SoundContext = createContext<SoundContextState>(undefined)
@@ -44,7 +52,10 @@ function SoundProvider({ children }: Props) {
       return
     }
 
-    const audio = createPlayer(`/sounds/${soundId}.wav`, {
+    const src =
+      soundId === SOUNDS.EMPTY ? emptySoundSrc : `/sounds/${soundId}.wav`
+
+    const audio = createPlayer(src, {
       volume: SOUND_VOLUME[soundId],
     })
 
@@ -57,6 +68,19 @@ function SoundProvider({ children }: Props) {
   const toggleIsSoundEnabled = () => {
     setHasSound({ isSoundEnabled: !isSoundEnabled })
   }
+
+  useEffect(() => {
+    const handler = () => {
+      play(SOUNDS.EMPTY)
+    }
+
+    window.addEventListener('click', handler, { once: true })
+
+    return () => {
+      window.removeEventListener('click', handler)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <SoundContext.Provider
