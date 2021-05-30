@@ -121,9 +121,6 @@ export default class extends PureComponent {
     this.drawImage()
     this.loop()
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    this.FloodFill = require('q-floodfill').default
-
     window.setTimeout(() => {
       const initX = window.innerWidth / 2
       const initY = window.innerHeight / 2
