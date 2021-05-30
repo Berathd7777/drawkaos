@@ -9,6 +9,12 @@ export enum SOUNDS {
   ANNOUNCEMENT = 'announcement',
 }
 
+const SOUND_VOLUME = {
+  'sound-on': 0.5,
+  'sound-off': 0.5,
+  announcement: 1,
+}
+
 type SoundContextState = {
   isSoundEnabled: boolean
   toggleIsSoundEnabled: () => void
@@ -38,7 +44,9 @@ function SoundProvider({ children }: Props) {
       return
     }
 
-    const audio = createPlayer(`/sounds/${soundId}.wav`)
+    const audio = createPlayer(`/sounds/${soundId}.wav`, {
+      volume: SOUND_VOLUME[soundId],
+    })
 
     audio.on('load', () => {
       audio.play()
