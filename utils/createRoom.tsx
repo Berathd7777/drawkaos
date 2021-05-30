@@ -25,7 +25,7 @@ export function createRoom({
         name,
         adminId,
         activity: [],
-        stepTime: 60,
+        stepTime: 120,
         albumIndex: null,
       })
 

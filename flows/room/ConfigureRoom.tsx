@@ -83,9 +83,9 @@ export function ConfigureRoom() {
           value={room.stepTime}
           onChange={updateRoomSettings}
         >
-          <option value="30">30 seconds</option>
           <option value="60">1 minute</option>
           <option value="120">2 minutes</option>
+          <option value="180">3 minutes</option>
         </Select>
       </FormControl>
       <Stack
