@@ -59,6 +59,7 @@ export default class extends PureComponent {
     saveData: PropTypes.string,
     immediateLoading: PropTypes.bool,
     hideInterface: PropTypes.bool,
+    useBucket: PropTypes.bool,
   }
 
   static defaultProps = {
@@ -78,6 +79,7 @@ export default class extends PureComponent {
     saveData: '',
     immediateLoading: false,
     hideInterface: false,
+    useBucket: false,
   }
 
   constructor(props) {
@@ -117,6 +119,9 @@ export default class extends PureComponent {
 
     this.drawImage()
     this.loop()
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    this.FloodFill = require('q-floodfill').default
 
     window.setTimeout(() => {
       const initX = window.innerWidth / 2
@@ -308,6 +313,44 @@ export default class extends PureComponent {
     })
   }
 
+  drawWithBucket = (e) => {
+    /* Bucket starting point */
+    const { x, y } = this.getPointerPos(e)
+
+    /* Take the current drawing */
+    const imgData = this.ctx.drawing.getImageData(
+      0,
+      0,
+      this.ctx.drawing.canvas.width,
+      this.ctx.drawing.canvas.height
+    )
+    const floodFill = new this.FloodFill(imgData)
+    floodFill.collectModifiedPixels = true
+    floodFill.fill(this.props.brushColor, x, y, 0)
+
+    /* Modify the temp instance with the modified version */
+    this.ctx.temp.putImageData(floodFill.imageData, 0, 0)
+
+    /* Process all the modified pixels */
+    this.isPressing = true
+
+    Array.from(floodFill.modifiedPixels).map((entry) => {
+      const points = entry.split('|')
+
+      const coordinates = {
+        x: Number(points[0]),
+        y: Number(points[1]),
+      }
+
+      this.handlePointerMove(coordinates.x, coordinates.y)
+    })
+
+    // Stop drawing & save the drawn line
+    this.isDrawing = false
+    this.isPressing = false
+    this.saveLine()
+  }
+
   handleDrawStart = (e) => {
     e.preventDefault()
 
@@ -315,18 +358,22 @@ export default class extends PureComponent {
       this.redoHistory = []
     }
 
-    // Start drawing
-    this.isPressing = true
+    if (this.props.useBucket) {
+      this.drawWithBucket(e)
+    } else {
+      // Start drawing
+      this.isPressing = true
 
-    const { x, y } = this.getPointerPos(e)
+      const { x, y } = this.getPointerPos(e)
 
-    if (e.touches && e.touches.length > 0) {
-      // on touch, set catenary position to touch pos
-      this.lazy.update({ x, y }, { both: true })
+      if (e.touches && e.touches.length > 0) {
+        // on touch, set catenary position to touch pos
+        this.lazy.update({ x, y }, { both: true })
+      }
+
+      // Ensure the initial down position gets added to our line
+      this.handlePointerMove(x, y)
     }
-
-    // Ensure the initial down position gets added to our line
-    this.handlePointerMove(x, y)
   }
 
   handleDrawMove = (e) => {

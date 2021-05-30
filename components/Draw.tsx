@@ -18,7 +18,14 @@ import { useInterval } from 'hooks/useInterval'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { BiEraser } from 'react-icons/bi'
-import { MdCheck, MdDelete, MdEdit, MdRedo, MdUndo } from 'react-icons/md'
+import {
+  MdCheck,
+  MdDelete,
+  MdEdit,
+  MdFormatColorFill,
+  MdRedo,
+  MdUndo,
+} from 'react-icons/md'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from 'utils/constants'
 
 const PALLETE = [
@@ -54,6 +61,7 @@ const SHAPE_SIZES = [
 enum TOOL {
   PENCIL = 'PENCIL',
   ERASER = 'ERASER',
+  BUCKET = 'BUCKET',
 }
 
 type Props = {
@@ -181,6 +189,7 @@ export function Draw({ timeExpired, saveReply, storagePath }: Props) {
           ref={(canvasDraw) =>
             (canvasRef.current = (canvasDraw as unknown) as CanvasDraw)
           }
+          useBucket={currentTool === TOOL.BUCKET}
           canvasHeight={CANVAS_HEIGHT}
           canvasWidth={CANVAS_WIDTH}
           brushColor={color}
@@ -292,6 +301,24 @@ export function Draw({ timeExpired, saveReply, storagePath }: Props) {
           disabled={isSaving}
         >
           Eraser
+        </Button>
+        <Button
+          leftIcon={<MdFormatColorFill />}
+          onClick={() => {
+            if (currentTool === TOOL.ERASER) {
+              setCurrentColor(colorBeforeEraser)
+              setAlpha(alplhaBeforeEraser)
+              setColorBeforeEraser('')
+              setAlplhaBeforeEraser(null)
+            }
+
+            setCurrentTool(TOOL.BUCKET)
+          }}
+          variant={currentTool === TOOL.BUCKET ? 'solid' : 'ghost'}
+          colorScheme="primary"
+          disabled={isSaving}
+        >
+          Bucket
         </Button>
         <Button
           leftIcon={<MdUndo />}
