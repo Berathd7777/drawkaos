@@ -1,4 +1,5 @@
 import { Catenary } from 'catenary-curve'
+import Color from 'color'
 import { LazyBrush } from 'lazy-brush'
 import PropTypes from 'prop-types'
 import React, { PureComponent } from 'react'
@@ -313,42 +314,134 @@ export default class extends PureComponent {
     })
   }
 
-  drawWithBucket = (e) => {
-    /* Bucket starting point */
-    const { x, y } = this.getPointerPos(e)
+  getPixelPos = (x, y, canvasWidth) => {
+    return (y * canvasWidth + x) * 4
+  }
 
-    /* Take the current drawing */
-    const imgData = this.ctx.drawing.getImageData(
-      0,
-      0,
-      this.ctx.drawing.canvas.width,
-      this.ctx.drawing.canvas.height
+  matchStartColor = (data, pos, startColor) => {
+    return (
+      data[pos] === startColor.r &&
+      data[pos + 1] === startColor.g &&
+      data[pos + 2] === startColor.b &&
+      data[pos + 3] === startColor.a
     )
-    const floodFill = new this.FloodFill(imgData)
-    floodFill.collectModifiedPixels = true
-    floodFill.fill(this.props.brushColor, x, y, 0)
+  }
 
-    /* Modify the temp instance with the modified version */
-    this.ctx.temp.putImageData(floodFill.imageData, 0, 0)
+  colorPixel = (data, pos, color) => {
+    data[pos] = color.r || 0
+    data[pos + 1] = color.g || 0
+    data[pos + 2] = color.b || 0
+    data[pos + 3] = color.a || 255
+  }
 
-    /* Process all the modified pixels */
-    this.isPressing = true
+  floodFill = (offsetX, offsetY) => {
+    const canvas = this.ctx.drawing.canvas
+    const width = canvas.width
+    const height = canvas.height
+    const imgData = this.ctx.drawing.getImageData(0, 0, width, canvas.height)
+    const dstData = imgData.data
+    const startPos = this.getPixelPos(offsetX, offsetY, width)
+    const startColor = {
+      r: dstData[startPos],
+      g: dstData[startPos + 1],
+      b: dstData[startPos + 2],
+      a: dstData[startPos + 3],
+    }
+    const todo = [[offsetX, offsetY]]
+    const fillColor = Color.rgb(this.props.brushColor).object()
+    const rgba = {
+      r: fillColor['r'],
+      g: fillColor['g'],
+      b: fillColor['b'],
+      a: fillColor.alpha,
+    }
 
-    Array.from(floodFill.modifiedPixels).map((entry) => {
-      const points = entry.split('|')
+    const newPoints = []
 
-      const coordinates = {
-        x: Number(points[0]),
-        y: Number(points[1]),
+    while (todo.length) {
+      const pos = todo.pop()
+      const x = pos[0]
+      let y = pos[1]
+
+      let currentPos = this.getPixelPos(x, y, width)
+
+      while (
+        y-- >= 0 &&
+        this.matchStartColor(dstData, currentPos, startColor)
+      ) {
+        currentPos -= width * 4
       }
 
-      this.handlePointerMove(coordinates.x, coordinates.y)
+      currentPos += width * 4
+      ++y
+      let reachLeft = false
+      let reachRight = false
+
+      while (
+        y++ < height - 1 &&
+        this.matchStartColor(dstData, currentPos, startColor)
+      ) {
+        this.colorPixel(dstData, currentPos, rgba)
+
+        newPoints.push({ x, y })
+
+        if (x > 0) {
+          if (this.matchStartColor(dstData, currentPos - 4, startColor)) {
+            if (!reachLeft) {
+              todo.push([x - 1, y])
+              reachLeft = true
+            }
+          } else if (reachLeft) {
+            reachLeft = false
+          }
+        }
+
+        if (x < canvas.width - 1) {
+          if (this.matchStartColor(dstData, currentPos + 4, startColor)) {
+            if (!reachRight) {
+              todo.push([x + 1, y])
+              reachRight = true
+            }
+          } else if (reachRight) {
+            reachRight = false
+          }
+        }
+
+        currentPos += canvas.width * 4
+      }
+    }
+
+    this.ctx.temp.putImageData(imgData, 0, 0)
+
+    this.points = [...newPoints]
+  }
+
+  drawWithBucket = (e) => {
+    const { x, y } = this.getPointerPos(e)
+
+    this.floodFill(x, y)
+
+    this.drawPoints({
+      points: this.points,
+      brushColor: this.props.brushColor,
+      brushRadius: this.props.brushRadius,
     })
 
-    // Stop drawing & save the drawn line
-    this.isDrawing = false
-    this.isPressing = false
     this.saveLine()
+  }
+
+  drawPoint = (e) => {
+    const { x, y } = this.getPointerPos(e)
+
+    this.isPressing = true
+
+    if (e.touches && e.touches.length > 0) {
+      // on touch, set catenary position to touch pos
+      this.lazy.update({ x, y }, { both: true })
+    }
+
+    // Ensure the initial down position gets added to our line
+    this.handlePointerMove(x, y)
   }
 
   handleDrawStart = (e) => {
@@ -361,18 +454,7 @@ export default class extends PureComponent {
     if (this.props.useBucket) {
       this.drawWithBucket(e)
     } else {
-      // Start drawing
-      this.isPressing = true
-
-      const { x, y } = this.getPointerPos(e)
-
-      if (e.touches && e.touches.length > 0) {
-        // on touch, set catenary position to touch pos
-        this.lazy.update({ x, y }, { both: true })
-      }
-
-      // Ensure the initial down position gets added to our line
-      this.handlePointerMove(x, y)
+      this.drawPoint(e)
     }
   }
 
