@@ -1,5 +1,4 @@
 import { Catenary } from 'catenary-curve'
-import Color from 'color'
 import { LazyBrush } from 'lazy-brush'
 import PropTypes from 'prop-types'
 import React, { PureComponent } from 'react'
@@ -122,7 +121,9 @@ export default class extends PureComponent {
     this.loop()
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    this.FloodFill = require('q-floodfill').default
+    const pkg = require('q-floodfill')
+    this.FloodFill = pkg.default
+    this.setColorAtPixel = pkg.setColorAtPixel
 
     window.setTimeout(() => {
       const initX = window.innerWidth / 2
@@ -314,112 +315,31 @@ export default class extends PureComponent {
     })
   }
 
-  getPixelPos = (x, y, canvasWidth) => {
-    return (y * canvasWidth + x) * 4
-  }
-
-  matchStartColor = (data, pos, startColor) => {
-    return (
-      data[pos] === startColor.r &&
-      data[pos + 1] === startColor.g &&
-      data[pos + 2] === startColor.b &&
-      data[pos + 3] === startColor.a
-    )
-  }
-
-  colorPixel = (data, pos, color) => {
-    data[pos] = color.r || 0
-    data[pos + 1] = color.g || 0
-    data[pos + 2] = color.b || 0
-    data[pos + 3] = color.a || 255
-  }
-
-  floodFill = (offsetX, offsetY) => {
-    const canvas = this.ctx.drawing.canvas
-    const width = canvas.width
-    const height = canvas.height
-    const imgData = this.ctx.drawing.getImageData(0, 0, width, canvas.height)
-    const dstData = imgData.data
-    const startPos = this.getPixelPos(offsetX, offsetY, width)
-    const startColor = {
-      r: dstData[startPos],
-      g: dstData[startPos + 1],
-      b: dstData[startPos + 2],
-      a: dstData[startPos + 3],
-    }
-    const todo = [[offsetX, offsetY]]
-    const fillColor = Color.rgb(this.props.brushColor).object()
-    const rgba = {
-      r: fillColor['r'],
-      g: fillColor['g'],
-      b: fillColor['b'],
-      a: fillColor.alpha,
-    }
-
-    const newPoints = []
-
-    while (todo.length) {
-      const pos = todo.pop()
-      const x = pos[0]
-      let y = pos[1]
-
-      let currentPos = this.getPixelPos(x, y, width)
-
-      while (
-        y-- >= 0 &&
-        this.matchStartColor(dstData, currentPos, startColor)
-      ) {
-        currentPos -= width * 4
-      }
-
-      currentPos += width * 4
-      ++y
-      let reachLeft = false
-      let reachRight = false
-
-      while (
-        y++ < height - 1 &&
-        this.matchStartColor(dstData, currentPos, startColor)
-      ) {
-        this.colorPixel(dstData, currentPos, rgba)
-
-        newPoints.push({ x, y })
-
-        if (x > 0) {
-          if (this.matchStartColor(dstData, currentPos - 4, startColor)) {
-            if (!reachLeft) {
-              todo.push([x - 1, y])
-              reachLeft = true
-            }
-          } else if (reachLeft) {
-            reachLeft = false
-          }
-        }
-
-        if (x < canvas.width - 1) {
-          if (this.matchStartColor(dstData, currentPos + 4, startColor)) {
-            if (!reachRight) {
-              todo.push([x + 1, y])
-              reachRight = true
-            }
-          } else if (reachRight) {
-            reachRight = false
-          }
-        }
-
-        currentPos += canvas.width * 4
-      }
-    }
-
-    this.ctx.temp.putImageData(imgData, 0, 0)
-
-    this.points = [...newPoints]
-  }
-
   drawWithBucket = (e) => {
     const { x, y } = this.getPointerPos(e)
 
-    this.floodFill(x, y)
+    const imgData = this.ctx.drawing.getImageData(
+      0,
+      0,
+      this.ctx.drawing.canvas.width,
+      this.ctx.drawing.canvas.height
+    )
+
+    const floodFill = new this.FloodFill(imgData)
+
+    const movements = []
+
+    floodFill.setColorAtPixel = (imageData, color, x, y) => {
+      movements.push({ x, y })
+
+      this.setColorAtPixel(imageData, color, x, y)
+    }
+
+    floodFill.fill(this.props.brushColor, x, y, 0)
+
+    this.ctx.temp.putImageData(floodFill.imageData, 0, 0)
+
+    this.points = [...movements]
 
     this.drawPoints({
       points: this.points,
