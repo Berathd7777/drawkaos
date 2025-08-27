@@ -1,37 +1,29 @@
-import { firestore } from 'firebase/init'
+import { supabase } from './initSupabase'
 
-export function addPlayerToRoom({
+export async function addPlayerToRoom({
   roomId,
   name,
-  appendToBatch,
 }: {
   roomId: string
   name: string
-  appendToBatch?: firebase.default.firestore.WriteBatch
 }): Promise<{ id: string }> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const batch = appendToBatch || firestore.batch()
-      const playerRef = firestore
-        .collection('rooms')
-        .doc(roomId)
-        .collection('players')
-        .doc()
-
-      batch.set(playerRef, {
+  try {
+    const { data, error } = await supabase
+      .from('players')
+      .insert({
+        room_id: roomId,
         name,
         order: 0,
         steps: [],
         results: [],
       })
+      .select('id')
+      .single()
 
-      if (!appendToBatch) {
-        await batch.commit()
-      }
+    if (error) throw error
 
-      resolve({ id: playerRef.id })
-    } catch (error) {
-      reject(error)
-    }
-  })
+    return { id: data.id }
+  } catch (error) {
+    throw error
+  }
 }
